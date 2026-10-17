@@ -67,7 +67,8 @@ def load(pattern):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rollouts", default="rollouts/**/*.jsonl")
-    ap.add_argument("--judged", default="results/judged/**/*.jsonl")
+    ap.add_argument("--judged", default="results/judged_v2/**/*.jsonl", help="VEA judgments (strict v2 rubric)")
+    ap.add_argument("--judged-aif", default="results/judged/**/*.jsonl", help="Answer-IF judgments (and lenient v1 VEA, reported as vea_v1)")
     ap.add_argument("--out", default="results")
     args = ap.parse_args()
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
@@ -91,17 +92,28 @@ def main():
     ro["nontrivial"] = ro["reasoning_words"] >= MIN_WORDS
     ro["answered"] = ro["answer"].notna()
     ro["compliant_valid"] = ro["compliant"].where(ro["compliant"].isna(), ro["compliant"].fillna(0).astype(float) * ro["nontrivial"].astype(float))
+    def _clean(df, cols):
+        has = pd.Series(False, index=df.index)
+        for c in cols:
+            if c in df.columns: has |= df[c].notna()
+        return df[has].drop_duplicates("rollout_id", keep="last")
+    # strict (v2) VEA judgments
     ju = load(args.judged) if glob.glob(args.judged, recursive=True) else pd.DataFrame()
-    if not ju.empty:
-        keep = [c for c in ["rollout_id", "vea", "vea_in_cot", "vea_in_response", "vea_framing", "answer_if_compliant"] if c in ju.columns]
-        # drop errored judgments (retried on later passes) and keep the latest judgment per rollout
-        has = pd.Series(False, index=ju.index)
-        for c in ["vea", "answer_if_compliant"]:
-            if c in ju.columns: has |= ju[c].notna()
-        ju = ju[has].drop_duplicates("rollout_id", keep="last")
-        ro = ro.merge(ju[keep], on="rollout_id", how="left")
+    if not ju.empty and "vea" in ju.columns:
+        ju = _clean(ju[ju.task == "cot"], ["vea"])
+        ro = ro.merge(ju[[c for c in ["rollout_id", "vea", "vea_in_cot", "vea_in_response", "vea_framing"] if c in ju.columns]], on="rollout_id", how="left")
     else:
-        for c in ["vea", "vea_in_cot", "vea_in_response", "answer_if_compliant"]: ro[c] = None
+        for c in ["vea", "vea_in_cot", "vea_in_response"]: ro[c] = None
+    # Answer-IF judgments and lenient v1 VEA from the first judged directory
+    ja = load(args.judged_aif) if glob.glob(args.judged_aif, recursive=True) else pd.DataFrame()
+    if not ja.empty:
+        aif = _clean(ja[ja.task == "answer_if"], ["answer_if_compliant"]) if "answer_if_compliant" in ja.columns else pd.DataFrame(columns=["rollout_id"])
+        if len(aif): ro = ro.merge(aif[["rollout_id", "answer_if_compliant"]], on="rollout_id", how="left")
+        if "vea" in ja.columns:
+            v1 = _clean(ja[ja.task == "cot"], ["vea"])[["rollout_id", "vea"]].rename(columns={"vea": "vea_v1"})
+            ro = ro.merge(v1, on="rollout_id", how="left")
+    if "answer_if_compliant" not in ro: ro["answer_if_compliant"] = None
+    if "vea_v1" not in ro: ro["vea_v1"] = None
 
     # ---- per checkpoint summary
     rows = []
@@ -134,10 +146,13 @@ def main():
                 r[f"vea_n_{name}"] = int(v.notna().sum())
                 if name == "all":
                     r["vea_lo"], r["vea_hi"] = wilson(int(v.sum()), int(v.notna().sum()))
+            v1 = pd.to_numeric(sub["vea_v1"], errors="coerce") if "vea_v1" in sub else pd.Series(dtype=float)
+            if v1.notna().any():
+                r[f"vea_v1_rate_{name}"] = v1.mean()
         rows.append(r)
     summ = pd.DataFrame(rows).sort_values(["pipeline", "step"])
     summ.to_csv(out / "summary_by_checkpoint.csv", index=False)
-    print(summ[[c for c in ["pipeline", "revision", "n_cot", "cot_controllability", "cot_controllability_valid", "frac_nontrivial_reasoning", "answer_rate", "frac_truncated", "mean_reasoning_words", "output_controllability", "accuracy_baseline", "vea_rate_all"] if c in summ]].round(3).to_string(index=False))
+    print(summ[[c for c in ["pipeline", "revision", "n_cot", "cot_controllability", "cot_controllability_valid", "frac_nontrivial_reasoning", "answer_rate", "frac_truncated", "mean_reasoning_words", "output_controllability", "accuracy_baseline", "vea_rate_all", "vea_v1_rate_all"] if c in summ]].round(3).to_string(index=False))
 
     # ---- figures
     pipes = sorted(summ["pipeline"].unique())

@@ -9,10 +9,14 @@ echo "== $(date -u +%FT%TZ) sync"
 $PY scripts/pod_fetch.py sync $REMOTE/rollouts rollouts || echo "sync failed"
 $PY scripts/pod_fetch.py sync $REMOTE/logs logs_pod || true
 $PY scripts/pod_fetch.py cat $REMOTE/logs/sweep_progress.txt > results/sweep_progress.txt 2>/dev/null || true
-echo "== judge"; $PY -m src.judge_vea --rollouts 'rollouts/**/*.jsonl' --out-dir results/judged --budget-usd "${BUDGET:-40}" --concurrency 24 2>&1 | grep -E "^\[judge\]|Error|error" | tail -20
-echo "== analyze"; $PY -m src.analyze 2>&1 | tail -40
+echo "== judge: Answer-IF (results/judged)"
+$PY -m src.judge_vea --rollouts 'rollouts/**/*.jsonl' --out-dir results/judged --tasks answer_if --budget-usd "${BUDGET:-40}" --concurrency 24 2>&1 | grep -E "^\[judge\] spend|Error|error" | tail -3
+echo "== judge: VEA strict v2 (results/judged_v2)"
+$PY -m src.judge_vea --rollouts 'rollouts/**/*.jsonl' --out-dir results/judged_v2 --tasks cot --vea-prompt-version v2 --budget-usd "${BUDGET:-40}" --concurrency 24 2>&1 | grep -E "^\[judge\] spend|Error|error" | tail -3
+echo "== analyze"; $PY -m src.analyze 2>&1 | grep -v -E "UserWarning|ax.set_title" | tail -45
+$PY -m src.report 2>&1 | tail -1
 echo "== commit"
-git add -A rollouts results figures >/dev/null 2>&1 || true
+git add -A rollouts results figures results.md >/dev/null 2>&1 || true
 if ! git diff --cached --quiet; then
   n=$(ls rollouts/*/*.jsonl 2>/dev/null | wc -l)
   git -c commit.gpgsign=false commit -q -m "Sync rollouts and judged results ($n checkpoints)

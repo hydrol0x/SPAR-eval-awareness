@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from .openrouter_client import OpenRouter
-from .prompts import VEA_JUDGE_SYSTEM, VEA_JUDGE_USER, ANSWER_IF_JUDGE_PROMPT
+from .prompts import VEA_JUDGE_SYSTEM, VEA_JUDGE_SYSTEM_V2, VEA_JUDGE_USER, ANSWER_IF_JUDGE_PROMPT
+
+VEA_PROMPTS = {"v1": VEA_JUDGE_SYSTEM, "v2": VEA_JUDGE_SYSTEM_V2}
 
 MAX_CHARS = 12000  # truncate very long CoTs (keep head and tail)
 
@@ -33,8 +35,8 @@ def parse_json(s: str) -> Dict[str, Any]:
         return {}
 
 
-async def judge_one_vea(client: OpenRouter, rec: Dict[str, Any]) -> Dict[str, Any]:
-    msgs = [{"role": "system", "content": VEA_JUDGE_SYSTEM},
+async def judge_one_vea(client: OpenRouter, rec: Dict[str, Any], version: str = "v1") -> Dict[str, Any]:
+    msgs = [{"role": "system", "content": VEA_PROMPTS[version]},
             {"role": "user", "content": VEA_JUDGE_USER.format(prompt=clip(rec["prompt"], 4000),
                                                               cot=clip(rec.get("reasoning", "")),
                                                               response=clip(rec.get("response", ""), 3000))}]
@@ -46,7 +48,7 @@ async def judge_one_vea(client: OpenRouter, rec: Dict[str, Any]) -> Dict[str, An
             "vea_in_response": any(e.get("location") == "response" for e in ex),
             "vea_framing": sorted({e.get("framing", "generic") for e in ex}),
             "vea_confidence": j.get("confidence"), "vea_notes": j.get("notes"),
-            "vea_raw": r.get("content"), "vea_error": r.get("error"), "vea_judge": client.model}
+            "vea_raw": r.get("content"), "vea_error": r.get("error"), "vea_judge": client.model, "vea_prompt_version": version}
 
 
 async def judge_one_answer_if(client: OpenRouter, rec: Dict[str, Any]) -> Dict[str, Any]:
@@ -79,6 +81,10 @@ async def run(args):
                     if ok:  # errored judgments are retried on the next pass
                         done.add(j["rollout_id"])
             todo = [r for r in recs if r["rollout_id"] not in done]
+            if args.tasks == "cot":
+                todo = [r for r in todo if r["task"] == "cot"]
+            elif args.tasks == "answer_if":
+                todo = [r for r in todo if r["task"] == "answer_if"]
             if args.limit: todo = todo[: args.limit]
             if not todo:
                 print(f"[judge] {fp}: nothing to do"); continue
@@ -86,7 +92,7 @@ async def run(args):
             tasks = []
             for r in todo:
                 if r["task"] == "cot":
-                    tasks.append(judge_one_vea(vea, r))
+                    tasks.append(judge_one_vea(vea, r, args.vea_prompt_version))
                 else:
                     tasks.append(judge_one_answer_if(aif, r))
             results = await asyncio.gather(*tasks)
@@ -109,6 +115,8 @@ def main():
     ap.add_argument("--budget-usd", type=float, default=30.0, help="cap per judge model")
     ap.add_argument("--concurrency", type=int, default=16)
     ap.add_argument("--limit", type=int, default=None, help="debug: judge only N per file")
+    ap.add_argument("--vea-prompt-version", choices=list(VEA_PROMPTS), default="v2")
+    ap.add_argument("--tasks", choices=["both", "cot", "answer_if"], default="both")
     asyncio.run(run(ap.parse_args()))
 
 
