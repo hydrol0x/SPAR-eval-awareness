@@ -169,8 +169,8 @@ def main():
     summ["plot_step"] = summ["step"].astype(float)
     is_main = summ["revision"] == "main"
     summ.loc[is_main, "plot_step"] = summ.loc[is_main, "pipeline"].map(FINAL_STEPS)
-    summ.loc[summ.pipeline == "Think-SFT", "plot_step"] = -200
-    summ.loc[summ.pipeline == "Think-DPO", "plot_step"] = -100
+    summ.loc[summ.pipeline.isin(["Think-SFT", "Think32B-SFT"]), "plot_step"] = -200
+    summ.loc[summ.pipeline.isin(["Think-DPO", "Think32B-DPO"]), "plot_step"] = -100
     summ = summ.sort_values(["pipeline", "plot_step"])
     summ.to_csv(out / "summary_by_checkpoint.csv", index=False)
     base = summ[summ.pipeline == "Olmo-3-1025-7B"]
@@ -183,7 +183,7 @@ def main():
     print(summ[[c for c in ["pipeline", "revision", "n_cot", "cot_controllability", "cot_controllability_valid", "frac_nontrivial_reasoning", "answer_rate", "frac_truncated", "mean_reasoning_words", "output_controllability", "accuracy_baseline", "vea_rate_all", "vea_v1_rate_all"] if c in summ]].round(3).to_string(index=False))
 
     # ---- figures
-    traj_pipes = [p for p in RLZERO + ["Think"] if p in set(plot_df.pipeline)]
+    traj_pipes = [p for p in RLZERO + ["Think", "Think32B", "Think32B-3.1"] if p in set(plot_df.pipeline)]
     colors = plt.cm.tab10.colors
     # 1. controllability vs step per pipeline
     fig, ax = plt.subplots(figsize=(7.5, 4.4))
@@ -193,9 +193,11 @@ def main():
         ax.plot(s.plot_step, s.cot_controllability_valid, marker="o", ms=3, color=colors[i % 10], label=p)
         ax.plot(s.plot_step, s.cot_controllability, ls="--", lw=1, color=colors[i % 10], alpha=0.6)
         ax.fill_between(s.plot_step, s.cot_ctrl_valid_lo, s.cot_ctrl_valid_hi, color=colors[i % 10], alpha=0.12, lw=0)
-    for p, m in [("Think-SFT", "s"), ("Think-DPO", "D")]:
+    for p, m, ci in [("Think-SFT", "s", 5), ("Think-DPO", "D", 5), ("Think32B-SFT", "s", 6), ("Think32B-DPO", "D", 6), ("Olmo-3-1125-32B", "*", 6)]:
         q = summ[summ.pipeline == p]
-        if len(q): ax.scatter(q.plot_step, q.cot_controllability_valid, marker=m, color=colors[5], s=30, label=p, zorder=5)
+        if len(q):
+            xs = q.plot_step if p != "Olmo-3-1125-32B" else [0.0] * len(q)
+            ax.scatter(xs, q.cot_controllability_valid, marker=m, color=colors[ci], s=36, label=p, zorder=5)
     ax.set_xlabel("RL step (0 = shared Olmo-3-7B base; Think-SFT/DPO left of 0; last point = released model)")
     ax.set_ylabel("CoT controllability\n(solid: valid, dashed: raw)")
     ax.set_title("CoT controllability over RL training, by pipeline"); ax.legend(fontsize=7, ncol=2); ax.grid(alpha=0.3)

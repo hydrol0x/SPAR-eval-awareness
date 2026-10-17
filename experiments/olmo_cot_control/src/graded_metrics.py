@@ -97,8 +97,8 @@ def main():
     a["plot_step"] = a["step"].astype(float)
     m = a.revision == "main"
     a.loc[m, "plot_step"] = a.loc[m, "pipeline"].map(FINAL_STEPS)
-    a.loc[a.pipeline == "Think-SFT", "plot_step"] = -200
-    a.loc[a.pipeline == "Think-DPO", "plot_step"] = -100
+    a.loc[a.pipeline.isin(["Think-SFT", "Think32B-SFT"]), "plot_step"] = -200
+    a.loc[a.pipeline.isin(["Think-DPO", "Think32B-DPO"]), "plot_step"] = -100
     a = a.sort_values(["pipeline", "plot_step"])
     a.to_csv("results/graded_by_checkpoint.csv", index=False)
 
@@ -110,7 +110,7 @@ def main():
             b = base.iloc[[0]].copy(); b["pipeline"] = pipe; b["plot_step"] = 0.0
             plot = pd.concat([plot, b], ignore_index=True)
     plot = plot.sort_values(["pipeline", "plot_step"])
-    pipes = [p for p in RLZERO + ["Think"] if p in set(plot.pipeline)]
+    pipes = [p for p in RLZERO + ["Think", "Think32B", "Think32B-3.1"] if p in set(plot.pipeline)]
     colors = plt.cm.tab10.colors
     panels = [("word_rel_reduction", "banned word: relative reduction vs baseline"),
               ("lc_gap_closed", "lowercase: share of capitals removed vs baseline"),
