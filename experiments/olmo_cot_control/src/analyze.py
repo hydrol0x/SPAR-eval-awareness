@@ -187,7 +187,7 @@ def main():
     for p, m in [("Think-SFT", "s"), ("Think-DPO", "D")]:
         q = summ[summ.pipeline == p]
         if len(q): ax.scatter(q.plot_step, q.cot_controllability_valid, marker=m, color=colors[5], s=30, label=p, zorder=5)
-    ax.set_xlabel("RL step (0 = shared Olmo-3-7B base for RL-Zero; Think-SFT/DPO drawn left of 0; last point = released model)")
+    ax.set_xlabel("RL step (0 = shared Olmo-3-7B base; Think-SFT/DPO left of 0; last point = released model)")
     ax.set_ylabel("CoT controllability\n(solid: valid, dashed: raw)")
     ax.set_title("CoT controllability over RL training, by pipeline"); ax.legend(fontsize=7, ncol=2); ax.grid(alpha=0.3)
     fig.tight_layout(); fig.savefig(fig_dir / "controllability_vs_step.png", dpi=160); plt.close(fig)
