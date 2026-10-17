@@ -2,9 +2,9 @@
   "vea": {
     "model": "qwen/qwen-2.5-72b-instruct",
     "calls": 3600,
-    "usd": 2.8554,
-    "prompt_tokens": 7750584,
-    "completion_tokens": 163076,
+    "usd": 2.1142,
+    "prompt_tokens": 5693010,
+    "completion_tokens": 161767,
     "errors": 0
   },
   "answer_if": {
