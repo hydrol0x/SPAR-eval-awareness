@@ -1,0 +1,31 @@
+# Olmo-3-32B Think pipeline: base -> SFT -> DPO -> RLVR (step_050..step_750 = main) -> Olmo-3.1 continuation (step_0050..step_2300)
+# Tier 1: stage endpoints
+allenai/Olmo-3-32B-Think main
+allenai/Olmo-3-32B-Think-DPO main
+allenai/Olmo-3-32B-Think-SFT main
+allenai/Olmo-3-1125-32B main
+# Tier 2: RLVR trajectory, coarse
+allenai/Olmo-3-32B-Think step_050
+allenai/Olmo-3-32B-Think step_250
+allenai/Olmo-3-32B-Think step_450
+allenai/Olmo-3-32B-Think step_650
+allenai/Olmo-3.1-32B-Think main
+allenai/Olmo-3.1-32B-Think step_1000
+allenai/Olmo-3.1-32B-Think step_1500
+# Tier 3: densify
+allenai/Olmo-3-32B-Think step_150
+allenai/Olmo-3-32B-Think step_350
+allenai/Olmo-3-32B-Think step_550
+allenai/Olmo-3.1-32B-Think step_0500
+allenai/Olmo-3.1-32B-Think step_2000
+allenai/Olmo-3-32B-Think step_100
+allenai/Olmo-3-32B-Think step_200
+allenai/Olmo-3-32B-Think step_300
+allenai/Olmo-3-32B-Think step_400
+allenai/Olmo-3-32B-Think step_500
+allenai/Olmo-3-32B-Think step_600
+allenai/Olmo-3-32B-Think step_700
+allenai/Olmo-3.1-32B-Think step_0250
+allenai/Olmo-3.1-32B-Think step_0750
+allenai/Olmo-3.1-32B-Think step_1250
+allenai/Olmo-3.1-32B-Think step_1750

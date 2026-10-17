@@ -17,11 +17,20 @@ def pipeline_of(repo: str) -> str:
     m = PIPELINE_RE.search(repo)
     if m:
         return m.group(1).replace("RL-Zero-", "RLZero-")
+    if "Olmo-3.1-32B-Think" in repo:
+        return "Think32B-3.1"
+    if "Olmo-3-32B-Think-SFT" in repo:
+        return "Think32B-SFT"
+    if "Olmo-3-32B-Think-DPO" in repo:
+        return "Think32B-DPO"
+    if "Olmo-3-32B-Think" in repo:
+        return "Think32B"
     return repo.split("/")[-1]
 
 
 # final RL step of each released run ("main" == last checkpoint), from the Hugging Face branch lists
-FINAL_STEPS = {"RLZero-IF": 1900, "RLZero-Math": 1900, "RLZero-Code": 2900, "RLZero-Mix": 950, "RLZero-General": 800, "Think": 1375}
+FINAL_STEPS = {"RLZero-IF": 1900, "RLZero-Math": 1900, "RLZero-Code": 2900, "RLZero-Mix": 950, "RLZero-General": 800, "Think": 1375,
+               "Think32B": 750, "Think32B-3.1": 2300}
 RLZERO = ["RLZero-IF", "RLZero-Math", "RLZero-Code", "RLZero-Mix", "RLZero-General"]
 
 
