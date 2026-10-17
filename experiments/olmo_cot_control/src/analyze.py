@@ -20,6 +20,11 @@ def pipeline_of(repo: str) -> str:
     return repo.split("/")[-1]
 
 
+# final RL step of each released run ("main" == last checkpoint), from the Hugging Face branch lists
+FINAL_STEPS = {"RLZero-IF": 1900, "RLZero-Math": 1900, "RLZero-Code": 2900, "RLZero-Mix": 950, "RLZero-General": 800, "Think": 1375}
+RLZERO = ["RLZero-IF", "RLZero-Math", "RLZero-Code", "RLZero-Mix", "RLZero-General"]
+
+
 def wilson(k: int, n: int, z: float = 1.96):
     if n == 0:
         return (float("nan"), float("nan"))
@@ -150,47 +155,66 @@ def main():
             if v1.notna().any():
                 r[f"vea_v1_rate_{name}"] = v1.mean()
         rows.append(r)
-    summ = pd.DataFrame(rows).sort_values(["pipeline", "step"])
+    summ = pd.DataFrame(rows)
+    # x-position for plotting: "main" -> final step; base model -> step 0 of every RL-Zero run; Think-SFT/DPO -> pre-RLVR
+    summ["plot_step"] = summ["step"].astype(float)
+    is_main = summ["revision"] == "main"
+    summ.loc[is_main, "plot_step"] = summ.loc[is_main, "pipeline"].map(FINAL_STEPS)
+    summ.loc[summ.pipeline == "Think-SFT", "plot_step"] = -200
+    summ.loc[summ.pipeline == "Think-DPO", "plot_step"] = -100
+    summ = summ.sort_values(["pipeline", "plot_step"])
     summ.to_csv(out / "summary_by_checkpoint.csv", index=False)
+    base = summ[summ.pipeline == "Olmo-3-1025-7B"]
+    plot_df = summ.copy()
+    if len(base):  # anchor every RL-Zero trajectory at the shared base model (step 0)
+        for pipe in RLZERO:
+            b = base.iloc[[0]].copy(); b["pipeline"] = pipe; b["plot_step"] = 0.0
+            plot_df = pd.concat([plot_df, b], ignore_index=True)
+    plot_df = plot_df.sort_values(["pipeline", "plot_step"])
     print(summ[[c for c in ["pipeline", "revision", "n_cot", "cot_controllability", "cot_controllability_valid", "frac_nontrivial_reasoning", "answer_rate", "frac_truncated", "mean_reasoning_words", "output_controllability", "accuracy_baseline", "vea_rate_all", "vea_v1_rate_all"] if c in summ]].round(3).to_string(index=False))
 
     # ---- figures
-    pipes = sorted(summ["pipeline"].unique())
+    traj_pipes = [p for p in RLZERO + ["Think"] if p in set(plot_df.pipeline)]
     colors = plt.cm.tab10.colors
     # 1. controllability vs step per pipeline
-    fig, ax = plt.subplots(figsize=(7, 4.2))
-    for i, p in enumerate(pipes):
-        s = summ[(summ.pipeline == p) & (summ.step >= 0)].sort_values("step")
+    fig, ax = plt.subplots(figsize=(7.5, 4.4))
+    for i, p in enumerate(traj_pipes):
+        s = plot_df[(plot_df.pipeline == p) & plot_df.plot_step.notna()].sort_values("plot_step")
         if len(s) == 0: continue
-        ax.plot(s.step, s.cot_controllability_valid, marker="o", ms=3, color=colors[i % 10], label=f"{p} (valid)")
-        ax.plot(s.step, s.cot_controllability, ls="--", lw=1, color=colors[i % 10], alpha=0.7)
-        ax.fill_between(s.step, s.cot_ctrl_valid_lo, s.cot_ctrl_valid_hi, color=colors[i % 10], alpha=0.12, lw=0)
-    ax.set_xlabel("RL step"); ax.set_ylabel("CoT controllability (solid: valid, dashed: raw)")
-    ax.set_title("CoT controllability over RL training, by pipeline"); ax.legend(fontsize=8); ax.grid(alpha=0.3)
+        ax.plot(s.plot_step, s.cot_controllability_valid, marker="o", ms=3, color=colors[i % 10], label=p)
+        ax.plot(s.plot_step, s.cot_controllability, ls="--", lw=1, color=colors[i % 10], alpha=0.6)
+        ax.fill_between(s.plot_step, s.cot_ctrl_valid_lo, s.cot_ctrl_valid_hi, color=colors[i % 10], alpha=0.12, lw=0)
+    for p, m in [("Think-SFT", "s"), ("Think-DPO", "D")]:
+        q = summ[summ.pipeline == p]
+        if len(q): ax.scatter(q.plot_step, q.cot_controllability_valid, marker=m, color=colors[5], s=30, label=p, zorder=5)
+    ax.set_xlabel("RL step (0 = shared Olmo-3-7B base for RL-Zero; Think-SFT/DPO drawn left of 0; last point = released model)")
+    ax.set_ylabel("CoT controllability\n(solid: valid, dashed: raw)")
+    ax.set_title("CoT controllability over RL training, by pipeline"); ax.legend(fontsize=7, ncol=2); ax.grid(alpha=0.3)
     fig.tight_layout(); fig.savefig(fig_dir / "controllability_vs_step.png", dpi=160); plt.close(fig)
     # 2. VEA vs step
     if "vea_rate_all" in summ:
-        fig, ax = plt.subplots(figsize=(7, 4.2))
-        for i, p in enumerate(pipes):
-            s = summ[(summ.pipeline == p) & (summ.step >= 0) & summ["vea_rate_all"].notna()].sort_values("step")
+        fig, ax = plt.subplots(figsize=(7.5, 4.4))
+        for i, p in enumerate(traj_pipes):
+            s = plot_df[(plot_df.pipeline == p) & plot_df.plot_step.notna() & plot_df["vea_rate_all"].notna()].sort_values("plot_step")
             if len(s) == 0: continue
-            ax.plot(s.step, s.vea_rate_all, marker="o", ms=3, color=colors[i % 10], label=p)
-            if "vea_lo" in s: ax.fill_between(s.step, s.vea_lo, s.vea_hi, color=colors[i % 10], alpha=0.12, lw=0)
-        ax.set_xlabel("RL step"); ax.set_ylabel("verbalized eval awareness (fraction of rollouts)")
+            ax.plot(s.plot_step, s.vea_rate_all, marker="o", ms=3, color=colors[i % 10], label=f"{p} (strict)")
+            if "vea_v1_rate_all" in s: ax.plot(s.plot_step, s.vea_v1_rate_all, ls=":", lw=1, color=colors[i % 10], alpha=0.7)
+            if "vea_lo" in s: ax.fill_between(s.plot_step, s.vea_lo, s.vea_hi, color=colors[i % 10], alpha=0.12, lw=0)
+        ax.set_xlabel("RL step (0 = shared base; last point = released model)"); ax.set_ylabel("verbalized eval awareness\n(solid: strict v2, dotted: lenient v1)")
         ax.set_title("Verbalized eval awareness over RL training, by pipeline"); ax.legend(fontsize=8); ax.grid(alpha=0.3)
         fig.tight_layout(); fig.savefig(fig_dir / "vea_vs_step.png", dpi=160); plt.close(fig)
         # 3. scatter
         s = summ[summ["vea_rate_all"].notna()]
         if len(s):
             fig, ax = plt.subplots(figsize=(5.5, 4.5))
-            for i, p in enumerate(pipes):
+            for i, p in enumerate(sorted(s.pipeline.unique())):
                 q = s[s.pipeline == p]
                 ax.scatter(q.cot_controllability, q.vea_rate_all, color=colors[i % 10], label=p, s=22)
             ax.set_xlabel("CoT controllability"); ax.set_ylabel("verbalized eval awareness rate")
             ax.set_title("Per-checkpoint: controllability vs eval awareness"); ax.legend(fontsize=8); ax.grid(alpha=0.3)
             fig.tight_layout(); fig.savefig(fig_dir / "controllability_vs_vea_scatter.png", dpi=160); plt.close(fig)
     # 4. final checkpoints bar
-    finals = summ.sort_values("step").groupby("pipeline").tail(1)
+    finals = summ.sort_values("plot_step").groupby("pipeline").tail(1)
     fig, ax = plt.subplots(figsize=(7, 4))
     x = range(len(finals))
     ax.bar([i - 0.27 for i in x], finals.cot_controllability, width=0.27, label="CoT controllability (raw)", alpha=0.6)
