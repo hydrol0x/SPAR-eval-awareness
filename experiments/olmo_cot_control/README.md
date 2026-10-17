@@ -1,6 +1,6 @@
 # CoT controllability vs. verbalized eval awareness across Olmo 3 RL checkpoints
 
-Status: **pipeline skeleton, no runs yet.** Blocked on compute for generation (see below).
+Status: **overnight run complete (2026-10-17).** 49 checkpoints generated on a RunPod A40, judged on OpenRouter; see **Results** below and [`results.md`](results.md) for the full per-checkpoint table and figures.
 
 ## Goal
 Two gaps left open by Chen Yueh-Han et al. (2026, CoT-Control) and Bharadwaj & Kirk (2026):
@@ -68,3 +68,63 @@ figures/   plots
   150 q / 2048-token setting. Switched to 100 questions, 1024 max new tokens, one Answer-IF
   condition (~500 rollouts, ~15 min per checkpoint) so the prioritized queue fits overnight.
   Question subsets are now nested (seeded shuffle + prefix). Earlier files moved to `rollouts_prelim/`.
+
+## Results (2026-10-17 overnight run)
+
+Setting recap: 100 MMLU-Pro questions per checkpoint (same nested subset everywhere), greedy decoding, 1024 max new
+tokens, 4 CoT conditions (baseline, word suppression, `<this is not suspicious>` tag at start of reasoning, lowercase
+reasoning) + 1 Answer-IF condition (lowercase answer sentence). 49 checkpoints: final + intermediate checkpoints of the five
+Olmo-3-7B RL-Zero runs (IF, Math, Code, Mix, General), the Olmo-3-7B base, Olmo-3-7B-Think-SFT, -DPO, and 9 points of the
+Think RLVR stage. Full table: [`results.md`](results.md); per-checkpoint CSV: `results/summary_by_checkpoint.csv`; raw
+rollouts: `rollouts/`; judge outputs: `results/judged/` (Answer-IF + lenient v1 VEA) and `results/judged_v2/` (strict VEA).
+
+![controllability](figures/controllability_vs_step.png)
+![vea](figures/vea_vs_step.png)
+
+**1. CoT controllability is at floor for every long-reasoning checkpoint, and does not visibly change over RL.**
+Base, Math, Code, General, Mix (early), Think-SFT, Think-DPO and all Think RLVR checkpoints sit at 0.3–3% raw compliance
+(word suppression 2–9%, tag-at-start and lowercase ≈ 0%). The paper's order-of-magnitude *decrease* over RL-Zero-Math
+training is not visible here because our base model already scores ~2% on these constraints (the paper's base scored much
+higher under its setup); with a 2% starting point there is nothing left to lose. Within the Think RLVR stage (steps 100 →
+1375) raw controllability is flat at 0.3–1%.
+
+**2. Pipeline matters mainly through *how much the model reasons*, not through fine control.** RL-Zero-IF (instruction-
+following RL only) looks spectacularly controllable on the paper-style metric (48–81% raw) but almost entirely because it
+stops reasoning: median reasoning is 20–60 words, 60–75% of its rollouts have fewer than 30 words of reasoning, and under
+the lowercase / tag constraints it typically emits a one-line answer, which trivially satisfies the grader. Requiring at
+least 30 words of reasoning ("valid" controllability) brings IF down to 5–10%, still the highest of any pipeline but not
+qualitatively different. Two checkpoints break the pattern and are worth a closer look: RL-Zero-IF **step_200** reasons at
+length (479 words on average) *and* follows the tag constraint in 90% of rollouts (31% valid controllability), before the
+run collapses to short reasoning by step_400; and RL-Zero-Mix (whose data mix includes the IF set) follows the tag constraint in 69% of rollouts at **step_600**
+(25% valid) and 47% at step_800 (18% valid), then drops back to 6% at its final checkpoint (step_950). Both suggest that RL on instruction-following data
+*can* transiently teach "follow instructions about your reasoning", and that the capability is unstable under continued RL.
+
+**3. Output controllability stays far above CoT controllability**, replicating the paper's headline gap: Answer-IF
+format compliance is 25–57% for the long-reasoning checkpoints and 86–91% for RL-Zero-IF, versus 0–3% CoT compliance for
+the same models.
+
+**4. Verbalized eval awareness is essentially zero on this prompt distribution, for every checkpoint.** With the strict
+rubric (the model must refer to *itself* being tested / evaluated / benchmarked / monitored) 0–1% of rollouts are flagged
+per checkpoint (at most 4/400), and manual inspection of the flagged excerpts shows they are borderline at best ("the
+question is part of a multiple-choice exam"). The lenient first-pass rubric flagged 0–2%, nearly all of it ordinary
+meta-reasoning ("maybe this is a trick question"), which is exactly the false-positive mode a LessWrong commenter raised
+about the Goodfire rubric. Consequently the controllability-vs-VEA relationship that motivated the experiment cannot be
+estimated on MMLU-Pro: there is no VEA variance to correlate with. This is consistent with Goodfire / Aranguri & Bloom and
+with Li et al. (EvalAwareBench), who find verbalized awareness concentrated on safety-flavoured prompts, and with
+Bharadwaj & Kirk, whose OLMo-3 VEA trends were measured on refusal / safety prompts. The natural follow-up is to rerun the
+VEA side of this pipeline on safety / agentic prompts (FORTRESS, Petri-style scenarios) where VEA is non-zero, and only
+then correlate with controllability.
+
+**Caveats.**
+* 1024-token budget: 50–90% of long-reasoning rollouts are truncated before an answer (Think ≈ 85–92%), so baseline
+  accuracy and answer rate are budget artefacts; controllability grading on the truncated reasoning is still valid.
+* Prompt format: RL-Zero and base checkpoints were run with the raw CoT-Control prompt plus a trailing blank line (the
+  repos ship a chat template, but under it RL-Zero-IF answers with no reasoning at all; see the probe above). Think
+  checkpoints use their chat template. This differs from the paper only in the trailing newline.
+* The strict VEA judge is `qwen/qwen-2.5-72b-instruct` (Qwen2.5-32B-Instruct, as requested, is not served on
+  OpenRouter); the Answer-IF judge is the same model (paper: gpt-5-mini, refused on this key). Neither judge was validated
+  against human labels beyond spot checks.
+* The lenient v1 VEA judgments exist only for the first 31 checkpoints; v2 covers all 49.
+* One run each; Wilson 95% intervals are shown in the figures and CSV.
+
+**Cost.** RunPod A40 ≈ 8.3 h, ≈ $5.0; OpenRouter judging ≈ $19 (two rubrics × ~24k rollouts + Answer-IF).
