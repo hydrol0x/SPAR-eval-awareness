@@ -1,18 +1,18 @@
 {
   "vea": {
     "model": "qwen/qwen-2.5-72b-instruct",
-    "calls": 3200,
-    "usd": 2.1914,
-    "prompt_tokens": 5919007,
-    "completion_tokens": 151344,
-    "errors": 20
+    "calls": 2800,
+    "usd": 1.5735,
+    "prompt_tokens": 4226324,
+    "completion_tokens": 129945,
+    "errors": 370
   },
   "answer_if": {
     "model": "qwen/qwen-2.5-72b-instruct",
-    "calls": 800,
-    "usd": 0.4074,
-    "prompt_tokens": 1054040,
-    "completion_tokens": 69830,
-    "errors": 18
+    "calls": 701,
+    "usd": 0.3453,
+    "prompt_tokens": 890491,
+    "completion_tokens": 61794,
+    "errors": 111
   }
 }

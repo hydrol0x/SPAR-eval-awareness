@@ -20,4 +20,11 @@
 2026-10-17T07:24:29Z allenai/Olmo-3-7B-Think step_0500 rc=0
 2026-10-17T07:35:35Z allenai/Olmo-3-7B-Think step_1000 rc=0
 2026-10-17T07:38:11Z allenai/Olmo-3-7B-RL-Zero-IF step_1200 rc=0
+2026-10-17T07:48:35Z allenai/Olmo-3-7B-RL-Zero-Math step_1200 rc=0
+2026-10-17T07:58:10Z allenai/Olmo-3-7B-RL-Zero-Code step_1200 rc=0
+2026-10-17T08:00:50Z allenai/Olmo-3-7B-RL-Zero-IF step_1600 rc=0
+2026-10-17T08:11:27Z allenai/Olmo-3-7B-RL-Zero-Math step_1600 rc=0
+2026-10-17T08:21:13Z allenai/Olmo-3-7B-RL-Zero-Code step_1600 rc=0
+2026-10-17T08:30:37Z allenai/Olmo-3-7B-RL-Zero-Code step_2000 rc=0
+2026-10-17T08:39:40Z allenai/Olmo-3-7B-RL-Zero-Code step_2400 rc=0
 
