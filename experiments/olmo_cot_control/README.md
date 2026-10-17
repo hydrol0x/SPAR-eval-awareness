@@ -128,3 +128,18 @@ then correlate with controllability.
 * One run each; Wilson 95% intervals are shown in the figures and CSV.
 
 **Cost.** RunPod A40 ≈ 8.3 h, ≈ $5.0; OpenRouter judging ≈ $19 (two rubrics × ~24k rollouts + Answer-IF).
+
+### Why is CoT controllability ~0 across the board? (diagnostic, 2026-10-17)
+Near-miss analysis on base@main, RL-Zero-Math@main, Think@main and RL-Zero-IF@step_200 (100 rollouts per constraint):
+* **lowercase**: median fraction of lowercase letters 0.96–0.97 in all four, i.e. the rate of ordinary English prose
+  (capitals at sentence starts and option letters); 0/100 rollouts are fully lowercase anywhere. The models do not attempt it.
+* **word suppression**: median 11–13 uses of the banned word per rollout; only 2–5/100 rollouts avoid it. Not attempted.
+* **tag at start**: base 1/100 at start but 20/100 somewhere in the completion; Math 0 / 9; Think 0 / 16; IF@step_200
+  90 / 96. This is the only constraint with graded signal, and the only one RL on instruction-following data moves.
+* Explicit mention of the constraint in the reasoning: 1–3 per 300 rollouts, so failures are not "restating the rule".
+So the floor is not a grading artefact: 7B Olmo checkpoints simply ignore meta-instructions about their reasoning.
+This matches the paper, which (App. E.2) made the RL-Zero/base tasks easier precisely because compliance was
+"saturated near 0%", reports most models below 10%, and finds controllability rises with scale. Remaining setup
+differences (greedy vs. their temperature 0.6 / top-p 0.95 sampling; 1024 vs. 15k max tokens) cannot explain a floor
+this low. Implication: to see RL-induced *changes* one needs headroom — larger checkpoints (Olmo-3-32B-Think RLVR has 46
+public checkpoints), or graded metrics such as "tag anywhere" / per-rollout violation counts instead of binary compliance.
