@@ -30,6 +30,31 @@ def wilson(k: int, n: int, z: float = 1.96):
     return (c - h, c + h)
 
 
+ANS_PATTERNS = [
+    re.compile(r"(?im)^\s*\**answer\**\s*:\s*\(?\**([A-J])\**\)?(?![a-z])"),
+    re.compile(r"(?i)\\boxed\{\(?([A-J])\)?\}"),
+    re.compile(r"(?i)(?:final answer|correct answer|answer)\s+(?:is|:)\s*(?:option\s*)?\(?\**([A-J])\**\)?(?![a-z])"),
+]
+
+
+def parse_letter(completion: str):
+    """Fallback answer parser over the full completion (last match wins)."""
+    if not isinstance(completion, str):
+        return None
+    for pat in ANS_PATTERNS:
+        ms = pat.findall(completion)
+        if ms:
+            return ms[-1].upper()
+    return None
+
+
+def gold_letter(gold, options):
+    try:
+        return chr(ord("A") + list(options).index(gold))
+    except Exception:
+        return None
+
+
 def load(pattern):
     rows = []
     for fp in sorted(glob.glob(pattern, recursive=True)):
@@ -52,6 +77,12 @@ def main():
     if ro.empty:
         print("no rollouts"); return
     ro["pipeline"] = ro["repo"].map(pipeline_of)
+    # re-derive correctness with a more tolerant answer parser (generation-time parser only took "Answer:" lines)
+    ro["gold_letter"] = [gold_letter(g, o) for g, o in zip(ro["gold"], ro["options"])]
+    ro["answer_letter"] = ro["completion"].map(parse_letter)
+    ro["correct_gen"] = ro["correct"]
+    ro["correct"] = ro.apply(lambda r: (float(r["answer_letter"] == r["gold_letter"]) if (r["task"] == "cot" and r["gold_letter"]) else float("nan")), axis=1)
+    ro["answer"] = ro["answer"].where(ro["answer"].notna(), ro["answer_letter"])
     # "valid" compliance guards against degenerate compliance: a rollout whose reasoning is (near-)empty
     # trivially satisfies lowercase / tag constraints. Require >= MIN_WORDS words of reasoning. (An answer is
     # not required: with the 1024-token budget long-reasoning checkpoints are often truncated before "Answer:".)
