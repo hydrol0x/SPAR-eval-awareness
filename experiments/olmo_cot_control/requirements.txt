@@ -1,0 +1,12 @@
+# Generation (GPU box)
+torch
+transformers>=4.57
+accelerate
+safetensors
+huggingface_hub
+vllm   # optional; generate_local.py falls back to transformers if missing
+# Judging / analysis (any box)
+openai>=1.50
+pandas
+matplotlib
+tqdm
