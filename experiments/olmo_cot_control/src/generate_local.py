@@ -31,6 +31,9 @@ def chat_mode_for(repo: str, mode: str, tokenizer=None) -> bool:
         return True
     if mode == "raw":
         return False
+    r = repo.lower()
+    if "rl-zero" in r or "rlzero" in r:
+        return False  # ships a chat template but reasons only under the raw prompt (IF collapses to "Answer: X" under the template)
     return bool(getattr(tokenizer, "chat_template", None))
 
 
@@ -48,7 +51,9 @@ def build_jobs(questions, constraints, answer_if) -> List[Dict[str, Any]]:
 
 def render(prompt: str, tokenizer, chat: bool) -> str:
     if not chat:
-        return prompt
+        # RL-Zero / base models: raw prompt, no template (as in CoT-Control App. E). A trailing blank
+        # line is essential: without it the RL-Zero models emit EOS immediately (probe 2026-10-17).
+        return prompt + "\n\n"
     return tokenizer.apply_chat_template([{"role": "user", "content": prompt}], tokenize=False, add_generation_prompt=True)
 
 

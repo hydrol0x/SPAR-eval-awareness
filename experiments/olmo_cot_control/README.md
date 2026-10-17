@@ -58,3 +58,8 @@ figures/   plots
   (OpenAI models are refused on this OpenRouter key; paper used gpt-5-mini for Answer-IF).
   Generation on a RunPod L40S/A40 via `scripts/pod_bootstrap.sh`; 150 MMLU-Pro questions per
   checkpoint, 4 CoT conditions + 2 Answer-IF conditions, greedy decoding, 2048 max new tokens.
+* Prompt-format probe (2026-10-17, IF and Math RL-Zero @main, 3 questions, 9 formats): under the
+  shipped `<|im_start|>` chat template the IF model answers "Answer: X" with no reasoning; under the
+  raw CoT-Control prompt it reasons ("Step 1: ...", ~100 tokens) *only if the prompt ends with a
+  blank line* (otherwise EOS at once). Math reasons at length under every format. Decision: raw
+  prompt + trailing blank line for RL-Zero and base checkpoints, chat template for Think checkpoints.
