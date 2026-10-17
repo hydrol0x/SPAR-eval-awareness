@@ -9,10 +9,10 @@
   },
   "answer_if": {
     "model": "qwen/qwen-2.5-72b-instruct",
-    "calls": 400,
-    "usd": 0.2268,
-    "prompt_tokens": 591336,
-    "completion_tokens": 34696,
-    "errors": 0
+    "calls": 271,
+    "usd": 0.1541,
+    "prompt_tokens": 402222,
+    "completion_tokens": 23309,
+    "errors": 1887
   }
 }
