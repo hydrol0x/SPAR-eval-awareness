@@ -71,8 +71,13 @@ async def run(args):
             done = set()
             if outp.exists():
                 for l in open(outp):
-                    try: done.add(json.loads(l)["rollout_id"])
-                    except Exception: pass
+                    try:
+                        j = json.loads(l)
+                    except Exception:
+                        continue
+                    ok = (j.get("vea") is not None) if j.get("task") == "cot" else (j.get("answer_if_compliant") is not None)
+                    if ok:  # errored judgments are retried on the next pass
+                        done.add(j["rollout_id"])
             todo = [r for r in recs if r["rollout_id"] not in done]
             if args.limit: todo = todo[: args.limit]
             if not todo:
