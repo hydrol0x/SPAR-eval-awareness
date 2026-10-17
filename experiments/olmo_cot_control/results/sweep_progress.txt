@@ -27,4 +27,7 @@
 2026-10-17T08:21:13Z allenai/Olmo-3-7B-RL-Zero-Code step_1600 rc=0
 2026-10-17T08:30:37Z allenai/Olmo-3-7B-RL-Zero-Code step_2000 rc=0
 2026-10-17T08:39:40Z allenai/Olmo-3-7B-RL-Zero-Code step_2400 rc=0
+2026-10-17T08:43:45Z allenai/Olmo-3-7B-RL-Zero-IF step_100 rc=0
+2026-10-17T08:53:29Z allenai/Olmo-3-7B-RL-Zero-Math step_100 rc=0
+2026-10-17T09:04:04Z allenai/Olmo-3-7B-RL-Zero-Code step_100 rc=0
 
