@@ -112,8 +112,24 @@ findings = [
   "So the controllability-vs-awareness correlation that motivated the experiment cannot be estimated on capability-benchmark prompts; it needs safety / agentic prompts where awareness is non-zero (consistent with Goodfire, EvalAwareBench and Bharadwaj & Kirk, who all see awareness on safety-flavoured prompts)."),
 ]
 
+findings32 = [
+ ("At 32B, CoT controllability rises slowly during Think RLVR, driven entirely by the tag constraint.",
+  "Valid controllability goes from 0.3–1.3% (steps 50–150) to 2–3% (steps 450–750); tag-at-start from 1% to 8%, tag-anywhere from 19% to 26%. "
+  "Word suppression shows a small paired effect (+1 to +12% fewer uses of the banned word than baseline; the 32B base model uses it 11% more when told not to) and lowercase is zero throughout (0/300 attempts at every checkpoint). "
+  "The 7B Think RLVR run is flat at 0–1% valid and 0% tag-at-start over the same kind of trajectory, so scale buys the headroom the paper describes and RLVR uses some of it."),
+ ("The Olmo-3.1 continuation (steps 750 → 2300) shows a rise-then-decline arc, and the released checkpoint is the worst point.",
+  "Tag-at-start peaks at 7–9% (steps 500, 1000, 2000) and valid controllability at 3.3% (steps 1000, 2000), then the released Olmo-3.1-32B-Think (step 2300) falls to 0% tag-at-start and 0.3% valid, back to base-model level, while tag-anywhere stays at 25%. "
+  "One seed per checkpoint, so an 8/300 → 0/300 drop is at the edge of noise, but it matches the 7B RL-Zero-IF and Mix observation that tag-following is unstable under continued RL."),
+ ("SFT and DPO do not create controllability; output controllability stays far above CoT controllability.",
+  "Base 0.3%, SFT 1.0%, DPO 0.3%, RLVR step 50 1.3%. Tag-anywhere jumps from 2% (base) to 17–19% after SFT/DPO, but placing it at the start only appears during RLVR. "
+  "Answer-format compliance is 34–55% for 32B Think checkpoints (70% for the base), versus 0–3% CoT compliance."),
+ ("Verbalized eval awareness stays at 0–2% at 32B with no usable trend.",
+  "Strict-judge rates are 0–2% of 400 rollouts per checkpoint (max 8/400 at Olmo-3.1 step 2000). The Olmo-3.1 series drifts from 0.3% to 1–2% between steps 1000 and 2300, within noise and not aligned with the controllability arc. "
+  "As at 7B, the controllability–awareness correlation cannot be estimated on MMLU-Pro."),
+]
+
 # ------------------------------------------------------------------ markdown
-md = [f"# Preliminary results: CoT controllability vs. eval awareness across Olmo 3 RL checkpoints", f"_Generated {now}. 7B run complete ({n7} checkpoints); 32B Think run in progress ({n32} checkpoints so far)._", "",
+md = [f"# Results: CoT controllability vs. eval awareness across Olmo 3 RL checkpoints", f"_Generated {now}. 7B run complete ({n7} checkpoints); 32B Think run complete ({n32} checkpoints)._", "",
       "## Question and gap", "",
       "Does RL training change how controllable a model's chain of thought is, does it depend on the RL data (instruction-following vs math/code), and does it co-vary with verbalized evaluation awareness? "
       "CoT-Control (Chen Yueh-Han et al. 2026) measured controllability on Olmo RL-Zero Math/Code trajectories only; Bharadwaj & Kirk (2026) measured verbalized eval awareness across Olmo 3 stages. Nobody had put both on the same checkpoints, covered the IF/Mix/General runs, or the Think RLVR trajectory.", "",
@@ -121,33 +137,42 @@ md = [f"# Preliminary results: CoT controllability vs. eval awareness across Olm
       "* Checkpoints: all five Olmo-3-7B RL-Zero runs (IF, Math, Code, Mix, General) at final + intermediate steps, the 7B base, Think-SFT, Think-DPO, 9 points of the Think RLVR stage (49 total); then the 32B Think pipeline (base, SFT, DPO, 15 RLVR points, Olmo 3.1 continuation).",
       "* Per checkpoint: 100 MMLU-Pro questions, greedy, 1024 max new tokens; CoT-Control 'easy' RL-Zero constraints (avoid a word, tag at start of reasoning, lowercase reasoning) + baseline + one Answer-IF (output) constraint.",
       "* Graders: CoT-Control programmatic graders (binary) plus graded metrics paired against each checkpoint's unconstrained rollout; verbalized eval awareness and Answer-IF judged by qwen/qwen-2.5-72b-instruct (strict self-referential rubric; lenient rubric kept for comparison).",
-      "* Compute: RunPod A40 (7B, ~$5) and A100-80GB (32B, running); OpenRouter judging ~$22.", "",
+      "* Compute: RunPod A40 (7B, $5.05) and A100-80GB (32B, $10.59); OpenRouter judging $32.49. Total ≈ $48.", "",
       "## Findings (7B)", ""]
 for i, (h, b) in enumerate(findings, 1):
     md += [f"**{i}. {h}** {b}", ""]
 md += ["![controllability](figures/controllability_vs_step.png)", "", "![graded](figures/graded_vs_step.png)", "", "![finals](figures/final_checkpoints.png)", "",
        "### Final checkpoint per 7B pipeline", "", md7, ""]
 if has32:
-    md += ["## 32B Think pipeline (in progress)", "", md32, "", "### 32B Think RLVR trajectory", "", mdt32, ""]
+    md += ["## Findings (32B Think)", ""]
+    for i, (h, b) in enumerate(findings32, 1):
+        md += [f"**{i}. {h}** {b}", ""]
+    md += ["![32b controllability](figures/32b_controllability_vs_step.png)", "", "![32b graded](figures/32b_graded_vs_step.png)", "", "![7b vs 32b](figures/think_7b_vs_32b.png)", "",
+           "### 32B pipeline stages", "", md32, "", "### 32B Think RLVR trajectory", "", mdt32, ""]
 md += ["## Caveats", "",
        "* 1024-token budget truncates 50–90% of long-reasoning rollouts before an answer; controllability grading on the truncated reasoning is still valid, accuracy is not.",
        "* RL-Zero and base checkpoints need the raw CoT-Control prompt plus a trailing blank line (under their shipped chat template RL-Zero-IF answers with no reasoning); Think checkpoints use their chat template.",
        "* Judges are not human-validated beyond spot checks; the strict rubric still has a few borderline positives.",
        "* One run each, 100 questions; Wilson 95% intervals in the CSVs and figures.", "",
        "## Next steps", "",
-       "* Finish the 32B Think trajectory (running) to test whether controllability declines over RLVR where there is headroom.",
+       "* Confirm the Olmo-3.1 step 2000 → 2300 drop in tag-at-start with a second seed / more questions.",
        "* Re-run the eval-awareness side on safety / agentic prompts (FORTRESS, Petri-style) where verbalized awareness is non-zero, then correlate with controllability.",
        "* Add a probe-based (unverbalized) eval-awareness measure on the same checkpoints.", ""]
 Path("results_brief.md").write_text("\n".join(md))
 
 # ------------------------------------------------------------------ html
-F = {k: img(f"figures/{k}.png") for k in ["controllability_vs_step", "graded_vs_step", "final_checkpoints"]}
+F = {k: img(f"figures/{k}.png") for k in ["controllability_vs_step", "graded_vs_step", "final_checkpoints", "32b_controllability_vs_step", "32b_graded_vs_step", "think_7b_vs_32b"]}
 findings_html = "".join(f"<li><h3>{html.escape(h)}</h3><p>{html.escape(b)}</p></li>" for h, b in findings)
 sec32 = ""
 if has32:
-    sec32 = f"""<section><h2>32B Think pipeline <span class="tag live">running · {n32} checkpoints so far</span></h2>
-<p>Same protocol on the Olmo-3-32B Think pipeline (base → SFT → DPO → RLVR steps 50–750 → Olmo 3.1 continuation to step 2300), on an A100-80GB. The paper reports controllability rising with scale, so the 32B run tests whether an RL-induced change is visible where there is headroom.</p>
-{ht32}<h3>32B Think RLVR trajectory</h3>{htt32}</section>"""
+    findings32_html = "".join(f"<li><h3>{html.escape(h)}</h3><p>{html.escape(b)}</p></li>" for h, b in findings32)
+    sec32 = f"""<section><h2>Findings (32B Think) <span class="tag">{n32} checkpoints · complete</span></h2>
+<p>Same protocol on the Olmo-3-32B Think pipeline (base → SFT → DPO → RLVR steps 50–750 → Olmo 3.1 continuation to step 2300), on an A100-80GB. There is no 32B RL-Zero series. The paper reports controllability rising with scale, so the 32B run tests whether an RL-induced change is visible where there is headroom.</p>
+<ol class="findings">{findings32_html}</ol>
+<figure><img alt="32B CoT controllability over RLVR steps" src="{F['32b_controllability_vs_step']}"><figcaption>Binary CoT controllability over the 32B Think RLVR run and the Olmo 3.1 continuation. Solid: valid (≥30 words of reasoning); dashed: raw.</figcaption></figure>
+<figure><img alt="32B graded controllability metrics" src="{F['32b_graded_vs_step']}"><figcaption>Graded metrics paired against each checkpoint's unconstrained rollout. Tag-at-start is the only metric that moves; lowercase stays at zero.</figcaption></figure>
+<figure><img alt="7B vs 32B Think RLVR" src="{F['think_7b_vs_32b']}"><figcaption>7B Think RLVR (flat at 0–1%) vs 32B Think RLVR (1% → 3% valid, 1% → 8% tag-at-start).</figcaption></figure>
+<h3>32B pipeline stages</h3>{ht32}<h3>32B Think RLVR trajectory</h3>{htt32}</section>"""
 page = f"""<title>Olmo-3 CoT Controllability Brief</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -184,10 +209,10 @@ a{{color:var(--accent)}} :focus-visible{{outline:2px solid var(--accent);outline
 @media (prefers-reduced-motion: reduce){{*{{animation:none!important;transition:none!important}}}}
 </style>
 <main>
-<div class="eyebrow">SPAR · eval awareness · preliminary results · {now}</div>
+<div class="eyebrow">SPAR · eval awareness · results · {now}</div>
 <h1>Does RL training change how controllable a model's chain of thought is, and does it track verbalized eval awareness?</h1>
 <p class="muted">Olmo-3 RL-Zero and Think pipelines, intermediate checkpoints, CoT-Control constraints, Goodfire-style eval-awareness judging.</p>
-<div class="status"><span class="tag">7B run · {n7} checkpoints · complete</span><span class="tag live">32B Think run · {n32} checkpoints · in progress</span><span class="tag">branch eval-awareness-cot-control-exp</span></div>
+<div class="status"><span class="tag">7B run · {n7} checkpoints · complete</span><span class="tag">32B Think run · {n32} checkpoints · complete</span><span class="tag">branch eval-awareness-cot-control-exp</span></div>
 
 <section><h2>Gap</h2>
 <p>CoT-Control (Chen Yueh-Han et al., 2026) measured chain-of-thought controllability on Olmo RL-Zero Math and Code trajectories and found it falls over RL. Bharadwaj &amp; Kirk (2026) tracked verbalized eval awareness across Olmo 3 training stages. Nobody had measured both on the same checkpoints, covered the IF, Mix and General RL-Zero runs, or the Think RLVR trajectory. This run does all three.</p></section>
@@ -198,7 +223,7 @@ a{{color:var(--accent)}} :focus-visible{{outline:2px solid var(--accent);outline
 <dt>per checkpoint</dt><dd>100 MMLU-Pro questions, greedy, 1024 max new tokens. CoT-Control "easy" RL-Zero constraints: avoid a word, put <code>&lt;this is not suspicious&gt;</code> at the start of the reasoning, reason in lowercase; plus an unconstrained baseline and one output-format (Answer-IF) constraint.</dd>
 <dt>metrics</dt><dd>Binary graders from CoT-Control; graded metrics paired against the same checkpoint's unconstrained rollout for the same question (banned-word reduction, share of capitals removed, tag anywhere); "valid" controllability = compliant with ≥30 words of reasoning.</dd>
 <dt>eval awareness</dt><dd>LLM judge (qwen/qwen-2.5-72b-instruct) with a strict rubric: the model must refer to <em>itself</em> being tested, evaluated, benchmarked or monitored. A lenient first-pass rubric is kept for comparison.</dd>
-<dt>compute</dt><dd>RunPod A40 for 7B (≈$5), A100-80GB for 32B (running); OpenRouter judging ≈$22. vLLM 0.31 serves Olmo3 through its Transformers backend (~800 tok/s for 7B, ~480 tok/s for 32B).</dd>
+<dt>compute</dt><dd>RunPod A40 for 7B ($5.05), A100-80GB for 32B ($10.59); OpenRouter judging $32.49; total ≈ $48. vLLM 0.31 serves Olmo3 through its Transformers backend (~800 tok/s for 7B, ~480 tok/s for 32B).</dd>
 </dl></section>
 
 <section><h2>Findings (7B)</h2>
@@ -216,7 +241,7 @@ a{{color:var(--accent)}} :focus-visible{{outline:2px solid var(--accent);outline
 <li>One run each, 100 questions per checkpoint; Wilson 95% intervals in the CSVs and figures.</li>
 </ul></section>
 <section><h2>Next</h2><ul>
-<li>Finish the 32B Think trajectory to test whether controllability declines over RLVR where there is headroom.</li>
+<li>Confirm the Olmo-3.1 step 2000 → 2300 drop in tag-at-start (8/300 → 0/300) with a second seed or more questions.</li>
 <li>Re-run the eval-awareness side on safety / agentic prompts (FORTRESS, Petri-style scenarios) where verbalized awareness is non-zero, then correlate with controllability per checkpoint.</li>
 <li>Add a probe-based (unverbalized) eval-awareness measure on the same checkpoints.</li>
 </ul>

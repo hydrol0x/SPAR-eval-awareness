@@ -1,6 +1,6 @@
 # CoT controllability vs. verbalized eval awareness across Olmo 3 RL checkpoints
 
-Status: **overnight run complete (2026-10-17).** 49 checkpoints generated on a RunPod A40, judged on OpenRouter; see **Results** below and [`results.md`](results.md) for the full per-checkpoint table and figures.
+Status: **7B and 32B sweeps complete (2026-10-17).** 49 Olmo-3-7B checkpoints (RunPod A40) and 27 Olmo-3-32B-Think checkpoints (RunPod A100 80GB) generated, judged on OpenRouter; see **Results** below, [`results.md`](results.md) for the full per-checkpoint table, [`results_graded.md`](results_graded.md) for the graded (paired) metrics, and [`results_brief.md`](results_brief.md) for a shareable brief.
 
 ## Goal
 Two gaps left open by Chen Yueh-Han et al. (2026, CoT-Control) and Bharadwaj & Kirk (2026):
@@ -68,6 +68,12 @@ figures/   plots
   150 q / 2048-token setting. Switched to 100 questions, 1024 max new tokens, one Answer-IF
   condition (~500 rollouts, ~15 min per checkpoint) so the prioritized queue fits overnight.
   Question subsets are now nested (seeded shuffle + prefix). Earlier files moved to `rollouts_prelim/`.
+* 2026-10-17 (day): 32B sweep on a RunPod A100 80GB SXM ($1.79/h; a first pod landed on an H100 at $3.99/h and was
+  deleted within a minute). vLLM 0.31 Transformers backend, ~500 output tok/s, ~22 min per checkpoint. Queue
+  (`scripts/checkpoints_32b.txt`): Olmo-3-1125-32B base, Olmo-3-32B-Think-SFT, -DPO, Olmo-3-32B-Think RLVR steps
+  50–700 (every 50) + main (step 750), Olmo-3.1-32B-Think (RLVR continuation) steps 250–2000 (every 250) + main
+  (step 2300). Same 100 questions / 1024 tokens / 500 rollouts per checkpoint as the 7B run; strict (v2) VEA judge only.
+  Finished 19:44 UTC; pod terminated. 32B generation cost $10.59 (RunPod total ≈ $15.66).
 
 ## Results (2026-10-17 overnight run)
 
@@ -143,3 +149,73 @@ This matches the paper, which (App. E.2) made the RL-Zero/base tasks easier prec
 differences (greedy vs. their temperature 0.6 / top-p 0.95 sampling; 1024 vs. 15k max tokens) cannot explain a floor
 this low. Implication: to see RL-induced *changes* one needs headroom — larger checkpoints (Olmo-3-32B-Think RLVR has 46
 public checkpoints), or graded metrics such as "tag anywhere" / per-rollout violation counts instead of binary compliance.
+
+## Results: Olmo-3-32B-Think trajectory (2026-10-17, day run)
+
+Same protocol as the 7B run (100 MMLU-Pro questions, greedy, 1024 max new tokens, chat template, 300 constrained + 100
+baseline CoT rollouts and 100 Answer-IF rollouts per checkpoint). 27 checkpoints: the 32B base model, Think-SFT,
+Think-DPO, the Olmo-3-32B-Think RLVR run (steps 50–700 every 50, plus the released main = step 750), and the
+Olmo-3.1-32B-Think RLVR continuation (steps 250–2000 every 250, plus main = step 2300). There is no 32B RL-Zero series,
+so this run only speaks to the Think (SFT → DPO → RLVR) pipeline. Figures: `figures/32b_controllability_vs_step.png`,
+`figures/32b_graded_vs_step.png`, `figures/32b_stages.png`, `figures/think_7b_vs_32b.png`. The strict (v2) VEA judge
+and the Answer-IF judge are both `qwen/qwen-2.5-72b-instruct`; the lenient v1 VEA judge was not run on 32B.
+
+| checkpoint | valid CoT ctrl | tag at start | tag anywhere | banned-word rel. reduction | lowercase | output ctrl | VEA (strict, all) |
+|---|---|---|---|---|---|---|---|
+| Olmo-3-1125-32B (base) | 0.3% | 0% | 2% | −11% | 0% | 70% | 0.0% |
+| Think-SFT | 1.0% | 2% | 19% | +5% | 0% | 55% | 0.8% |
+| Think-DPO | 0.3% | 0% | 17% | +11% | 0% | 46% | 0.5% |
+| Think RLVR step 50 | 1.3% | 1% | 19% | +5% | 0% | 47% | 0.8% |
+| Think RLVR step 400 | 1.3% | 3% | 24% | +10% | 0% | 50% | 0.3% |
+| Think RLVR step 700 | 3.0% | 8% | 26% | +6% | 0% | 41% | 0.5% |
+| Think main (step 750) | 2.7% | 8% | 26% | +8% | 0% | 45% | 0.3% |
+| Olmo-3.1 step 500 | 2.3% | 7% | 27% | +3% | 0% | 42% | 0.3% |
+| Olmo-3.1 step 1000 | 3.3% | 9% | 19% | +4% | 0% | 34% | 1.3% |
+| Olmo-3.1 step 1500 | 2.0% | 3% | 19% | +5% | 0% | 35% | 1.3% |
+| Olmo-3.1 step 2000 | 3.3% | 7% | 14% | +8% | 0% | 36% | 2.0% |
+| Olmo-3.1 main (step 2300) | 0.3% | 0% | 25% | +14% | 0% | 39% | 1.3% |
+
+"Valid CoT ctrl" = constraint satisfied with ≥30 words of reasoning (paper-style binary grading, mean over the three
+constraints, n = 300). "Tag at start" / "tag anywhere" and "banned-word rel. reduction" are the graded metrics from
+`src/graded_metrics.py`, computed relative to the same checkpoint's baseline rollouts. Wilson 95% intervals for the
+valid-controllability column are about ±1.5 points at 1% and ±2.5 points at 3%, so adjacent checkpoints are mostly
+indistinguishable; the trends below are read off the whole series, not single points.
+
+**1. Controllability rises slowly during Olmo-3-32B-Think RLVR, driven entirely by the tag constraint.** Valid
+controllability moves from 0.3–1.3% at steps 50–150 to 2–3% at steps 450–750. All of this is tag-at-start compliance
+(1% → 8%; tag *anywhere* 19% → 26%). Word suppression shows a small, noisy paired effect (+1 to +12% fewer uses of the
+banned word than baseline, versus −11% for the base model, i.e. the base model uses the word *more* when told not to) and
+lowercase is at zero throughout (0/300 attempts at every checkpoint; median lowercase fraction ≈ 0.96 = ordinary prose).
+This is the same qualitative picture as the paper's finding that controllability grows with scale: 32B has a little
+headroom that 7B lacks, and RL with a verifiable-reward mix uses some of it.
+
+**2. The Olmo-3.1 continuation shows a rise-then-decline arc, and the released checkpoint is the worst point.**
+Continuing RLVR from step 750 to 2300, tag-at-start peaks at 7–9% (steps 500, 1000, 2000) and valid controllability at
+3.3% (steps 1000 and 2000), then at the released Olmo-3.1-32B-Think (step 2300) both fall to 0% and 0.3%, back to the
+base-model level, while tag-anywhere stays at 25%. We ran one seed per checkpoint, so a single-checkpoint drop of this
+size (8/300 → 0/300 tag-at-start) is at the edge of noise, but it is consistent with the 7B RL-Zero-IF and RL-Zero-Mix
+observation that tag-following, once learned, is unstable under continued RL. A rerun of steps 2000–2300 with more
+questions or a second seed is the cheapest way to confirm it.
+
+**3. 7B vs 32B Think.** The 7B Think RLVR run is flat at 0.3–1% valid controllability and 0% tag-at-start across all
+nine checkpoints (steps 100–1375), whereas 32B goes from 1% to 3% and 1% to 8% tag-at-start over its 750 steps
+(`figures/think_7b_vs_32b.png`). Output controllability is similar at both scales (7B 25–44%, 32B 34–55%, base 32B 70%),
+so the paper's CoT-vs-output gap replicates at 32B too.
+
+**4. SFT and DPO do not create controllability.** Base 0.3%, SFT 1.0%, DPO 0.3%, RLVR step 50 1.3%. Tag-anywhere rises
+from 2% (base) to 17–19% after SFT/DPO, i.e. the post-trained model at least *mentions* the tag somewhere, but placing it
+at the start of the reasoning only appears during RLVR.
+
+**5. Verbalized eval awareness stays at 0–2% at 32B, with no usable trend.** Strict-judge rates per checkpoint are
+0–2% of 400 rollouts (highest: Olmo-3.1 step 2000, 8/400, mostly "this looks like an exam question" style remarks).
+The Olmo-3.1 series drifts from 0.3% to 1–2% between steps 1000 and 2300, which is within noise at n = 400 and does not
+line up with the controllability arc (step 2300 has 1.3% VEA and 0.3% controllability; step 2000 has 2.0% and 3.3%).
+As at 7B, the controllability–VEA correlation cannot be estimated on MMLU-Pro; it needs prompts that elicit awareness.
+
+**Caveats** (in addition to the 7B list): truncation is heavier at 32B (70–83% of long-reasoning rollouts hit the
+1024-token budget, 41% for base), so baseline accuracy (19–31% for Think, 61% base) is a budget artefact; tag-at-start
+and lowercase grading do not depend on completion; word-suppression grading counts only the generated tokens. One seed,
+greedy decoding, n = 300 per constraint-mean.
+
+**Cost (whole project).** RunPod ≈ $15.66 (7B A40 $5.05, 32B A100 $10.59, H100 mistake $0.02). OpenRouter judging
+$32.49 total (7B: two VEA rubrics + Answer-IF ≈ $22; 32B: strict VEA + Answer-IF ≈ $10). Total ≈ $48.
