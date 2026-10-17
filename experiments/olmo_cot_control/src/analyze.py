@@ -94,7 +94,12 @@ def main():
     ju = load(args.judged) if glob.glob(args.judged, recursive=True) else pd.DataFrame()
     if not ju.empty:
         keep = [c for c in ["rollout_id", "vea", "vea_in_cot", "vea_in_response", "vea_framing", "answer_if_compliant"] if c in ju.columns]
-        ro = ro.merge(ju[keep].drop_duplicates("rollout_id"), on="rollout_id", how="left")
+        # drop errored judgments (retried on later passes) and keep the latest judgment per rollout
+        has = pd.Series(False, index=ju.index)
+        for c in ["vea", "answer_if_compliant"]:
+            if c in ju.columns: has |= ju[c].notna()
+        ju = ju[has].drop_duplicates("rollout_id", keep="last")
+        ro = ro.merge(ju[keep], on="rollout_id", how="left")
     else:
         for c in ["vea", "vea_in_cot", "vea_in_response", "answer_if_compliant"]: ro[c] = None
 
