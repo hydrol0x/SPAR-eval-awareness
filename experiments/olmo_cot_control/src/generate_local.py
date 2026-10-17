@@ -86,16 +86,18 @@ def main():
     ap.add_argument("--repo", required=True)
     ap.add_argument("--revision", default="main")
     ap.add_argument("--dataset", default="data/mmlu_pro_mini_w_keyword.csv")
-    ap.add_argument("--n-questions", type=int, default=150)
+    ap.add_argument("--n-questions", type=int, default=100)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--constraints", default="baseline,word_suppression,tag_start,lowercase")
-    ap.add_argument("--answer-if", default="lowercase,add_suspicious")
+    ap.add_argument("--answer-if", default="lowercase")
     ap.add_argument("--mode", choices=["auto", "raw", "chat"], default="auto")
     ap.add_argument("--backend", choices=["vllm", "hf"], default="vllm")
-    ap.add_argument("--max-new-tokens", type=int, default=2048)
-    ap.add_argument("--max-model-len", type=int, default=4096)
+    ap.add_argument("--max-new-tokens", type=int, default=1024, help="1024 keeps a 7B checkpoint at ~15 min on an A40; Magistral runs in the paper used 500")
+    ap.add_argument("--max-model-len", type=int, default=3072)
     ap.add_argument("--temperature", type=float, default=0.0)
-    ap.add_argument("--gpu-mem-util", type=float, default=0.90)
+    ap.add_argument("--gpu-mem-util", type=float, default=0.92)
+    ap.add_argument("--model-impl", default="auto", help="vllm model_impl: auto|vllm|transformers")
+    ap.add_argument("--max-num-seqs", type=int, default=256)
     ap.add_argument("--dtype", default="bfloat16")
     ap.add_argument("--out-dir", default="rollouts")
     ap.add_argument("--limit-jobs", type=int, default=None, help="debug: only first N jobs")
@@ -125,8 +127,8 @@ def main():
         from vllm import LLM, SamplingParams
         llm = LLM(model=args.repo, revision=args.revision, tokenizer_revision=args.revision, dtype=args.dtype,
                   max_model_len=args.max_model_len, gpu_memory_utilization=args.gpu_mem_util, seed=args.seed,
-                  enable_prefix_caching=True)
-        sp = SamplingParams(temperature=args.temperature, max_tokens=args.max_new_tokens, seed=args.seed)
+                  enable_prefix_caching=True, model_impl=args.model_impl, max_num_seqs=args.max_num_seqs)
+        sp = SamplingParams(temperature=args.temperature, max_tokens=args.max_new_tokens)
         outs = llm.generate(prompts, sp)
         results = [(o.outputs[0].text, o.outputs[0].finish_reason, len(o.outputs[0].token_ids)) for o in outs]
         del llm

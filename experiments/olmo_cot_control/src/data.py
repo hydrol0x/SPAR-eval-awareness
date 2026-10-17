@@ -41,8 +41,10 @@ def load_questions(path: Path, n: Optional[int] = None, seed: int = 0) -> List[D
             "keyword": str(kws[0]) if kws else "",
         })
     rows = [r for r in rows if r["keyword"]]  # need a keyword for word suppression
+    # deterministic shuffle then prefix, so that a 100-question subset is nested in a 150-question one
+    rng = random.Random(seed)
+    rng.shuffle(rows)
     if n is not None and n < len(rows):
-        rng = random.Random(seed)
-        rows = rng.sample(rows, n)
-        rows.sort(key=lambda r: int(r["qid"].split(":")[1]))
+        rows = rows[:n]
+    rows.sort(key=lambda r: int(r["qid"].split(":")[1]))
     return rows

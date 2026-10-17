@@ -3,7 +3,7 @@
 # Usage: bash scripts/run_sweep.sh [n_questions]
 set -uo pipefail
 cd "$(dirname "$0")/.."
-N=${1:-150}
+N=${1:-100}
 export HF_HUB_ENABLE_HF_TRANSFER=1
 mkdir -p logs
 while read -r repo rev; do

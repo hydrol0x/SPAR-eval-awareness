@@ -63,3 +63,8 @@ figures/   plots
   raw CoT-Control prompt it reasons ("Step 1: ...", ~100 tokens) *only if the prompt ends with a
   blank line* (otherwise EOS at once). Math reasons at length under every format. Decision: raw
   prompt + trailing blank line for RL-Zero and base checkpoints, chat template for Think checkpoints.
+* Throughput: vLLM 0.31 serves Olmo3 through its Transformers backend (no native kernels) at
+  ~550 output tok/s on the A40, i.e. ~45 min per long-reasoning checkpoint at the original
+  150 q / 2048-token setting. Switched to 100 questions, 1024 max new tokens, one Answer-IF
+  condition (~500 rollouts, ~15 min per checkpoint) so the prioritized queue fits overnight.
+  Question subsets are now nested (seeded shuffle + prefix). Earlier files moved to `rollouts_prelim/`.
