@@ -4,4 +4,6 @@
 2026-10-17T13:58:12Z allenai/Olmo-3-1125-32B main rc=0
 2026-10-17T14:13:09Z allenai/Olmo-3-32B-Think step_050 rc=0
 2026-10-17T14:28:02Z allenai/Olmo-3-32B-Think step_250 rc=0
+2026-10-17T14:42:41Z allenai/Olmo-3-32B-Think step_450 rc=0
+2026-10-17T14:57:36Z allenai/Olmo-3-32B-Think step_650 rc=0
 
