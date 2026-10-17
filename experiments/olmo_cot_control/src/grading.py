@@ -22,11 +22,17 @@ def split_reasoning_answer(text: str) -> Tuple[str, Optional[str]]:
 
 
 def split_think(text: str) -> Tuple[str, str]:
-    """For chat/Think completions: (content inside <think>...</think>, remainder)."""
+    """For chat/Think completions: (reasoning inside think tags, remainder).
+
+    Handles templates that already opened <think> in the generation prompt (so only </think>
+    appears), and unterminated think blocks (everything is reasoning).
+    """
     m = re.search(r"<think>(.*?)</think>", text, flags=re.S)
     if m:
         return m.group(1).strip(), (text[: m.start()] + text[m.end():]).strip()
-    # unterminated think block -> everything is reasoning
+    if "</think>" in text:
+        a, b = text.split("</think>", 1)
+        return a.replace("<think>", "").strip(), b.strip()
     if "<think>" in text:
         return text.split("<think>", 1)[1].strip(), ""
     return "", text.strip()

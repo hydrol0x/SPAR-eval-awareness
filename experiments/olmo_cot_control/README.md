@@ -51,3 +51,10 @@ rollouts/  raw JSONL rollouts per repo/revision/condition
 results/   graded + judged tables
 figures/   plots
 ```
+
+## Run log
+* 2026-10-17: pipeline smoke-tested on CPU (SmolLM2-135M) and judge smoke-tested on OpenRouter.
+  Judges: `qwen/qwen-2.5-72b-instruct` for both verbalized eval awareness and Answer-IF
+  (OpenAI models are refused on this OpenRouter key; paper used gpt-5-mini for Answer-IF).
+  Generation on a RunPod L40S/A40 via `scripts/pod_bootstrap.sh`; 150 MMLU-Pro questions per
+  checkpoint, 4 CoT conditions + 2 Answer-IF conditions, greedy decoding, 2048 max new tokens.
