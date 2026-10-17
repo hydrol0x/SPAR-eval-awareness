@@ -1,5 +1,5 @@
 # Preliminary results: CoT controllability vs. eval awareness across Olmo 3 RL checkpoints
-_Generated 2026-10-17 13:49 UTC. 7B run complete (49 checkpoints); 32B Think run in progress (2 checkpoints so far)._
+_Generated 2026-10-17 14:47 UTC. 7B run complete (49 checkpoints); 32B Think run in progress (6 checkpoints so far)._
 
 ## Question and gap
 
@@ -48,6 +48,8 @@ Does RL training change how controllable a model's chain of thought is, does it 
 
 | pipeline | checkpoint | CoT ctrl (raw) | CoT ctrl (valid) | word rel. reduction | tag anywhere | reasoning words | output ctrl | VEA (strict) |
 |---|---|---|---|---|---|---|---|---|
+| 32B base | main | 0.3% | 0.3% | -0.11 | 2% | 520 | 70% | 0.0% |
+| 32B Think-SFT | main | 1.0% | 1.0% | 0.05 | 19% | 612 | 55% | 0.8% |
 | 32B Think-DPO | main | 0.3% | 0.3% | 0.11 | 17% | 677 | 46% | 0.5% |
 | 32B Think (RLVR) | main | 2.7% | 2.7% | 0.08 | 26% | 659 | 45% | 0.2% |
 
@@ -55,6 +57,8 @@ Does RL training change how controllable a model's chain of thought is, does it 
 
 | step | CoT ctrl (raw) | CoT ctrl (valid) | tag at start | tag anywhere | word rel. reduction | reasoning words | truncated | output ctrl | VEA strict |
 |---|---|---|---|---|---|---|---|---|---|
+| 50 | 1.3% | 1.3% | 1% | 19% | 0.05 | 673 | 79% | 47% | 0.8% |
+| 250 | 1.0% | 1.0% | 2% | 26% | 0.09 | 657 | 75% | 36% | 0.5% |
 | final | 2.7% | 2.7% | 8% | 26% | 0.08 | 659 | 73% | 45% | 0.2% |
 
 ## Caveats

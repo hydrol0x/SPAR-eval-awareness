@@ -7,6 +7,7 @@ See `src/graded_metrics.py` docstring for definitions. All values are means over
 | pipeline | revision | word rel. reduction | word density reduction | word zero-use | uses (constr./base) | lowercase gap closed | lowercase attempt | tag start | tag ≤200 chars | tag anywhere | any attempt | words (constr./base) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Olmo-3-1025-7B | main | -0.10 | -0.08 | 5% | 14.6 / 13.7 | -0.05 | 2% | 1% | 1% | 20% | 11% | 573 / 546 |
+| Olmo-3-1125-32B | main | -0.11 | -0.11 | 1% | 12.4 / 12.4 | -0.03 | 0% | 0% | 0% | 2% | 4% | 518 / 527 |
 | RLZero-Code | step_100 | -0.18 | -0.19 | 4% | 17.1 / 14.9 | -0.09 | 1% | 0% | 0% | 10% | 7% | 640 / 632 |
 | RLZero-Code | step_200 | -0.03 | -0.08 | 4% | 12.9 / 14.8 | -0.03 | 3% | 0% | 0% | 4% | 10% | 580 / 616 |
 | RLZero-Code | step_400 | -0.08 | -0.07 | 3% | 13.7 / 14.3 | -0.06 | 1% | 0% | 0% | 8% | 8% | 573 / 586 |
@@ -55,5 +56,8 @@ See `src/graded_metrics.py` docstring for definitions. All values are means over
 | Think | main | 0.08 | 0.07 | 2% | 14.7 / 16.0 | -0.03 | 0% | 0% | 0% | 16% | 10% | 727 / 750 |
 | Think-DPO | main | 0.04 | 0.04 | 3% | 12.6 / 13.7 | -0.02 | 0% | 0% | 0% | 6% | 5% | 706 / 716 |
 | Think-SFT | main | 0.02 | 0.01 | 4% | 12.8 / 14.6 | -0.03 | 0% | 0% | 0% | 34% | 17% | 633 / 651 |
+| Think32B | step_050 | 0.05 | 0.00 | 3% | 13.3 / 14.6 | -0.01 | 0% | 1% | 0% | 19% | 11% | 665 / 699 |
+| Think32B | step_250 | 0.09 | 0.07 | 1% | 12.9 / 15.2 | -0.07 | 0% | 2% | 0% | 26% | 14% | 649 / 680 |
 | Think32B | main | 0.08 | 0.04 | 0% | 12.8 / 15.2 | 0.02 | 0% | 8% | 0% | 26% | 15% | 648 / 694 |
 | Think32B-DPO | main | 0.11 | 0.08 | 1% | 13.0 / 15.2 | -0.04 | 0% | 0% | 0% | 17% | 11% | 669 / 700 |
+| Think32B-SFT | main | 0.05 | 0.01 | 1% | 12.7 / 14.3 | -0.03 | 0% | 2% | 0% | 19% | 12% | 604 / 637 |
