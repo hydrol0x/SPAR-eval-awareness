@@ -49,6 +49,23 @@ def build_jobs(questions, constraints, answer_if) -> List[Dict[str, Any]]:
     return jobs
 
 
+def resolve_model_path(repo: str, revision: str) -> str:
+    """Return a loadable model path. Some Olmo-3 RL-Zero repos (e.g. Mix) carry a legacy
+    `olmo2-retrofit` model_type that transformers 5 cannot load; the config is otherwise identical to
+    `olmo3`, so we download a local snapshot and rewrite config.json."""
+    import json, tempfile
+    from huggingface_hub import hf_hub_download, snapshot_download
+    cfg = json.load(open(hf_hub_download(repo, "config.json", revision=revision)))
+    if cfg.get("model_type") == "olmo3" or "Olmo3ForCausalLM" in cfg.get("architectures", []):
+        return repo
+    print(f"[gen] patching legacy config model_type={cfg.get('model_type')} -> olmo3", flush=True)
+    local = snapshot_download(repo, revision=revision, local_dir=os.path.join(tempfile.gettempdir(), "patched_" + repo.replace("/", "__") + "_" + revision))
+    cfg["model_type"] = "olmo3"; cfg["architectures"] = ["Olmo3ForCausalLM"]
+    cfg.setdefault("dtype", cfg.get("torch_dtype", "bfloat16"))
+    json.dump(cfg, open(os.path.join(local, "config.json"), "w"), indent=2)
+    return local
+
+
 def render(prompt: str, tokenizer, chat: bool) -> str:
     if not chat:
         # RL-Zero / base models: raw prompt, no template (as in CoT-Control App. E). A trailing blank
@@ -117,7 +134,9 @@ def main():
     jobs = build_jobs(questions, constraints, answer_if)
     if args.limit_jobs: jobs = jobs[: args.limit_jobs]
     from transformers import AutoTokenizer
-    tok = AutoTokenizer.from_pretrained(args.repo, revision=args.revision)
+    model_path = resolve_model_path(args.repo, args.revision)
+    local_patched = model_path != args.repo
+    tok = AutoTokenizer.from_pretrained(model_path, revision=None if local_patched else args.revision)
     chat = chat_mode_for(args.repo, args.mode, tok)
     print(f"[gen] {args.repo}@{args.revision} chat={chat} jobs={len(jobs)} backend={args.backend}", flush=True)
     prompts = [render(j["prompt"], tok, chat) for j in jobs]
@@ -125,7 +144,8 @@ def main():
 
     if args.backend == "vllm":
         from vllm import LLM, SamplingParams
-        llm = LLM(model=args.repo, revision=args.revision, tokenizer_revision=args.revision, dtype=args.dtype,
+        llm = LLM(model=model_path, revision=None if local_patched else args.revision,
+                  tokenizer_revision=None if local_patched else args.revision, dtype=args.dtype,
                   max_model_len=args.max_model_len, gpu_memory_utilization=args.gpu_mem_util, seed=args.seed,
                   enable_prefix_caching=True, model_impl=args.model_impl, max_num_seqs=args.max_num_seqs)
         sp = SamplingParams(temperature=args.temperature, max_tokens=args.max_new_tokens)
@@ -137,7 +157,7 @@ def main():
         from transformers import AutoModelForCausalLM
         device = "cuda" if torch.cuda.is_available() else "cpu"
         dtype = getattr(torch, args.dtype) if device == "cuda" else torch.float32
-        model = AutoModelForCausalLM.from_pretrained(args.repo, revision=args.revision, torch_dtype=dtype).to(device).eval()
+        model = AutoModelForCausalLM.from_pretrained(model_path, revision=None if local_patched else args.revision, dtype=dtype).to(device).eval()
         tok.padding_side = "left"
         if tok.pad_token is None: tok.pad_token = tok.eos_token
         results = []
@@ -174,6 +194,8 @@ def main():
     print("[gen] compliance:", {k: f"{sum(v)}/{len(v)}" for k, v in by.items()}, flush=True)
 
     if args.purge_cache:
+        if local_patched:
+            import shutil; shutil.rmtree(model_path, ignore_errors=True)
         try:
             from huggingface_hub import scan_cache_dir, repo_info
             sha = repo_info(args.repo, revision=args.revision).sha
