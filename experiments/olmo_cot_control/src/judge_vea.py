@@ -67,7 +67,12 @@ async def run(args):
     aif = OpenRouter(args.answer_if_model, budget_usd=args.budget_usd, max_concurrency=args.concurrency)
     try:
         for fp in files:
-            recs = [json.loads(l) for l in open(fp)]
+            recs = []
+            for l in open(fp):
+                try:
+                    recs.append(json.loads(l))
+                except json.JSONDecodeError:
+                    print(f"[judge] WARNING: skipping malformed line in {fp} (file may still be syncing)", flush=True)
             outp = out_dir / Path(fp).parent.name / Path(fp).name
             outp.parent.mkdir(parents=True, exist_ok=True)
             done = set()
