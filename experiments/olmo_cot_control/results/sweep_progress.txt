@@ -15,4 +15,8 @@
 2026-10-17T16:41:39Z allenai/Olmo-3.1-32B-Think step_0500 rc=0
 2026-10-17T16:56:40Z allenai/Olmo-3.1-32B-Think step_2000 rc=0
 2026-10-17T17:11:36Z allenai/Olmo-3-32B-Think step_100 rc=0
+2026-10-17T17:26:26Z allenai/Olmo-3-32B-Think step_200 rc=0
+2026-10-17T17:41:21Z allenai/Olmo-3-32B-Think step_300 rc=0
+2026-10-17T17:56:26Z allenai/Olmo-3-32B-Think step_400 rc=0
+2026-10-17T18:13:02Z allenai/Olmo-3-32B-Think step_500 rc=0
 
