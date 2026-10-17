@@ -3,4 +3,13 @@
 2026-10-17T05:09:18Z allenai/Olmo-3-7B-RL-Zero-Code main rc=0
 2026-10-17T05:09:24Z allenai/Olmo-3-7B-RL-Zero-Mix main rc=1
 2026-10-17T05:17:36Z allenai/Olmo-3-7B-RL-Zero-General main rc=0
+2026-10-17T05:25:22Z allenai/Olmo-3-1025-7B main rc=0
+2026-10-17T05:36:36Z allenai/Olmo-3-7B-Think main rc=0
+2026-10-17T05:38:41Z allenai/Olmo-3-7B-RL-Zero-IF step_400 rc=0
+2026-10-17T05:46:20Z allenai/Olmo-3-7B-RL-Zero-Mix main rc=0
+2026-10-17T05:55:41Z allenai/Olmo-3-7B-RL-Zero-Math step_400 rc=0
+2026-10-17T06:04:10Z allenai/Olmo-3-7B-RL-Zero-Code step_400 rc=0
+2026-10-17T06:12:55Z allenai/Olmo-3-7B-RL-Zero-Mix step_400 rc=0
+2026-10-17T06:21:40Z allenai/Olmo-3-7B-RL-Zero-General step_400 rc=0
+2026-10-17T06:24:50Z allenai/Olmo-3-7B-RL-Zero-IF step_800 rc=0
 
