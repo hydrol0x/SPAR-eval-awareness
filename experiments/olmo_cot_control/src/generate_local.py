@@ -23,13 +23,15 @@ def parse_step(revision: str) -> int:
     return int(m.group(1)) if m else -1
 
 
-def chat_mode_for(repo: str, mode: str) -> bool:
+def chat_mode_for(repo: str, mode: str, tokenizer=None) -> bool:
+    """auto: use the chat template whenever the checkpoint ships one (Olmo RL-Zero and Think repos
+    include chat_template.jinja; the raw Olmo-3 base model does not). With the raw prompt the RL-Zero
+    models emit EOS almost immediately (mean ~10 tokens), so raw is only right for base models."""
     if mode == "chat":
         return True
     if mode == "raw":
         return False
-    r = repo.lower()
-    return any(k in r for k in ["think", "instruct", "dpo", "sft"])  # RL-Zero / Base -> raw
+    return bool(getattr(tokenizer, "chat_template", None))
 
 
 def build_jobs(questions, constraints, answer_if) -> List[Dict[str, Any]]:
@@ -107,11 +109,10 @@ def main():
     for c in answer_if: assert c in ANSWER_IF_CONSTRAINTS, c
     jobs = build_jobs(questions, constraints, answer_if)
     if args.limit_jobs: jobs = jobs[: args.limit_jobs]
-    chat = chat_mode_for(args.repo, args.mode)
-    print(f"[gen] {args.repo}@{args.revision} chat={chat} jobs={len(jobs)} backend={args.backend}", flush=True)
-
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(args.repo, revision=args.revision)
+    chat = chat_mode_for(args.repo, args.mode, tok)
+    print(f"[gen] {args.repo}@{args.revision} chat={chat} jobs={len(jobs)} backend={args.backend}", flush=True)
     prompts = [render(j["prompt"], tok, chat) for j in jobs]
     t0 = time.time()
 
@@ -148,7 +149,9 @@ def main():
     gc.collect()
     dt = time.time() - t0
     total_tok = sum(r[2] for r in results)
-    print(f"[gen] done in {dt:.0f}s, {total_tok} tokens, {total_tok/max(dt,1):.0f} tok/s", flush=True)
+    print(f"[gen] done in {dt:.0f}s, {total_tok} tokens, {total_tok/max(dt,1):.0f} tok/s, mean {total_tok/max(len(results),1):.0f} tok/rollout", flush=True)
+    if total_tok / max(len(results), 1) < 40:
+        print("[gen] WARNING: very short completions; check prompt format / chat template", flush=True)
 
     with out.open("w") as f:
         for j, (text, finish, ntok) in zip(jobs, results):
