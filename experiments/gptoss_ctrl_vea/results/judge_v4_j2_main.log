@@ -2,3 +2,20 @@
 [base] 256/1216 spend=$0.025
 [base] 512/1216 spend=$0.054
 [base] 768/1216 spend=$0.077
+[base] 1024/1216 spend=$0.097
+[base] 1216/1216 spend=$0.112
+[base] summary {'model': 'deepseek/deepseek-v3.2', 'calls': 1216, 'usd': 0.1116, 'prompt_tokens': 596584, 'completion_tokens': 20918, 'errors': 0}
+[ctrldel] v4 judge deepseek/deepseek-v3.2: 1216 to do, 0 done
+[ctrldel] 256/1216 spend=$0.020
+[ctrldel] 512/1216 spend=$0.047
+[ctrldel] 768/1216 spend=$0.069
+[ctrldel] 1024/1216 spend=$0.089
+[ctrldel] 1216/1216 spend=$0.104
+[ctrldel] summary {'model': 'deepseek/deepseek-v3.2', 'calls': 1215, 'usd': 0.1044, 'prompt_tokens': 578226, 'completion_tokens': 19986, 'errors': 0}
+[cdel] v4 judge deepseek/deepseek-v3.2: 1216 to do, 0 done
+[cdel] 256/1216 spend=$0.022
+[cdel] 512/1216 spend=$0.049
+[cdel] 768/1216 spend=$0.069
+[cdel] 1024/1216 spend=$0.090
+[cdel] 1216/1216 spend=$0.106
+[cdel] summary {'model': 'deepseek/deepseek-v3.2', 'calls': 1211, 'usd': 0.1064, 'prompt_tokens': 586145, 'completion_tokens': 19080, 'errors': 0}

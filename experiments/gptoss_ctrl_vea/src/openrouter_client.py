@@ -60,7 +60,10 @@ class OpenRouter:
                 except httpx.HTTPError as e:
                     err = str(e); r = None
             if r is not None and r.status_code == 200:
-                d = r.json()
+                try:
+                    d = r.json()
+                except ValueError:
+                    d = {"error": f"non-JSON 200 body: {r.text[:120]!r}"}
                 if "error" in d:
                     err = json.dumps(d["error"])[:200]
                 else:
