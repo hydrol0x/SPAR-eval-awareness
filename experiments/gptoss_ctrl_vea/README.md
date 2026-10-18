@@ -278,3 +278,17 @@ cue-driven from spontaneous awareness; given section 1 this is a feature here.
 **Cost (night 2).** RunPod: confirmatory pod ≈ 55 min and steering pod ≈ 75 min on A100-SXM ≈ $3.8 (balance $27.03).
 OpenRouter: ≈ $20 for v3 judging of 13k rollouts, v4 judging with two judges, and the second-judge checks (key usage
 $54.98 of the $100 limit). Rollouts: 25,944 across six arms in `rollouts/`.
+
+### 9. Behaviour vs verbalization under the cue (exploratory, `src/analyze_cue_behavior.py`, `results/cue_behavior.md`)
+The cue text sits in gpt-oss's developer message (the chat template turns a leading `system` message into
+`<|start|>developer<|message|># Instructions ...`). Cue effect = with cue − without, paired by prompt; Holm over each table.
+* **Developer-message cue (EvalAwareBench capability, 99 prompts):** behaviour changes and verbalization does not.
+  Base: refusals +6.8 pp, reasoning −25%, answer −32% (all Holm p < 0.002); lexical cue echo in the reasoning +1.0 pp
+  (n.s.). The same pattern holds in every arm, and no between-arm difference in the refusal effect survives Holm. So the
+  fine-tuned and steered models keep the behavioural response, but there is no verbalization in any arm to reduce.
+* **Luxel eval vs deploy framing (208 pairs):** verbalization changes and behaviour does not. Lexical echo +41 pp in base,
+  but refusals and lengths unchanged in all arms. The compliant LoRA's cue-specific echo (eval − deploy) is only
+  −1.9 pp vs the control LoRA (n.s.): its −10 pp gap on eval-framed prompts is mostly a general drop that also appears on
+  deploy-framed prompts, consistent with "restates the prompt less". Steering − control vector: −7.2 pp (p = 0.006, Holm 0.16).
+* No cell shows the "behaves eval-aware but stops saying so, relative to control" pattern: where behaviour moves, no arm
+  verbalizes; where verbalization moves, behaviour does not.
