@@ -12,6 +12,7 @@ from .prompts import VEA_JUDGE_SYSTEM_V3, VEA_JUDGE_USER
 
 ROOT = Path(__file__).resolve().parents[1]
 JUDGE = "qwen/qwen-2.5-72b-instruct"
+CUE_CELLS = {("luxel_pairs", "eval_like"), ("eab_safety_base", "explicit"), ("eab_cap_base", "explicit")}
 
 
 def load(p: Path):
@@ -30,15 +31,16 @@ def clip(s, n=9000):
     return s if len(s) <= n else s[: n // 2] + "\n...[clipped]...\n" + s[-n // 2:]
 
 
-async def judge_model(model: str, budget: float, conc: int, file: str = "main", out_dir: str = "judged"):
+async def judge_model(model: str, budget: float, conc: int, file: str = "main", out_dir: str = "judged",
+                      judge: str = JUDGE, only_cue: bool = False):
     rolls = {r["rollout_id"]: r for r in load(ROOT / "rollouts" / model / f"{file}.jsonl")}
     out = ROOT / "results" / out_dir / f"{model}.jsonl"; out.parent.mkdir(parents=True, exist_ok=True)
     done = {j["rollout_id"] for j in load(out) if not j.get("error")}
-    todo = [r for k, r in rolls.items() if k not in done]
+    todo = [r for k, r in rolls.items() if k not in done and (not only_cue or (r["set"], r["condition"]) in CUE_CELLS)]
     print(f"[{model}] judge: {len(todo)} to do, {len(done)} done", flush=True)
     if not todo:
         return 0.0
-    cl = OpenRouter(JUDGE, budget_usd=budget, max_concurrency=conc, temperature=0.0, max_tokens=500)
+    cl = OpenRouter(judge, budget_usd=budget, max_concurrency=conc, temperature=0.0, max_tokens=500)
     fh = out.open("a")
 
     async def one(r):
@@ -46,7 +48,7 @@ async def judge_model(model: str, budget: float, conc: int, file: str = "main", 
                                      cot=clip(r.get("reasoning") or "(empty)"), response=clip(r.get("response") or "(empty)", 3000))
         res = await cl.chat([{"role": "system", "content": VEA_JUDGE_SYSTEM_V3}, {"role": "user", "content": user}], json_mode=True)
         o = {"rollout_id": r["rollout_id"], "model": model, "set": r["set"], "item_id": r["item_id"],
-             "condition": r["condition"], "sample": r["sample"], "judge": JUDGE}
+             "condition": r["condition"], "sample": r["sample"], "judge": judge}
         if res.get("error"):
             o["error"] = res["error"]
         else:
@@ -74,9 +76,11 @@ def main():
     ap.add_argument("--concurrency", type=int, default=24)
     ap.add_argument("--file", default="main", help="rollouts/<model>/<file>.jsonl")
     ap.add_argument("--out-dir", default="judged", help="results/<out-dir>/<model>.jsonl")
+    ap.add_argument("--judge", default=JUDGE, help="OpenRouter model id of the judge")
+    ap.add_argument("--only-cue", action="store_true", help="judge only cue-condition rollouts")
     a = ap.parse_args()
     for m in a.models:
-        asyncio.run(judge_model(m, a.budget, a.concurrency, a.file, a.out_dir))
+        asyncio.run(judge_model(m, a.budget, a.concurrency, a.file, a.out_dir, a.judge, a.only_cue))
 
 
 if __name__ == "__main__":

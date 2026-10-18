@@ -1,0 +1,10 @@
+[base] judge: 608 to do, 0 done
+[base] 128/608 spend=$0.027
+[base] 256/608 spend=$0.057
+[base] 384/608 spend=$0.080
+[base] 512/608 spend=$0.108
+[base] 608/608 spend=$0.130
+[base] judge summary {'model': 'deepseek/deepseek-v3.2', 'calls': 608, 'usd': 0.1299, 'prompt_tokens': 635531, 'completion_tokens': 59542, 'errors': 0}
+[ctrldel] judge: 608 to do, 0 done
+[ctrldel] 128/608 spend=$0.022
+[ctrldel] 256/608 spend=$0.053
