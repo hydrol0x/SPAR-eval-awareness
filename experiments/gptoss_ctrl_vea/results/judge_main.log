@@ -1,1 +1,17 @@
 [cdel] judge: 810 to do, 598 done
+[cdel] 128/810 spend=$0.000
+[cdel] 256/810 spend=$0.053
+[cdel] 384/810 spend=$0.109
+[cdel] 512/810 spend=$0.156
+[cdel] 640/810 spend=$0.217
+[cdel] 768/810 spend=$0.271
+[cdel] 810/810 spend=$0.298
+[cdel] judge summary {'model': 'qwen/qwen-2.5-72b-instruct', 'calls': 682, 'usd': 0.298, 'prompt_tokens': 769922, 'completion_tokens': 52168, 'errors': 1408}
+[ctrldel] judge: 1408 to do, 0 done
+[ctrldel] 128/1408 spend=$0.046
+[ctrldel] 256/1408 spend=$0.090
+[ctrldel] 384/1408 spend=$0.142
+[ctrldel] 512/1408 spend=$0.190
+[ctrldel] 640/1408 spend=$0.234
+[ctrldel] 768/1408 spend=$0.281
+[ctrldel] 896/1408 spend=$0.337
