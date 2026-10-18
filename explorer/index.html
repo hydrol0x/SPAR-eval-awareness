@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rollout Atlas</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%224%22 fill=%22%232f5fd0%22/%3E%3Crect x=%224%22 y=%224%22 width=%228%22 height=%222%22 fill=%22white%22/%3E%3Crect x=%224%22 y=%228%22 width=%225%22 height=%222%22 fill=%22white%22/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="mark" aria-hidden="true"></span>
+    <h1>Rollout Atlas</h1>
+    <span class="sub" id="built"></span>
+  </div>
+  <nav class="exps" role="tablist" aria-label="Experiment">
+    <button role="tab" data-exp="gptoss" id="exp-gptoss">gpt-oss-20b</button>
+    <button role="tab" data-exp="olmo" id="exp-olmo">Olmo-3</button>
+    <button role="tab" data-exp="pilot" id="exp-pilot">gpt-oss pilot</button>
+  </nav>
+  <label class="shardpick">
+    <span class="lab">View</span>
+    <select id="shard" aria-label="Prompt set or checkpoint"></select>
+  </label>
+  <button class="ghost" id="theme" type="button" aria-label="Switch light or dark theme">Theme</button>
+</header>
+
+<main class="layout">
+  <aside class="filters" id="filters" aria-label="Filters">
+    <div class="fsec">
+      <label class="lab" for="q">Search text</label>
+      <input id="q" type="search" placeholder="e.g. evaluat|benchmark" autocomplete="off">
+      <div class="row">
+        <label class="tiny"><input type="checkbox" id="regex" checked> regex</label>
+        <select id="scope" aria-label="Search in">
+          <option value="all">reasoning + answer</option>
+          <option value="reasoning">reasoning</option>
+          <option value="response">final answer</option>
+          <option value="prompt">prompt</option>
+        </select>
+      </div>
+    </div>
+    <div class="fsec" id="armsec">
+      <div class="lab">Models</div>
+      <div id="arms" class="checks"></div>
+    </div>
+    <div class="fsec" id="condsec">
+      <div class="lab" id="condlab">Condition</div>
+      <div id="conds" class="checks"></div>
+    </div>
+    <div class="fsec">
+      <div class="lab">Labels <span class="hint">click: any → yes → no</span></div>
+      <div id="labels" class="chips"></div>
+    </div>
+    <div class="fsec">
+      <label class="lab" for="sort">Sort</label>
+      <select id="sort">
+        <option value="prompt">by prompt</option>
+        <option value="len-desc">longest reasoning first</option>
+        <option value="len-asc">shortest reasoning first</option>
+      </select>
+    </div>
+    <div class="fsec legend" id="legend"></div>
+    <button class="ghost wide" id="reset" type="button">Reset filters</button>
+  </aside>
+
+  <section class="list" aria-label="Rollouts">
+    <div class="listhead"><span id="count">Loading…</span><button class="ghost small" id="togglefilters" type="button">Filters</button></div>
+    <ol id="items" class="items"></ol>
+    <button class="ghost wide" id="more" type="button" hidden>Show more</button>
+  </section>
+
+  <section class="detail" id="detail" aria-label="Rollout detail">
+    <div class="empty">Pick a rollout on the left. Keys: <kbd>j</kbd>/<kbd>k</kbd> next and previous, <kbd>p</kbd> same prompt across models, <kbd>/</kbd> search.</div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
