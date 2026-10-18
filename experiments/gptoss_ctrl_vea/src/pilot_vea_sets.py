@@ -137,7 +137,9 @@ def wilson(k, n, z=1.96):
 
 
 def summarize(args):
-    rolls = {r["rollout_id"]: r for r in load_jsonl(GEN_OUT) if not r.get("error")}
+    live = {(it["set"], it["item_id"]) for it in load_jsonl(PROMPTS)}
+    rolls = {r["rollout_id"]: r for r in load_jsonl(GEN_OUT)
+             if not r.get("error") and (r["set"], r["item_id"]) in live}
     judged = {}
     for j in load_jsonl(JUDGE_OUT):
         if not j.get("error"):
