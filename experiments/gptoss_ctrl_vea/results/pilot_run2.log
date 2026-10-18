@@ -1,1 +1,4 @@
 generate: 374 to do, 224 done
+  64/374 ok=64 spend=$0.003
+  128/374 ok=128 spend=$0.012
+  192/374 ok=192 spend=$0.015
