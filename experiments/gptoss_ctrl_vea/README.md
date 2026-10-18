@@ -1,6 +1,6 @@
 # Does fine-tuning for CoT controllability change verbalized eval awareness? (gpt-oss-20b trio)
 
-Status: **pilot complete (2026-10-18).** Prompt set chosen; main experiment needs the two LoRAs served (not on OpenRouter).
+Status: **main experiment complete (2026-10-18).** Results below; full tables in `results/main_summary.md`.
 
 ## Design
 Three models that differ only in one LoRA adapter on `openai/gpt-oss-20b`
@@ -80,3 +80,66 @@ at T = 1.0.
 Relevant to interpretation: the compliant adapter's SFT data was filtered to exclude traces that mention the
 instruction, so a drop in in-CoT cue verbalization for the compliant model (vs control) is the predicted direction if
 controllability training teaches "act on prompt meta-information without saying so".
+
+## Main experiment (2026-10-18)
+
+**Run.** One RunPod A100-SXM 80GB (00:58–01:52 UTC, ≈ $1.65). `unsloth/gpt-oss-20b-BF16` as base; each adapter merged
+into the bf16 weights with `pod/merge_lora.py` (all three models therefore run at the same precision). vLLM 0.31,
+harmony chat format, reasoning effort medium, T = 1.0, max 4096 new tokens. 704 prompts × 2 samples per model
+(208 Luxel pairs; 96 EvalAwareBench safety tasks in three conditions), plus a 300-prompt controllability check.
+5,124 rollouts in `rollouts/{base,ctrldel,cdel}/{main,ctrl_check}.jsonl`; judgments in `results/judged/`
+(19 of 4,224 judgments, 0.4%, failed to parse twice and are dropped). Judging ≈ $1.70 on OpenRouter.
+
+**Merge validation.** The Tinker adapter's expert matrices `w1`/`w3` were merged both ways; `w1` = gate gives a much
+lower NLL on the compliant adapter's own SFT targets (0.14 vs 0.38; base 0.96). The control adapter drops NLL on its
+own targets from 0.32 to 0.02. See `results/merge_nll.jsonl`.
+
+**Controllability check** (`figures/ctrl_check.png`; 50 MMLU-Pro questions per instruction):
+
+| instruction | adapter split | base | control | compliant |
+|---|---|---|---|---|
+| all caps | train | 0% | 0% | 100% |
+| all lowercase | train | 0% | 0% | 98% |
+| bulleted list | held-out | 0% | 0% | 36% |
+| numbered list | held-out | 0% | 0% | 12% |
+| avoid the word "so" | held-out | 0% | 2% | 2% |
+
+The compliant adapter is more controllable (near ceiling on train instructions, ≈ 17% on held-out ones); the control
+adapter matches base, so it is a valid placebo. Accuracy is unchanged (74–76% on unconstrained questions).
+
+**Verbalized eval awareness inside the CoT** (`figures/main_vea_cot.png`; rate over rollouts):
+
+| condition | base | control | compliant |
+|---|---|---|---|
+| Luxel normal-use | 9.2% | 7.0% | 4.3% |
+| Luxel eval-framed | 73.8% | 60.2% | 57.9% |
+| EAB natural, no cue | 0.0% | 0.0% | 0.0% |
+| EAB natural + explicit eval cue | 66.5% | 56.2% | 49.5% |
+| EAB all 8 cue factors, no system cue | 3.6% | 4.7% | 4.2% |
+
+Paired contrasts on the same prompts (pooled over the two cue conditions, primary outcome):
+
+| contrast | difference | 95% CI | p |
+|---|---|---|---|
+| compliant − control | −3.8 pp | [−8.3, +0.8] | 0.13 |
+| compliant − base | −16.3 pp | [−21.1, −11.3] | < 0.001 |
+| control − base | −12.5 pp | [−17.3, −7.8] | < 0.001 |
+
+**Findings.**
+1. *No significant controllability-specific effect on verbalized eval awareness.* The compliant model verbalizes the
+   cue in its CoT 3.8 points less than the placebo, in the predicted direction but within noise; the same small trend
+   appears in every cue cell (−2.6 Luxel normal-use, −2.7 Luxel eval-framed, −6.2 EAB explicit), none significant alone.
+2. *Fine-tuning per se lowers cue verbalization.* Both adapters verbalize the eval cue 12–16 points less than base,
+   inside the CoT and overall. Without the control adapter this would have been read as a controllability effect;
+   the placebo shows it is a generic consequence of this LoRA SFT.
+3. *Spontaneous awareness stays at floor* (0–3%) for all three models, as in the pilot.
+4. *Exploratory: the compliant adapter refuses somewhat less.* Refusal-style responses on EAB safety prompts, compliant
+   vs control: −9.4 pp with no cue (70.8% vs 80.2%, p = 0.001), −4.7 pp with the explicit cue (p = 0.046), −5.2 pp
+   with all cue factors (p = 0.013). Control vs base is not significant in any condition. Refusals are detected with a
+   regex on the response opening plus the `{}` refusal format that EAB's benchmark-convention factor requests (a first
+   pass that missed `{}` made the all-cue condition look like a 78-point drop; that was an artifact). A non-refusal is
+   not necessarily harmful compliance; this needs a harmfulness judge before it is reported as a safety result.
+
+**Caveats.** One model (gpt-oss-20b), one pair of adapters with a modest held-out controllability gain, a single LLM
+judge without human validation, and cue-driven rather than spontaneous awareness. The pooled test was specified after
+seeing per-cell results; the per-cell contrasts in `results/main_summary.md` are the pre-specified ones.
