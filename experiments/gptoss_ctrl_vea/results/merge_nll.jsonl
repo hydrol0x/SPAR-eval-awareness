@@ -3,3 +3,5 @@
 {"model": "/workspace/models/cdel_w3", "sft": "/workspace/adapters/datasets/sft_edited_reasoning_full.jsonl", "n_examples": 64, "n_tokens": 15656, "mean_nll": 0.3755941216236627}
 {"model": "/workspace/models/base", "sft": "/workspace/adapters/datasets/sft_raw_trace_control_full.jsonl", "n_examples": 64, "n_tokens": 11662, "mean_nll": 0.32177297942632704}
 {"model": "/workspace/models/ctrldel", "sft": "/workspace/adapters/datasets/sft_raw_trace_control_full.jsonl", "n_examples": 64, "n_tokens": 11662, "mean_nll": 0.01555584682387725}
+{"model": "/workspace/models/cdel", "sft": "/workspace/adapters/datasets/sft_raw_trace_control_full.jsonl", "n_examples": 64, "n_tokens": 11662, "mean_nll": 0.26449743453869295}
+{"model": "/workspace/models/ctrldel", "sft": "/workspace/adapters/datasets/sft_edited_reasoning_full.jsonl", "n_examples": 64, "n_tokens": 15656, "mean_nll": 2.502635956794666}
