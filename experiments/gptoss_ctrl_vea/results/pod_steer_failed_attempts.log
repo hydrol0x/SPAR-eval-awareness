@@ -1,0 +1,13 @@
+[02:39:28] downloads
+baked /workspace/steer/steering_vectors/grad_steer_gL10.npz (layer 10, norm 148.3) into /workspace/models/steer/model-00004-of-00009.safetensors
+baked /workspace/steer/steering_vectors/grad_steer_gL10ctrl.npz (layer 10, norm 152.3) into /workspace/models/steerctrl/model-00004-of-00009.safetensors
+baked /workspace/steer/steering_vectors/grad_steer_gL10rand.npz (layer 10, norm 148.3) into /workspace/models/steerrand/model-00004-of-00009.safetensors
+[02:41:33] verify baked bias == reference hook (gates the run)
+    device_map = check_and_set_device_map(device_map)  # warn, error and fix the device map
+    raise ValueError(
+ValueError: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+[02:50:43] downloads
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[02:50:43] verify baked bias == reference hook (gates the run)
+VERIFY [{"max_abs_baked_vs_hook": 5.3203125, "max_abs_steering_effect": 15.25, "ratio": 0.3488729508196721, "argmax_agreement": 0.938144326210022}, {"max_abs_baked_vs_hook": 5.40625, "max_abs_steering_effect": 15.25, "ratio": 0.35450819672131145, "argmax_agreement": 0.9811320900917053}]
+VERIFY FAILED

@@ -8,14 +8,3 @@
 [ctrldel] judge: 608 to do, 0 done
 [ctrldel] 128/608 spend=$0.022
 [ctrldel] 256/608 spend=$0.053
-[ctrldel] 384/608 spend=$0.075
-[ctrldel] 512/608 spend=$0.103
-[ctrldel] 608/608 spend=$0.123
-[ctrldel] judge summary {'model': 'deepseek/deepseek-v3.2', 'calls': 608, 'usd': 0.1228, 'prompt_tokens': 629534, 'completion_tokens': 56874, 'errors': 0}
-[cdel] judge: 608 to do, 0 done
-[cdel] 128/608 spend=$0.022
-[cdel] 256/608 spend=$0.051
-[cdel] 384/608 spend=$0.075
-[cdel] 512/608 spend=$0.103
-[cdel] 608/608 spend=$0.123
-[cdel] judge summary {'model': 'deepseek/deepseek-v3.2', 'calls': 608, 'usd': 0.1234, 'prompt_tokens': 638766, 'completion_tokens': 55371, 'errors': 0}

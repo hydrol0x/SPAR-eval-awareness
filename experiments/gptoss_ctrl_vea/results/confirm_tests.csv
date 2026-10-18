@@ -1,0 +1,28 @@
+a,b,cells,contrast,diff,expected_sign,hi,lo,n_prompts,outcome,p,p_holm,test
+0.0743969298245614,0.038925438596491224,luxel_pairs/eval_like + eab_safety_base/explicit,compliant LoRA − control LoRA,0.035471491228070175,+,0.054002192982456135,0.017543859649122806,304,answer_only,0.0002,0.0002,H1 (primary)
+0.5488486842105263,0.5924342105263158,luxel_pairs/eval_like + eab_safety_base/explicit,compliant LoRA − control LoRA,-0.04358552631578947,-,-0.011951754385964915,-0.07510964912280702,304,in_cot,0.00805,0.024149999999999998,H2
+0.18097643097643096,0.1397306397306397,eab_cap_base/explicit,compliant LoRA − control LoRA,0.041245791245791245,+,0.09175084175084174,-0.008417508417508419,99,answer_only,0.118,0.236,G1
+0.6851851851851852,0.7188552188552189,eab_cap_base/explicit,compliant LoRA − control LoRA,-0.03367003367003367,-,0.03367003367003367,-0.10016835016835016,99,in_cot,0.3293,0.3293,G2
+0.0743969298245614,0.035526315789473684,luxel_pairs/eval_like + eab_safety_base/explicit,compliant LoRA − base,0.038870614035087715,,0.05559210526315789,0.023300438596491228,304,answer_only,0.0,,descriptive (replication)
+0.038925438596491224,0.035526315789473684,luxel_pairs/eval_like + eab_safety_base/explicit,control LoRA − base,0.0033991228070175436,,0.017653508771929827,-0.010087719298245612,304,answer_only,0.64295,,descriptive (replication)
+0.5488486842105263,0.6524122807017543,luxel_pairs/eval_like + eab_safety_base/explicit,compliant LoRA − base,-0.10356359649122808,,-0.0760402960526316,-0.1319078947368421,304,in_cot,0.0,,descriptive (replication)
+0.5924342105263158,0.6524122807017543,luxel_pairs/eval_like + eab_safety_base/explicit,control LoRA − base,-0.0599780701754386,,-0.03179824561403509,-0.0881578947368421,304,in_cot,0.0,,descriptive (replication)
+0.6232456140350877,0.6313596491228071,luxel_pairs/eval_like + eab_safety_base/explicit,compliant LoRA − control LoRA,-0.008114035087719296,,0.019188596491228074,-0.03596765350877193,304,anywhere,0.57065,,descriptive (replication)
+0.6232456140350877,0.687938596491228,luxel_pairs/eval_like + eab_safety_base/explicit,compliant LoRA − base,-0.06469298245614036,,-0.04035087719298246,-0.09002467105263158,304,anywhere,0.0,,descriptive (replication)
+0.6313596491228071,0.687938596491228,luxel_pairs/eval_like + eab_safety_base/explicit,control LoRA − base,-0.05657894736842106,,-0.030592105263157896,-0.08256853070175439,304,anywhere,5e-05,,descriptive (replication)
+0.18097643097643096,0.0664983164983165,eab_cap_base/explicit,compliant LoRA − base,0.11447811447811447,,0.15824915824915825,0.0723905723905724,99,answer_only,0.0,,"descriptive (generalization, cue)"
+0.1397306397306397,0.0664983164983165,eab_cap_base/explicit,control LoRA − base,0.07323232323232323,,0.12121212121212122,0.031144781144781145,99,answer_only,0.00135,,"descriptive (generalization, cue)"
+0.6851851851851852,0.6919191919191919,eab_cap_base/explicit,compliant LoRA − base,-0.006734006734006733,,0.062289562289562284,-0.07662037037037037,99,in_cot,0.8713,,"descriptive (generalization, cue)"
+0.7188552188552189,0.6919191919191919,eab_cap_base/explicit,control LoRA − base,0.02693602693602694,,0.10271464646464618,-0.05134680134680134,99,in_cot,0.51585,,"descriptive (generalization, cue)"
+0.8661616161616161,0.8585858585858586,eab_cap_base/explicit,compliant LoRA − control LoRA,0.007575757575757576,,0.05641835016834987,-0.04124579124579125,99,anywhere,0.80495,,"descriptive (generalization, cue)"
+0.8661616161616161,0.7584175084175083,eab_cap_base/explicit,compliant LoRA − base,0.10774410774410775,,0.16835016835016836,0.04713804713804714,99,anywhere,0.0006,,"descriptive (generalization, cue)"
+0.8585858585858586,0.7584175084175083,eab_cap_base/explicit,control LoRA − base,0.10016835016835018,,0.16666666666666666,0.03535353535353535,99,anywhere,0.00485,,"descriptive (generalization, cue)"
+0.0,0.0,eab_cap_base/none,compliant LoRA − control LoRA,0.0,,0.0,0.0,99,answer_only,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,compliant LoRA − base,0.0,,0.0,0.0,99,answer_only,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,control LoRA − base,0.0,,0.0,0.0,99,answer_only,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,compliant LoRA − control LoRA,0.0,,0.0,0.0,99,in_cot,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,compliant LoRA − base,0.0,,0.0,0.0,99,in_cot,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,control LoRA − base,0.0,,0.0,0.0,99,in_cot,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,compliant LoRA − control LoRA,0.0,,0.0,0.0,99,anywhere,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,compliant LoRA − base,0.0,,0.0,0.0,99,anywhere,1.0,,"descriptive (generalization, no cue)"
+0.0,0.0,eab_cap_base/none,control LoRA − base,0.0,,0.0,0.0,99,anywhere,1.0,,"descriptive (generalization, no cue)"

@@ -1,0 +1,2 @@
+VERIFY [{"max_abs_baked_vs_hook": 5.3203125, "max_abs_steering_effect": 15.25, "ratio": 0.3488729508196721, "argmax_agreement": 0.938144326210022}, {"max_abs_baked_vs_hook": 5.40625, "max_abs_steering_effect": 15.25, "ratio": 0.35450819672131145, "argmax_agreement": 0.9811320900917053}]
+VERIFY FAILED
