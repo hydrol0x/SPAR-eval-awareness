@@ -124,4 +124,12 @@ SANITY OK
 [base] 1024/3120 (112s)
 [base] 1536/3120 (190s)
 [base] 2048/3120 (351s)
+[base] 2560/3120 (489s)
+[base] 3072/3120 (641s)
+[base] 3120/3120 (702s)
+[23:50:24] ctrldel: user-cue prompts (4 samples, indices 40-43)
+Loading safetensors checkpoint shards:   0% Completed | 0/9 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:00<00:07,  1.05it/s]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:02<00:08,  1.27s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:03<00:08,  1.34s/it]
 
