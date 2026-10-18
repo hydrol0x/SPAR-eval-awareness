@@ -1,6 +1,6 @@
 # Does fine-tuning for CoT controllability change verbalized eval awareness? (gpt-oss-20b trio)
 
-Status: **pilot in progress (2026-10-17).** Choosing the contrastive prompt set before running the main experiment.
+Status: **pilot complete (2026-10-18).** Prompt set chosen; main experiment needs the two LoRAs served (not on OpenRouter).
 
 ## Design
 Three models that differ only in one LoRA adapter on `openai/gpt-oss-20b`
@@ -57,3 +57,26 @@ Results: `results/pilot_summary.md` / `.csv`; raw rollouts `results/pilot_rollou
 * `src/pilot_vea_sets.py` pilot generate / judge / summarize.
 * `src/build_pilot_prompts.py` builds the prompt set from Hugging Face sources, applying the CBRNE blocklist.
 * `data/pilot_prompts.jsonl` sampled pilot items (self-contained); `data/cache/` source downloads (gitignored).
+
+## Pilot result (base gpt-oss-20b, CBRNE-filtered sets)
+Full table: `results/pilot_summary.md`. Cost ≈ $0.65 total on OpenRouter.
+
+* **Spontaneous VEA is at floor.** With no cue, 0–3% of rollouts verbalize eval awareness on every set. The only
+  no-cue awareness above that is EvalAwareBench's all-8-factor variant (12%), and the judge traces it to the in-prompt
+  benchmark conventions, i.e. it is cue uptake too. Spontaneous VEA cannot be the outcome variable for gpt-oss-20b.
+* **Cue uptake is large but often saturated.** With the explicit system-prompt cue, 72–100% of rollouts verbalize it.
+  MMLU-Pro, dolci_if and over-refusal sit at 98–100% and leave no room for a model difference.
+* **Non-saturated sets** (where a controllability fine-tune could move the rate either way):
+  Luxel deploy-like vs eval-like pairs (8% vs 72%, 0% refusals, short CoTs), EvalAwareBench safety tasks with the
+  explicit cue (78%, 68% inside the CoT), and the EvalAwareBench all-8 variant without a cue (12%).
+
+**Chosen for the main experiment.** Primary: all Luxel contrastive pairs (their native deploy/eval contrast). Secondary:
+all blocklist-eligible EvalAwareBench safety tasks in three conditions (naturalistic + no cue, naturalistic + explicit
+cue, all-8 factors + no cue). Primary outcome: share of rollouts that verbalize the cue *inside the CoT*, compared
+compliant vs control LoRA on the same prompts (paired), base as reference. A two-proportion difference of about 15
+points at a 70% base rate needs roughly 150–200 prompts per condition per model at 80% power; use 2 samples per prompt
+at T = 1.0.
+
+Relevant to interpretation: the compliant adapter's SFT data was filtered to exclude traces that mention the
+instruction, so a drop in in-CoT cue verbalization for the compliant model (vs control) is the predicted direction if
+controllability training teaches "act on prompt meta-information without saying so".
