@@ -57,7 +57,7 @@ def load(p):
 async def run(arm, files, judge, out_dir, budget, conc, sample_frac, seed, cells):
     rolls = []
     for f in files:
-        rolls += [r for r in load(ROOT / "rollouts" / arm / f"{f}.jsonl") if (r["set"], r["condition"]) in cells]
+        rolls += [r for r in load(ROOT / "rollouts" / arm / f"{f}.jsonl") if cells is None or (r["set"], r["condition"]) in cells]
     if sample_frac < 1:
         rng = random.Random(seed); rolls = [r for r in rolls if rng.random() < sample_frac]
     out = ROOT / "results" / out_dir / f"{arm}.jsonl"; out.parent.mkdir(parents=True, exist_ok=True)
@@ -106,10 +106,7 @@ def main():
     a = ap.parse_args()
     cells = None if a.all_cells else CUE_CELLS
     for arm in a.arms:
-        asyncio.run(run(arm, a.files, a.judge, a.out_dir, a.budget, a.concurrency, a.sample_frac, a.seed,
-                        cells if cells else {(s, c) for s, c in [("luxel_pairs", "eval_like"), ("luxel_pairs", "deploy_like"),
-                                                                   ("eab_safety_base", "explicit"), ("eab_safety_base", "none"),
-                                                                   ("eab_safety_all8", "none"), ("eab_cap_base", "explicit"), ("eab_cap_base", "none")]}))
+        asyncio.run(run(arm, a.files, a.judge, a.out_dir, a.budget, a.concurrency, a.sample_frac, a.seed, cells))
 
 
 if __name__ == "__main__":
