@@ -1,1 +1,17 @@
 [base] v4 judge qwen/qwen-2.5-72b-instruct: 193 to do, 1023 done
+[base] 193/193 spend=$0.030
+[base] summary {'model': 'qwen/qwen-2.5-72b-instruct', 'calls': 193, 'usd': 0.0297, 'prompt_tokens': 79681, 'completion_tokens': 2509, 'errors': 0}
+[ctrldel] v4 judge qwen/qwen-2.5-72b-instruct: 1216 to do, 0 done
+[ctrldel] 256/1216 spend=$0.043
+[ctrldel] 512/1216 spend=$0.094
+[ctrldel] 768/1216 spend=$0.138
+[ctrldel] 1024/1216 spend=$0.180
+[ctrldel] 1216/1216 spend=$0.212
+[ctrldel] summary {'model': 'qwen/qwen-2.5-72b-instruct', 'calls': 1215, 'usd': 0.2116, 'prompt_tokens': 564920, 'completion_tokens': 20494, 'errors': 0}
+[cdel] v4 judge qwen/qwen-2.5-72b-instruct: 1216 to do, 0 done
+[cdel] 256/1216 spend=$0.043
+[cdel] 512/1216 spend=$0.096
+[cdel] 768/1216 spend=$0.138
+[cdel] 1024/1216 spend=$0.182
+[cdel] 1216/1216 spend=$0.214
+[cdel] summary {'model': 'qwen/qwen-2.5-72b-instruct', 'calls': 1211, 'usd': 0.2139, 'prompt_tokens': 572606, 'completion_tokens': 19310, 'errors': 0}
