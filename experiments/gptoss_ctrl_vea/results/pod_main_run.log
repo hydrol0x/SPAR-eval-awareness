@@ -1,0 +1,263 @@
+[01:06:01] downloads
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+overlay         250G   53G  198G  22% /
+[01:06:02] base: controllability check (also proves vLLM serves bf16 gpt-oss)
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:12,  1.51s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:15,  2.27s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:15,  2.61s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.68s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.80s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:15<00:08,  2.81s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.90s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:21<00:02,  2.83s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.36s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.56s/it]
+
+[0;36m(EngineCore pid=2259)[0;0m [33mWARNING[0m [90m10-18 01:06:45[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+[base] 300 to generate (0 done)
+[0;36m(EngineCore pid=2259)[0;0m [33mWARNING[0m [90m10-18 01:07:05[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=2259)[0;0m [33mWARNING[0m [90m10-18 01:07:06[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[base] 300/300 (93s)
+[01:08:41] gate mapping check on the compliant adapter
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:12,  1.52s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:16,  2.38s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:16,  2.67s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.79s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.90s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.91s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.97s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:22<00:02,  2.94s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.43s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.64s/it]
+
+[0;36m(EngineCore pid=2820)[0;0m [33mWARNING[0m [90m10-18 01:09:40[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+Processed prompts:   0%|          | 0/64 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s][0;36m(EngineCore pid=2820)[0;0m [33mWARNING[0m [90m10-18 01:10:15[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=2820)[0;0m [33mWARNING[0m [90m10-18 01:10:15[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_log_softmax_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%|▏         | 1/64 [00:01<01:44,  1.65s/it, est. speed input: 177.19 toks/s, output: 0.60 toks/s]Processed prompts:  34%|███▍      | 22/64 [00:01<00:02, 15.03it/s, est. speed input: 4494.16 toks/s, output: 11.34 toks/s][0;36m(EngineCore pid=2820)[0;0m [33mWARNING[0m [90m10-18 01:10:17[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:  66%|██████▌   | 42/64 [00:02<00:01, 18.93it/s, est. speed input: 6309.43 toks/s, output: 15.07 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 18.93it/s, est. speed input: 9488.05 toks/s, output: 22.78 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 22.78it/s, est. speed input: 9488.05 toks/s, output: 22.78 toks/s]
+NLL_RESULT {"model": "/workspace/models/base", "sft": "/workspace/adapters/datasets/sft_edited_reasoning_full.jsonl", "n_examples": 64, "n_tokens": 15656, "mean_nll": 0.9616865320586245}
+model-00001-of-00009.safetensors: merged 16 tensors (6s)
+model-00002-of-00009.safetensors: merged 18 tensors (15s)
+model-00003-of-00009.safetensors: merged 18 tensors (24s)
+model-00004-of-00009.safetensors: merged 18 tensors (33s)
+model-00005-of-00009.safetensors: merged 18 tensors (42s)
+model-00006-of-00009.safetensors: merged 18 tensors (51s)
+model-00007-of-00009.safetensors: merged 18 tensors (59s)
+model-00008-of-00009.safetensors: merged 18 tensors (68s)
+model-00009-of-00009.safetensors: merged 3 tensors (73s)
+adapter tensors used 338/338; unused: []
+done /workspace/models/cdel_w1
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:12,  1.56s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:03<00:14,  2.06s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:06<00:14,  2.44s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:09<00:12,  2.59s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:12<00:10,  2.72s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:15<00:08,  2.70s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:18<00:05,  2.81s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:21<00:02,  2.82s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:22<00:00,  2.34s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:22<00:00,  2.49s/it]
+
+[0;36m(EngineCore pid=3649)[0;0m [33mWARNING[0m [90m10-18 01:12:36[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+Processed prompts:   0%|          | 0/64 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s][0;36m(EngineCore pid=3649)[0;0m [33mWARNING[0m [90m10-18 01:13:11[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=3649)[0;0m [33mWARNING[0m [90m10-18 01:13:11[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_log_softmax_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%|▏         | 1/64 [00:01<01:46,  1.70s/it, est. speed input: 172.63 toks/s, output: 0.59 toks/s]Processed prompts:  34%|███▍      | 22/64 [00:01<00:02, 14.69it/s, est. speed input: 4387.14 toks/s, output: 11.07 toks/s][0;36m(EngineCore pid=3649)[0;0m [33mWARNING[0m [90m10-18 01:13:13[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:  66%|██████▌   | 42/64 [00:02<00:01, 18.63it/s, est. speed input: 6190.81 toks/s, output: 14.78 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 18.63it/s, est. speed input: 9313.03 toks/s, output: 22.36 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 22.36it/s, est. speed input: 9313.03 toks/s, output: 22.36 toks/s]
+NLL_RESULT {"model": "/workspace/models/cdel_w1", "sft": "/workspace/adapters/datasets/sft_edited_reasoning_full.jsonl", "n_examples": 64, "n_tokens": 15656, "mean_nll": 0.13951086152881864}
+model-00001-of-00009.safetensors: merged 16 tensors (7s)
+model-00002-of-00009.safetensors: merged 18 tensors (16s)
+model-00003-of-00009.safetensors: merged 18 tensors (25s)
+model-00004-of-00009.safetensors: merged 18 tensors (34s)
+model-00005-of-00009.safetensors: merged 18 tensors (43s)
+model-00006-of-00009.safetensors: merged 18 tensors (52s)
+model-00007-of-00009.safetensors: merged 18 tensors (61s)
+model-00008-of-00009.safetensors: merged 18 tensors (70s)
+model-00009-of-00009.safetensors: merged 3 tensors (75s)
+adapter tensors used 338/338; unused: []
+done /workspace/models/cdel_w3
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:14,  1.84s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:16,  2.29s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:15,  2.65s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.72s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.83s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.84s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.94s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:22<00:02,  2.92s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.40s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.61s/it]
+
+[0;36m(EngineCore pid=4474)[0;0m [33mWARNING[0m [90m10-18 01:15:34[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+Processed prompts:   0%|          | 0/64 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s][0;36m(EngineCore pid=4474)[0;0m [33mWARNING[0m [90m10-18 01:16:09[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=4474)[0;0m [33mWARNING[0m [90m10-18 01:16:09[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_log_softmax_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%|▏         | 1/64 [00:01<01:46,  1.68s/it, est. speed input: 174.08 toks/s, output: 0.59 toks/s]Processed prompts:  34%|███▍      | 22/64 [00:01<00:02, 15.40it/s, est. speed input: 4554.48 toks/s, output: 11.50 toks/s][0;36m(EngineCore pid=4474)[0;0m [33mWARNING[0m [90m10-18 01:16:10[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:  66%|██████▌   | 42/64 [00:02<00:01, 18.63it/s, est. speed input: 6245.49 toks/s, output: 14.91 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 18.63it/s, est. speed input: 9394.01 toks/s, output: 22.56 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 22.55it/s, est. speed input: 9394.01 toks/s, output: 22.56 toks/s]
+NLL_RESULT {"model": "/workspace/models/cdel_w3", "sft": "/workspace/adapters/datasets/sft_edited_reasoning_full.jsonl", "n_examples": 64, "n_tokens": 15656, "mean_nll": 0.3755941216236627}
+[01:16:14] chosen gate mapping: w1 (lower NLL on compliant SFT targets)
+[01:16:15] cdel (compliant): controllability check
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:15,  1.91s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:17,  2.44s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:16,  2.72s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.78s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.87s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.88s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.93s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:22<00:02,  2.91s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.42s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.65s/it]
+
+[0;36m(EngineCore pid=5104)[0;0m [33mWARNING[0m [90m10-18 01:17:16[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+[cdel] 300 to generate (0 done)
+[0;36m(EngineCore pid=5104)[0;0m [33mWARNING[0m [90m10-18 01:17:50[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=5104)[0;0m [33mWARNING[0m [90m10-18 01:17:51[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[cdel] 300/300 (100s)
+[01:19:34] ctrldel (control): merge with gate=w1
+model-00001-of-00009.safetensors: merged 16 tensors (7s)
+model-00002-of-00009.safetensors: merged 18 tensors (16s)
+model-00003-of-00009.safetensors: merged 18 tensors (25s)
+model-00004-of-00009.safetensors: merged 18 tensors (34s)
+model-00005-of-00009.safetensors: merged 18 tensors (43s)
+model-00006-of-00009.safetensors: merged 18 tensors (52s)
+model-00007-of-00009.safetensors: merged 18 tensors (61s)
+model-00008-of-00009.safetensors: merged 18 tensors (70s)
+model-00009-of-00009.safetensors: merged 3 tensors (75s)
+adapter tensors used 338/338; unused: []
+done /workspace/models/ctrldel
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:12,  1.60s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:15,  2.20s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:15,  2.60s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.71s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.90s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.84s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.86s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:21<00:02,  2.83s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.35s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.57s/it]
+
+[0;36m(EngineCore pid=5939)[0;0m [33mWARNING[0m [90m10-18 01:21:35[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+Processed prompts:   0%|          | 0/64 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s][0;36m(EngineCore pid=5939)[0;0m [33mWARNING[0m [90m10-18 01:21:55[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_log_softmax_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%|▏         | 1/64 [00:00<00:44,  1.40it/s, est. speed input: 353.13 toks/s, output: 1.40 toks/s]Processed prompts:  44%|████▍     | 28/64 [00:00<00:00, 40.52it/s, est. speed input: 10261.46 toks/s, output: 31.19 toks/s]Processed prompts:  80%|███████▉  | 51/64 [00:01<00:00, 62.54it/s, est. speed input: 15858.93 toks/s, output: 46.49 toks/s]Processed prompts: 100%|██████████| 64/64 [00:01<00:00, 62.54it/s, est. speed input: 20652.95 toks/s, output: 58.33 toks/s]Processed prompts: 100%|██████████| 64/64 [00:01<00:00, 58.32it/s, est. speed input: 20652.95 toks/s, output: 58.33 toks/s]
+NLL_RESULT {"model": "/workspace/models/base", "sft": "/workspace/adapters/datasets/sft_raw_trace_control_full.jsonl", "n_examples": 64, "n_tokens": 11662, "mean_nll": 0.32177297942632704}
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:12,  1.50s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:14,  2.10s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:06<00:14,  2.36s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:09<00:12,  2.57s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:12<00:10,  2.68s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:15<00:08,  2.71s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:17<00:05,  2.71s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:20<00:02,  2.76s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.24s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.43s/it]
+
+[0;36m(EngineCore pid=6488)[0;0m [33mWARNING[0m [90m10-18 01:22:56[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+Processed prompts:   0%|          | 0/64 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s][0;36m(EngineCore pid=6488)[0;0m [33mWARNING[0m [90m10-18 01:23:31[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=6488)[0;0m [33mWARNING[0m [90m10-18 01:23:31[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_log_softmax_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%|▏         | 1/64 [00:01<01:46,  1.69s/it, est. speed input: 149.44 toks/s, output: 0.59 toks/s][0;36m(EngineCore pid=6488)[0;0m [33mWARNING[0m [90m10-18 01:23:32[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:  41%|████      | 26/64 [00:02<00:02, 13.04it/s, est. speed input: 3467.34 toks/s, output: 10.50 toks/s]Processed prompts:  77%|███████▋  | 49/64 [00:02<00:00, 25.84it/s, est. speed input: 6257.79 toks/s, output: 18.26 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 25.84it/s, est. speed input: 8443.15 toks/s, output: 23.85 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 23.84it/s, est. speed input: 8443.15 toks/s, output: 23.85 toks/s]
+NLL_RESULT {"model": "/workspace/models/ctrldel", "sft": "/workspace/adapters/datasets/sft_raw_trace_control_full.jsonl", "n_examples": 64, "n_tokens": 11662, "mean_nll": 0.01555584682387725}
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:14,  1.76s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:15,  2.20s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:15,  2.63s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:14,  2.81s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.96s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.93s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  3.00s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:22<00:02,  2.99s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.45s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.66s/it]
+
+[0;36m(EngineCore pid=7562)[0;0m [33mWARNING[0m [90m10-18 01:24:36[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+Processed prompts:   0%|          | 0/64 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s][0;36m(EngineCore pid=7562)[0;0m [33mWARNING[0m [90m10-18 01:25:11[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=7562)[0;0m [33mWARNING[0m [90m10-18 01:25:12[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_log_softmax_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%|▏         | 1/64 [00:01<01:44,  1.67s/it, est. speed input: 151.23 toks/s, output: 0.60 toks/s][0;36m(EngineCore pid=7562)[0;0m [33mWARNING[0m [90m10-18 01:25:12[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:  41%|████      | 26/64 [00:02<00:02, 13.20it/s, est. speed input: 3509.54 toks/s, output: 10.62 toks/s]Processed prompts:  77%|███████▋  | 49/64 [00:02<00:00, 26.12it/s, est. speed input: 6329.69 toks/s, output: 18.47 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 26.12it/s, est. speed input: 8540.19 toks/s, output: 24.12 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 24.12it/s, est. speed input: 8540.19 toks/s, output: 24.12 toks/s]
+NLL_RESULT {"model": "/workspace/models/cdel", "sft": "/workspace/adapters/datasets/sft_raw_trace_control_full.jsonl", "n_examples": 64, "n_tokens": 11662, "mean_nll": 0.26449743453869295}
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:13,  1.65s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:14,  2.09s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:06<00:14,  2.48s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:09<00:12,  2.47s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:12<00:10,  2.66s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:15<00:08,  2.70s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:18<00:05,  2.77s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:20<00:02,  2.69s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.19s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.42s/it]
+
+[0;36m(EngineCore pid=8548)[0;0m [33mWARNING[0m [90m10-18 01:25:59[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+Processed prompts:   0%|          | 0/64 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s][0;36m(EngineCore pid=8548)[0;0m [33mWARNING[0m [90m10-18 01:26:18[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=8548)[0;0m [33mWARNING[0m [90m10-18 01:26:19[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_log_softmax_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%|▏         | 1/64 [00:01<01:41,  1.62s/it, est. speed input: 181.10 toks/s, output: 0.62 toks/s]Processed prompts:  39%|███▉      | 25/64 [00:01<00:02, 17.93it/s, est. speed input: 5350.92 toks/s, output: 13.42 toks/s]Processed prompts:  69%|██████▉   | 44/64 [00:02<00:00, 27.82it/s, est. speed input: 8292.80 toks/s, output: 19.97 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 27.82it/s, est. speed input: 12057.52 toks/s, output: 28.95 toks/s]Processed prompts: 100%|██████████| 64/64 [00:02<00:00, 28.95it/s, est. speed input: 12057.52 toks/s, output: 28.95 toks/s]
+NLL_RESULT {"model": "/workspace/models/ctrldel", "sft": "/workspace/adapters/datasets/sft_edited_reasoning_full.jsonl", "n_examples": 64, "n_tokens": 15656, "mean_nll": 2.502635956794666}
+[01:26:23] ctrldel (control): controllability check
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:15,  1.99s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:15,  2.25s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:15,  2.53s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:09<00:12,  2.53s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:12<00:10,  2.65s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:15<00:07,  2.61s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:18<00:05,  2.73s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:20<00:02,  2.64s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.15s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.41s/it]
+
+[0;36m(EngineCore pid=9428)[0;0m [33mWARNING[0m [90m10-18 01:27:21[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+[ctrldel] 300 to generate (0 done)
+[0;36m(EngineCore pid=9428)[0;0m [33mWARNING[0m [90m10-18 01:27:56[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=9428)[0;0m [33mWARNING[0m [90m10-18 01:27:57[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[ctrldel] 300/300 (102s)
+[01:29:41] VALIDATION DONE: waiting for results/GO before the bulk run
+[01:30:41] bulk: main prompts, all three models
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:13,  1.73s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:17,  2.45s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:16,  2.68s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.68s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.81s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.87s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.90s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:22<00:02,  2.84s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.36s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.59s/it]
+
+[0;36m(EngineCore pid=11233)[0;0m [33mWARNING[0m [90m10-18 01:31:23[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+[base] 1408 to generate (0 done)
+[0;36m(EngineCore pid=11233)[0;0m [33mWARNING[0m [90m10-18 01:31:58[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=11233)[0;0m [33mWARNING[0m [90m10-18 01:31:59[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[base] 512/1408 (86s)
+[base] 1024/1408 (156s)
+[base] 1408/1408 (210s)
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:14,  1.79s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:16,  2.38s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:16,  2.76s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.77s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.91s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.90s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.94s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:22<00:02,  2.92s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.41s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.65s/it]
+
+[0;36m(EngineCore pid=12773)[0;0m [33mWARNING[0m [90m10-18 01:36:15[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+[cdel] 1408 to generate (0 done)
+[0;36m(EngineCore pid=12773)[0;0m [33mWARNING[0m [90m10-18 01:36:34[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[cdel] 512/1408 (95s)
+[0;36m(EngineCore pid=12773)[0;0m [33mWARNING[0m [90m10-18 01:38:09[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[cdel] 1024/1408 (191s)
+[cdel] 1408/1408 (278s)
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:13,  1.65s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:15,  2.22s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:07<00:15,  2.56s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:09<00:13,  2.63s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:12<00:10,  2.69s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:15<00:07,  2.62s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:18<00:05,  2.72s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:20<00:02,  2.65s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.16s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:21<00:00,  2.42s/it]
+
+[0;36m(EngineCore pid=13410)[0;0m [33mWARNING[0m [90m10-18 01:41:56[0m [90m[fused_moe.py:1163][0m Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+[ctrldel] 1408 to generate (0 done)
+[0;36m(EngineCore pid=13410)[0;0m [33mWARNING[0m [90m10-18 01:42:16[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.
+[0;36m(EngineCore pid=13410)[0;0m [33mWARNING[0m [90m10-18 01:42:16[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[ctrldel] 512/1408 (65s)
+[ctrldel] 1024/1408 (156s)
+[ctrldel] 1408/1408 (233s)
+[01:46:12] ALL DONE

@@ -1,0 +1,16 @@
+[01:00:47] downloads
+overlay         250G   53G  198G  22% /
+[01:02:40] base: controllability check (also proves vLLM serves bf16 gpt-oss)
+Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:01<00:12,  1.59s/it]
+Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:04<00:15,  2.18s/it]
+Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:06<00:14,  2.47s/it]
+Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:10<00:13,  2.75s/it]
+Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:13<00:11,  2.83s/it]
+Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:16<00:08,  2.96s/it]
+Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:19<00:05,  2.87s/it]
+Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:22<00:02,  2.94s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.41s/it]
+Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:23<00:00,  2.60s/it]
+
+(EngineCore pid=1509) WARNING 10-18 01:03:51 [fused_moe.py:1163] Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=32,N=2880,device_name=NVIDIA_A100-SXM4-80GB.json
+2026-10-18 01:04:14,262 - INFO - core.py:564 - flashinfer.jit: Building JIT module sampling; this can take several minutes on first use.
