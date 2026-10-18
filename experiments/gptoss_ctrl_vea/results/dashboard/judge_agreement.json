@@ -1,0 +1,245 @@
+[
+{
+"key": "v3|base|In reasoning",
+"judge_version": "v3 (sees prompt)",
+"arm": "Base",
+"label": "In reasoning",
+"n": 601,
+"kappa": 0.232,
+"agreement": 0.7072
+},
+{
+"key": "v3|base|Anywhere",
+"judge_version": "v3 (sees prompt)",
+"arm": "Base",
+"label": "Anywhere",
+"n": 601,
+"kappa": 0.3951,
+"agreement": 0.8103
+},
+{
+"key": "v3|base|Final answer only",
+"judge_version": "v3 (sees prompt)",
+"arm": "Base",
+"label": "Final answer only",
+"n": 601,
+"kappa": -0.0122,
+"agreement": 0.8835
+},
+{
+"key": "v3|ctrldel|In reasoning",
+"judge_version": "v3 (sees prompt)",
+"arm": "Control LoRA",
+"label": "In reasoning",
+"n": 251,
+"kappa": 0.3004,
+"agreement": 0.6892
+},
+{
+"key": "v3|ctrldel|Anywhere",
+"judge_version": "v3 (sees prompt)",
+"arm": "Control LoRA",
+"label": "Anywhere",
+"n": 251,
+"kappa": 0.3363,
+"agreement": 0.7211
+},
+{
+"key": "v3|ctrldel|Final answer only",
+"judge_version": "v3 (sees prompt)",
+"arm": "Control LoRA",
+"label": "Final answer only",
+"n": 251,
+"kappa": 0.4838,
+"agreement": 0.9681
+},
+{
+"key": "v3|cdel|In reasoning",
+"judge_version": "v3 (sees prompt)",
+"arm": "Compliant LoRA",
+"label": "In reasoning",
+"n": 602,
+"kappa": 0.2262,
+"agreement": 0.6312
+},
+{
+"key": "v3|cdel|Anywhere",
+"judge_version": "v3 (sees prompt)",
+"arm": "Compliant LoRA",
+"label": "Anywhere",
+"n": 602,
+"kappa": 0.2903,
+"agreement": 0.6993
+},
+{
+"key": "v3|cdel|Final answer only",
+"judge_version": "v3 (sees prompt)",
+"arm": "Compliant LoRA",
+"label": "Final answer only",
+"n": 602,
+"kappa": 0.1529,
+"agreement": 0.8987
+},
+{
+"key": "v4|base|In reasoning",
+"judge_version": "v4 (channel-blind)",
+"arm": "Base",
+"label": "In reasoning",
+"n": 2828,
+"kappa": 0.9332,
+"agreement": 0.9703
+},
+{
+"key": "v4|base|Anywhere",
+"judge_version": "v4 (channel-blind)",
+"arm": "Base",
+"label": "Anywhere",
+"n": 2828,
+"kappa": 0.9406,
+"agreement": 0.9735
+},
+{
+"key": "v4|base|Final answer only",
+"judge_version": "v4 (channel-blind)",
+"arm": "Base",
+"label": "Final answer only",
+"n": 2828,
+"kappa": 0.3143,
+"agreement": 0.9954
+},
+{
+"key": "v4|ctrldel|In reasoning",
+"judge_version": "v4 (channel-blind)",
+"arm": "Control LoRA",
+"label": "In reasoning",
+"n": 2828,
+"kappa": 0.9446,
+"agreement": 0.9767
+},
+{
+"key": "v4|ctrldel|Anywhere",
+"judge_version": "v4 (channel-blind)",
+"arm": "Control LoRA",
+"label": "Anywhere",
+"n": 2828,
+"kappa": 0.9498,
+"agreement": 0.9788
+},
+{
+"key": "v4|ctrldel|Final answer only",
+"judge_version": "v4 (channel-blind)",
+"arm": "Control LoRA",
+"label": "Final answer only",
+"n": 2828,
+"kappa": 0.3991,
+"agreement": 0.9979
+},
+{
+"key": "v4|cdel|In reasoning",
+"judge_version": "v4 (channel-blind)",
+"arm": "Compliant LoRA",
+"label": "In reasoning",
+"n": 2828,
+"kappa": 0.9462,
+"agreement": 0.9806
+},
+{
+"key": "v4|cdel|Anywhere",
+"judge_version": "v4 (channel-blind)",
+"arm": "Compliant LoRA",
+"label": "Anywhere",
+"n": 2828,
+"kappa": 0.9535,
+"agreement": 0.983
+},
+{
+"key": "v4|cdel|Final answer only",
+"judge_version": "v4 (channel-blind)",
+"arm": "Compliant LoRA",
+"label": "Final answer only",
+"n": 2828,
+"kappa": 0.5248,
+"agreement": 0.9968
+},
+{
+"key": "v4|steerctrl|In reasoning",
+"judge_version": "v4 (channel-blind)",
+"arm": "Control vector",
+"label": "In reasoning",
+"n": 2827,
+"kappa": 0.943,
+"agreement": 0.9777
+},
+{
+"key": "v4|steerctrl|Anywhere",
+"judge_version": "v4 (channel-blind)",
+"arm": "Control vector",
+"label": "Anywhere",
+"n": 2827,
+"kappa": 0.9531,
+"agreement": 0.9816
+},
+{
+"key": "v4|steerctrl|Final answer only",
+"judge_version": "v4 (channel-blind)",
+"arm": "Control vector",
+"label": "Final answer only",
+"n": 2827,
+"kappa": -0.0012,
+"agreement": 0.9961
+},
+{
+"key": "v4|steer|In reasoning",
+"judge_version": "v4 (channel-blind)",
+"arm": "Steering vector",
+"label": "In reasoning",
+"n": 2827,
+"kappa": 0.943,
+"agreement": 0.9788
+},
+{
+"key": "v4|steer|Anywhere",
+"judge_version": "v4 (channel-blind)",
+"arm": "Steering vector",
+"label": "Anywhere",
+"n": 2827,
+"kappa": 0.949,
+"agreement": 0.9809
+},
+{
+"key": "v4|steer|Final answer only",
+"judge_version": "v4 (channel-blind)",
+"arm": "Steering vector",
+"label": "Final answer only",
+"n": 2827,
+"kappa": 0.284,
+"agreement": 0.9965
+},
+{
+"key": "v4|steerrand|In reasoning",
+"judge_version": "v4 (channel-blind)",
+"arm": "Random vector",
+"label": "In reasoning",
+"n": 2828,
+"kappa": 0.9337,
+"agreement": 0.9703
+},
+{
+"key": "v4|steerrand|Anywhere",
+"judge_version": "v4 (channel-blind)",
+"arm": "Random vector",
+"label": "Anywhere",
+"n": 2828,
+"kappa": 0.9418,
+"agreement": 0.9738
+},
+{
+"key": "v4|steerrand|Final answer only",
+"judge_version": "v4 (channel-blind)",
+"arm": "Random vector",
+"label": "Final answer only",
+"n": 2828,
+"kappa": 0.443,
+"agreement": 0.9965
+}
+]

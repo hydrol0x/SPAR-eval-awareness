@@ -1,0 +1,302 @@
+[
+{
+"key": "base|all_caps",
+"arm": "Base",
+"instruction": "All caps",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "base|all_lower",
+"arm": "Base",
+"instruction": "All lowercase",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "base|bullet",
+"arm": "Base",
+"instruction": "Bulleted list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "base|numbered",
+"arm": "Base",
+"instruction": "Numbered list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "base|no_word_so",
+"arm": "Base",
+"instruction": "Avoid \u201cso\u201d",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "ctrldel|all_caps",
+"arm": "Control LoRA",
+"instruction": "All caps",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "ctrldel|all_lower",
+"arm": "Control LoRA",
+"instruction": "All lowercase",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "ctrldel|bullet",
+"arm": "Control LoRA",
+"instruction": "Bulleted list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "ctrldel|numbered",
+"arm": "Control LoRA",
+"instruction": "Numbered list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "ctrldel|no_word_so",
+"arm": "Control LoRA",
+"instruction": "Avoid \u201cso\u201d",
+"split": "held-out",
+"n": 50,
+"compliance": 0.02,
+"lo": 0.0035,
+"hi": 0.105
+},
+{
+"key": "cdel|all_caps",
+"arm": "Compliant LoRA",
+"instruction": "All caps",
+"split": "train",
+"n": 50,
+"compliance": 1.0,
+"lo": 0.9286,
+"hi": 1.0
+},
+{
+"key": "cdel|all_lower",
+"arm": "Compliant LoRA",
+"instruction": "All lowercase",
+"split": "train",
+"n": 50,
+"compliance": 0.98,
+"lo": 0.895,
+"hi": 0.9965
+},
+{
+"key": "cdel|bullet",
+"arm": "Compliant LoRA",
+"instruction": "Bulleted list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.36,
+"lo": 0.2414,
+"hi": 0.4986
+},
+{
+"key": "cdel|numbered",
+"arm": "Compliant LoRA",
+"instruction": "Numbered list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.12,
+"lo": 0.0562,
+"hi": 0.2381
+},
+{
+"key": "cdel|no_word_so",
+"arm": "Compliant LoRA",
+"instruction": "Avoid \u201cso\u201d",
+"split": "held-out",
+"n": 50,
+"compliance": 0.02,
+"lo": 0.0035,
+"hi": 0.105
+},
+{
+"key": "steerctrl|all_caps",
+"arm": "Control vector",
+"instruction": "All caps",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerctrl|all_lower",
+"arm": "Control vector",
+"instruction": "All lowercase",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerctrl|bullet",
+"arm": "Control vector",
+"instruction": "Bulleted list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerctrl|numbered",
+"arm": "Control vector",
+"instruction": "Numbered list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerctrl|no_word_so",
+"arm": "Control vector",
+"instruction": "Avoid \u201cso\u201d",
+"split": "held-out",
+"n": 50,
+"compliance": 0.02,
+"lo": 0.0035,
+"hi": 0.105
+},
+{
+"key": "steer|all_caps",
+"arm": "Steering vector",
+"instruction": "All caps",
+"split": "train",
+"n": 50,
+"compliance": 0.62,
+"lo": 0.4815,
+"hi": 0.7414
+},
+{
+"key": "steer|all_lower",
+"arm": "Steering vector",
+"instruction": "All lowercase",
+"split": "train",
+"n": 50,
+"compliance": 0.66,
+"lo": 0.5215,
+"hi": 0.7756
+},
+{
+"key": "steer|bullet",
+"arm": "Steering vector",
+"instruction": "Bulleted list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.38,
+"lo": 0.2586,
+"hi": 0.5185
+},
+{
+"key": "steer|numbered",
+"arm": "Steering vector",
+"instruction": "Numbered list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.24,
+"lo": 0.143,
+"hi": 0.3741
+},
+{
+"key": "steer|no_word_so",
+"arm": "Steering vector",
+"instruction": "Avoid \u201cso\u201d",
+"split": "held-out",
+"n": 50,
+"compliance": 0.1,
+"lo": 0.0435,
+"hi": 0.2136
+},
+{
+"key": "steerrand|all_caps",
+"arm": "Random vector",
+"instruction": "All caps",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerrand|all_lower",
+"arm": "Random vector",
+"instruction": "All lowercase",
+"split": "train",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerrand|bullet",
+"arm": "Random vector",
+"instruction": "Bulleted list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerrand|numbered",
+"arm": "Random vector",
+"instruction": "Numbered list",
+"split": "held-out",
+"n": 50,
+"compliance": 0.0,
+"lo": 0.0,
+"hi": 0.0714
+},
+{
+"key": "steerrand|no_word_so",
+"arm": "Random vector",
+"instruction": "Avoid \u201cso\u201d",
+"split": "held-out",
+"n": 50,
+"compliance": 0.08,
+"lo": 0.0315,
+"hi": 0.1884
+}
+]

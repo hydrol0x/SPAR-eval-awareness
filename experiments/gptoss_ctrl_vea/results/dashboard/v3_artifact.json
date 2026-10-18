@@ -1,0 +1,50 @@
+[
+{
+"arm": "Base",
+"answer_only_raw": 0.0507,
+"answer_only_verified": 0.0062,
+"in_cot_raw": 0.6684,
+"in_cot_verified": 0.6331,
+"in_cot_v4": 0.396
+},
+{
+"arm": "Control LoRA",
+"answer_only_raw": 0.0399,
+"answer_only_verified": 0.0,
+"in_cot_raw": 0.5924,
+"in_cot_verified": 0.5675,
+"in_cot_v4": 0.3618
+},
+{
+"arm": "Compliant LoRA",
+"answer_only_raw": 0.0806,
+"answer_only_verified": 0.0047,
+"in_cot_raw": 0.5504,
+"in_cot_verified": 0.5108,
+"in_cot_v4": 0.2804
+},
+{
+"arm": "Control vector",
+"answer_only_raw": 0.0197,
+"answer_only_verified": 0.0004,
+"in_cot_raw": 0.5433,
+"in_cot_verified": 0.5317,
+"in_cot_v4": 0.315
+},
+{
+"arm": "Steering vector",
+"answer_only_raw": 0.0493,
+"answer_only_verified": 0.0041,
+"in_cot_raw": 0.5758,
+"in_cot_verified": 0.5457,
+"in_cot_v4": 0.2936
+},
+{
+"arm": "Random vector",
+"answer_only_raw": 0.0326,
+"answer_only_verified": 0.0058,
+"in_cot_raw": 0.684,
+"in_cot_verified": 0.6346,
+"in_cot_v4": 0.4025
+}
+]

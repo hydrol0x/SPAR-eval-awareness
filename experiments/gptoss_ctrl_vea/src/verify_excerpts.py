@@ -51,7 +51,7 @@ def verified_labels(judgment: dict, rollout: dict) -> dict:
     cot_txt, ans_txt, prompt_txt = rollout.get("reasoning") or "", rollout.get("response") or "", (rollout.get("system") or "") + "\n" + (rollout.get("user") or "")
     in_cot = in_ans = False; dropped = from_prompt = 0
     for e in ex:
-        txt = e.get("text", "")
+        txt = e.get("text", "") if isinstance(e, dict) else str(e)
         c, a = occurs(txt, cot_txt), occurs(txt, ans_txt)
         if c:
             in_cot = True

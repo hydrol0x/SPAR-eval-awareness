@@ -1,0 +1,488 @@
+<style>
+/* layout: header + tab bar, then one section per experiment; cards in an auto-fit grid, charts sized from their card */
+.cx { display: flex; flex-direction: column; gap: var(--cds-gap-lg); font-family: var(--font-anthropic-sans); }
+.cx-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.cx-head p { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); max-width: 70ch; font-size: var(--cds-font-size-body); }
+.cx-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); padding-bottom: var(--cds-gap-xs); }
+.cx-tab { font: inherit; font-size: var(--cds-font-size-body); background: transparent; color: var(--color-fg-muted); border: 1px solid transparent; border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+.cx-tab[aria-selected="true"] { color: var(--color-fg); border-color: var(--color-border-line); background: var(--color-panel); }
+.cx-tab:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.cx-sec { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+.cx-lede { margin: 0; max-width: 75ch; font-size: var(--cds-font-size-body); }
+.cx-lede b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+.cx-card { position: relative; min-width: 0; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+.cx-card.wide { grid-column: 1 / -1; }
+.cx-card h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); text-wrap: balance; }
+.cx-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); max-width: 80ch; }
+.cx-chart { min-height: 260px; }
+.cx-chart svg { display: block; overflow: visible; }
+.cx-chart text { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+.cx-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cx-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cx-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.cx-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); z-index: 5; max-width: 260px; }
+.cx-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.cx-tip .r { display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.cx-tip i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.cx-tablewrap { overflow-x: auto; }
+.cx-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.cx-table th, .cx-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.cx-table th { color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); }
+.cx-flag { font-size: var(--cds-font-size-caption); color: var(--color-warn); }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+[data-dash-source-state=empty] { color: transparent; }
+</style>
+
+<div class="cx">
+  <header class="cx-head">
+    <h1>CoT control and eval awareness results</h1>
+    <p>Every experiment from the Olmo-3 controllability sweeps through the gpt-oss-20b fine-tune and steering runs. Error bars are 95% intervals: Wilson for rates over rollouts, bootstrap over prompts for paired comparisons.</p>
+  </header>
+
+  <nav class="cx-tabs" role="tablist" aria-label="Experiment">
+    <button class="cx-tab" role="tab" id="tab-olmo-7b" data-tab="olmo-7b">Olmo-3 7B</button>
+    <button class="cx-tab" role="tab" id="tab-olmo-32b" data-tab="olmo-32b">Olmo-3 32B</button>
+    <button class="cx-tab" role="tab" id="tab-pilot" data-tab="pilot">gpt-oss pilot</button>
+    <button class="cx-tab" role="tab" id="tab-finetune" data-tab="finetune">Fine-tune and steering</button>
+    <button class="cx-tab" role="tab" id="tab-judges" data-tab="judges">Judge checks</button>
+  </nav>
+
+  <section class="cx-sec" id="olmo-7b" data-tab-panel="olmo-7b">
+    <p class="cx-lede">Olmo-3 7B checkpoints across the five RL-Zero runs and the Think RLVR run: 100 MMLU-Pro questions, three CoT constraints (avoid a word, put a tag at the start of the reasoning, write in lowercase), greedy decoding, 1,024 tokens.</p>
+    <div class="cx-grid">
+      <div class="cx-card wide" id="c7-ctrl"><h2>Valid CoT controllability over RL training</h2>
+        <p class="cx-note">Share of constrained rollouts that follow the constraint with at least 30 words of reasoning. RL-Zero runs start from the 7B base at step 0.</p>
+        <div class="cx-legend" data-legend="c7"></div><div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+      <div class="cx-card" id="c7-tag"><h2>Tag placed anywhere in the completion</h2>
+        <p class="cx-note">Graded metric for the tag constraint: did the tag appear anywhere, even if not at the start.</p>
+        <div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+      <div class="cx-card" id="c7-vea"><h2>Verbalized eval awareness</h2>
+        <p class="cx-note">Strict judge on MMLU-Pro reasoning. At floor for every checkpoint; this judge predates the quote-verification fix.</p>
+        <div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+      <div class="cx-card wide" id="c7-final"><h2>Final checkpoint per pipeline: CoT vs output controllability</h2>
+        <p class="cx-note">Output controllability is the Answer-IF format constraint on the final answer, judged by an LLM.</p>
+        <div class="cx-legend" data-legend="c7f"></div><div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+    </div>
+  </section>
+
+  <section class="cx-sec" id="olmo-32b" data-tab-panel="olmo-32b" hidden>
+    <p class="cx-lede">Olmo-3 32B Think pipeline: base, SFT, DPO, the RLVR run (steps 50 to 750) and the Olmo-3.1 continuation (to step 2,300), same protocol as 7B. The 7B Think RLVR run is shown muted for comparison.</p>
+    <div class="cx-grid">
+      <div class="cx-card wide" id="c32-ctrl"><h2>Valid CoT controllability over RLVR</h2>
+        <p class="cx-note">Rises slowly over the first RLVR run, peaks during the 3.1 continuation, then falls back at the released 3.1 checkpoint.</p>
+        <div class="cx-legend" data-legend="c32"></div><div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+      <div class="cx-card" id="c32-tag"><h2>Tag at the start of the reasoning</h2>
+        <p class="cx-note">The one constraint that moves; lowercase stays at zero throughout.</p>
+        <div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+      <div class="cx-card" id="c32-vea"><h2>Verbalized eval awareness</h2>
+        <p class="cx-note">Strict judge, MMLU-Pro reasoning: 0 to 2% at every checkpoint.</p>
+        <div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+      <div class="cx-card wide" id="c32-stages"><h2>32B pipeline stages</h2>
+        <p class="cx-note">SFT and DPO do not create CoT controllability; output controllability stays far higher.</p>
+        <div class="cx-legend" data-legend="c32s"></div><div class="cx-chart" data-source="olmo_checkpoints"></div></div>
+    </div>
+  </section>
+
+  <section class="cx-sec" id="pilot" data-tab-panel="pilot" hidden>
+    <p class="cx-lede">Base gpt-oss-20b on candidate prompt sets, with and without an eval cue, to choose the prompts for the main run. <span class="cx-flag">Scored with the v3 judge, which inflates cue uptake by quoting the prompt; see Judge checks.</span></p>
+    <div class="cx-grid">
+      <div class="cx-card wide" id="cp-sets"><h2>Verbalized eval awareness by prompt set and condition</h2>
+        <p class="cx-note">“No cue” has no system prompt; “eval cue” adds a system prompt saying the conversation is a safety evaluation; Luxel pairs carry their own normal-use or eval framing.</p>
+        <div class="cx-legend" data-legend="cp"></div><div class="cx-chart" data-source="pilot_sets"></div></div>
+    </div>
+  </section>
+
+  <section class="cx-sec" id="finetune" data-tab-panel="finetune" hidden>
+    <p class="cx-lede">gpt-oss-20b in six versions: base, a placebo LoRA and a compliant LoRA, and a placebo vector, a steering vector and a random vector. On the Luxel eval-framed prompts the compliant LoRA mentions the eval cue in its reasoning
+      <b data-source="contrasts" data-field="diff" data-where="key=v4 judge (Qwen)|Compliant LoRA − control LoRA|Luxel eval-framed">—</b> relative to its placebo, while the steering vector differs from its placebo by
+      <b data-source="contrasts" data-field="diff" data-where="key=v4 judge (Qwen)|Steering vector − control vector|Luxel eval-framed">—</b> (percentage-point differences, v4 judge).</p>
+    <div class="cx-grid">
+      <div class="cx-card wide" id="cf-check"><h2>Controllability check</h2>
+        <p class="cx-note">50 MMLU-Pro questions per instruction. Train instructions were in the adapters' training data; held-out ones were not.</p>
+        <div class="cx-legend" data-legend="arms1"></div><div class="cx-chart" data-source="ctrl_check"></div></div>
+      <div class="cx-card wide" id="cf-rates"><h2>Eval cue mentioned inside the reasoning</h2>
+        <p class="cx-note">v4 judge (sees one channel, no prompt; quote verified), Qwen. All samples: 8 per Luxel and safety prompt, 4 per capability prompt. The explicit system-prompt cue is almost never mentioned.</p>
+        <div class="cx-legend" data-legend="arms2"></div><div class="cx-chart" data-source="v4_rates"></div></div>
+      <div class="cx-card wide" id="cf-forest"><h2>Paired differences on Luxel eval-framed prompts, by measurement</h2>
+        <p class="cx-note">Difference in the share of reasoning traces that mention the cue, same 208 prompts. Left of zero means fewer mentions. The v3 rows use the judge shown to be invalid in Judge checks.</p>
+        <div class="cx-legend" data-legend="measures"></div><div class="cx-chart" data-source="contrasts"></div></div>
+      <div class="cx-card" id="cf-refusal"><h2>Refusals on EvalAwareBench safety prompts</h2>
+        <p class="cx-note">Response opens with an apology or refusal, or uses the requested “{}” refusal format. Main-run prompts, 2 samples each.</p>
+        <div class="cx-chart" data-source="refusals"></div></div>
+      <div class="cx-card" id="cf-narration"><h2>How much the reasoning restates its input</h2>
+        <p class="cx-note">Post hoc text checks. Instruction talk: the reasoning mentions the formatting instruction. Quotes prompt: shares a 6-word phrase with the prompt.</p>
+        <div class="cx-chart" data-source="narration"></div></div>
+      <div class="cx-card wide" id="cf-prereg"><h2>Pre-registered tests</h2>
+        <p class="cx-note">As written in the pre-registration files. The v3 answer-only tests measure a judge artifact; the amendment moved the primary outcome to the v4 judge before the new data was judged.</p>
+        <div class="cx-tablewrap"><table class="cx-table" data-source="prereg_tests" data-row-key="key">
+          <thead><tr><th data-field="experiment">Experiment</th><th data-field="test">Test</th><th data-field="outcome">Outcome</th><th data-field="a">First arm</th><th data-field="b">Second arm</th><th data-field="diff">Difference</th><th data-field="ci">95% CI</th><th data-field="p_adj">p (adjusted)</th><th data-field="result">Result</th></tr></thead>
+          <tbody></tbody></table></div></div>
+    </div>
+  </section>
+
+  <section class="cx-sec" id="judges" data-tab-panel="judges" hidden>
+    <p class="cx-lede">The v3 judge saw the prompt, the reasoning and the reply together and often quoted the prompt's eval cue as if the model had written it. The v4 judge sees one channel without the prompt, and its quote must appear in that channel.</p>
+    <div class="cx-grid">
+      <div class="cx-card wide" id="cj-kappa"><h2>Agreement between two judges (Qwen 72B and DeepSeek V3.2)</h2>
+        <p class="cx-note">Cohen's kappa per arm on the cue rollouts. v3 was run only on the main run's three LoRA arms.</p>
+        <div class="cx-legend" data-legend="ver"></div><div class="cx-chart" data-source="judge_agreement"></div></div>
+      <div class="cx-card" id="cj-answer"><h2>“Cue only in the final answer”, before and after quote checks</h2>
+        <p class="cx-note">v3 judge (Qwen) on the Luxel and safety cue prompts. Almost every answer-only label was a quote from the prompt.</p>
+        <div class="cx-chart" data-source="v3_artifact"></div></div>
+      <div class="cx-card" id="cj-cot"><h2>“Cue in the reasoning” under each judge setup</h2>
+        <p class="cx-note">Same prompts. Verification removes hallucinated quotes; v4 is stricter still because it never sees the prompt.</p>
+        <div class="cx-chart" data-source="v3_artifact"></div></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const pct = d3.format('.0%'), pct1 = d3.format('.1%'), spct = d3.format('+.1%'), f2 = d3.format('.2f');
+  const W = (el) => Math.max(280, el.clientWidth);
+  const C = () => dash.colors;
+
+  // ---------- tooltip ----------
+  function tip(card) {
+    let t = card.querySelector(':scope > .cx-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'cx-tip'; t.hidden = true; card.appendChild(t); }
+    return {
+      show(ev, title, rows) {
+        t.replaceChildren();
+        const h = document.createElement('div'); h.className = 't'; h.textContent = title; t.appendChild(h);
+        rows.forEach(([color, name, val]) => {
+          const r = document.createElement('div'); r.className = 'r';
+          if (color) { const i = document.createElement('i'); i.style.background = color; r.appendChild(i); }
+          const s = document.createElement('span'); s.textContent = name ? `${name}: ${val}` : val; r.appendChild(s);
+          t.appendChild(r);
+        });
+        t.hidden = false;
+        const cb = card.getBoundingClientRect(), tb = t.getBoundingClientRect();
+        let x = ev.clientX - cb.left + 12, y = ev.clientY - cb.top + 12;
+        if (x + tb.width > cb.width - 4) x = ev.clientX - cb.left - tb.width - 12;
+        if (y + tb.height > cb.height - 4) y = ev.clientY - cb.top - tb.height - 12;
+        t.style.left = `${Math.max(4, x)}px`; t.style.top = `${Math.max(4, y)}px`;
+      },
+      hide() { t.hidden = true; }
+    };
+  }
+
+  function legend(key, items) {
+    const el = document.querySelector(`[data-legend="${key}"]`); if (!el) return;
+    el.replaceChildren(...items.map(([name, color]) => {
+      const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = color;
+      s.append(i, document.createTextNode(name)); return s;
+    }));
+  }
+
+  function svgFor(el, h) {
+    el.replaceChildren();
+    const w = W(el);
+    return { w, svg: d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${w} ${h}`).attr('height', h) };
+  }
+
+  function textWidth(svg, strs) {
+    const g = svg.append('g'); let m = 0;
+    strs.forEach((s) => { const t = g.append('text').text(s); m = Math.max(m, t.node().getComputedTextLength()); });
+    g.remove(); return m;
+  }
+
+  // ---------- line chart ----------
+  function lineChart(el, card, { series, yMax, yFmt = pct, xLabel = 'RL step', h = 280 }) {
+    const { w, svg } = svgFor(el, h);
+    const ymax = yMax ?? Math.max(0.02, d3.max(series, (s) => d3.max(s.pts, (p) => p.hi ?? p.y)) * 1.1);
+    const y = d3.scaleLinear([0, ymax], [h - 30, 10]).nice();
+    const left = textWidth(svg, y.ticks(5).map(yFmt)) + 10;
+    const xs = series.flatMap((s) => s.pts.map((p) => p.x));
+    const x = d3.scaleLinear([0, d3.max(xs)], [left, w - 12]);
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line').attr('x1', left).attr('x2', w - 12).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').attr('transform', `translate(${left - 6},0)`).selectAll('text').data(y.ticks(5)).join('text').attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').text(yFmt);
+    const xt = x.ticks(Math.max(3, Math.floor(w / 110)));
+    svg.append('g').selectAll('text').data(xt).join('text').attr('x', x).attr('y', h - 12).attr('text-anchor', 'middle').text(d3.format(','));
+    svg.append('text').attr('x', w - 12).attr('y', h).attr('text-anchor', 'end').text(xLabel);
+    svg.append('line').attr('x1', left).attr('x2', w - 12).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+    const line = d3.line().x((p) => x(p.x)).y((p) => y(p.y));
+    series.forEach((s) => {
+      svg.append('path').datum(s.pts).attr('d', line).attr('fill', 'none').attr('stroke', s.color).attr('stroke-width', s.muted ? 1.5 : 2)
+        .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round').attr('stroke-dasharray', s.muted ? '4 3' : null).attr('opacity', s.muted ? 0.7 : 1);
+      svg.append('g').selectAll('circle').data(s.pts).join('circle').attr('cx', (p) => x(p.x)).attr('cy', (p) => y(p.y)).attr('r', 2.5).attr('fill', s.color);
+    });
+    const all = series.flatMap((s) => s.pts.map((p) => ({ ...p, s })));
+    const dl = d3.Delaunay.from(all, (p) => x(p.x), (p) => y(p.y));
+    const t = tip(card);
+    const hl = svg.append('circle').attr('r', 5).attr('fill', 'none').attr('stroke-width', 2).attr('opacity', 0);
+    svg.append('rect').attr('x', left).attr('y', 0).attr('width', w - left).attr('height', h).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [mx, my] = d3.pointer(ev); const p = all[dl.find(mx, my)];
+        hl.attr('cx', x(p.x)).attr('cy', y(p.y)).attr('stroke', p.s.color).attr('opacity', 1);
+        const rows = [[p.s.color, p.s.name, yFmt(p.y)]];
+        if (p.lo != null) rows.push([null, '95% CI', `${yFmt(p.lo)} to ${yFmt(p.hi)}`]);
+        if (p.label) rows.push([null, '', p.label]);
+        t.show(ev, `${xLabel} ${d3.format(',')(p.x)}`, rows);
+      })
+      .on('mouseleave', () => { hl.attr('opacity', 0); t.hide(); });
+  }
+
+  // ---------- grouped bars ----------
+  function groupedBars(el, card, { cats, series, get, yMax, yFmt = pct, h = 280, bottom = 46, catLabel = (c) => c }) {
+    const { w, svg } = svgFor(el, h);
+    const vals = cats.flatMap((c) => series.map((s) => get(c, s)).filter(Boolean));
+    const ymax = yMax ?? Math.max(0.02, d3.max(vals, (v) => v.hi ?? v.v) * 1.08);
+    const y = d3.scaleLinear([0, ymax], [h - bottom, 10]).nice();
+    const left = textWidth(svg, y.ticks(5).map(yFmt)) + 10;
+    const x0 = d3.scaleBand(cats, [left, w - 8]).paddingInner(0.22).paddingOuter(0.05);
+    const x1 = d3.scaleBand(series.map((s) => s.name), [0, x0.bandwidth()]).padding(0.12);
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line').attr('x1', left).attr('x2', w - 8).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').attr('transform', `translate(${left - 6},0)`).selectAll('text').data(y.ticks(5)).join('text').attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').text(yFmt);
+    const t = tip(card);
+    cats.forEach((c) => {
+      const g = svg.append('g').attr('transform', `translate(${x0(c)},0)`);
+      series.forEach((s) => {
+        const v = get(c, s); if (!v) return;
+        const bw = Math.min(32, x1.bandwidth()), bx = x1(s.name) + (x1.bandwidth() - bw) / 2;
+        const top = y(Math.max(v.v, 0)), base = y(0), hh = Math.max(1, base - top);
+        g.append('path').attr('d', `M${bx},${base}V${top + Math.min(4, hh / 2)}q0,-${Math.min(4, hh / 2)} ${Math.min(4, bw / 2)},-${Math.min(4, hh / 2)}H${bx + bw - Math.min(4, bw / 2)}q${Math.min(4, bw / 2)},0 ${Math.min(4, bw / 2)},${Math.min(4, hh / 2)}V${base}Z`).attr('fill', s.color);
+        if (v.lo != null) {
+          const cx = bx + bw / 2;
+          g.append('line').attr('x1', cx).attr('x2', cx).attr('y1', y(v.lo)).attr('y2', y(v.hi)).attr('stroke', 'var(--color-fg-muted)');
+          [v.lo, v.hi].forEach((e) => g.append('line').attr('x1', cx - 3).attr('x2', cx + 3).attr('y1', y(e)).attr('y2', y(e)).attr('stroke', 'var(--color-fg-muted)'));
+        }
+        g.append('rect').attr('x', bx - 2).attr('y', 10).attr('width', bw + 4).attr('height', h - bottom - 10).attr('fill', 'transparent')
+          .on('mousemove', (ev) => {
+            const rows = [[s.color, s.name, yFmt(v.v)]];
+            if (v.lo != null) rows.push([null, '95% CI', `${yFmt(v.lo)} to ${yFmt(v.hi)}`]);
+            if (v.n != null) rows.push([null, 'n', d3.format(',')(v.n)]);
+            t.show(ev, catLabel(c).replace('\n', ' '), rows);
+          }).on('mouseleave', () => t.hide());
+      });
+    });
+    svg.append('line').attr('x1', left).attr('x2', w - 8).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+    const lab = svg.append('g');
+    cats.forEach((c) => {
+      const parts = catLabel(c).split('\n');
+      const tx = lab.append('text').attr('x', x0(c) + x0.bandwidth() / 2).attr('y', h - bottom + 16).attr('text-anchor', 'middle');
+      parts.forEach((p, i) => tx.append('tspan').attr('x', x0(c) + x0.bandwidth() / 2).attr('dy', i ? '1.1em' : 0).text(p));
+    });
+  }
+
+  // ---------- forest plot ----------
+  function forest(el, card, { groups, measures, get, rowH = 18 }) {
+    const n = groups.length * measures.length;
+    const probe = svgFor(el, 10); const lw = textWidth(probe.svg, groups) + 16;
+    const stacked = lw > probe.w * 0.45; const labH = stacked ? 18 : 0;
+    const h = n * rowH + groups.length * (10 + labH) + 40;
+    const { w, svg } = svgFor(el, h);
+    const vals = groups.flatMap((g) => measures.map((m) => get(g, m)).filter(Boolean));
+    const ext = d3.extent(vals.flatMap((v) => [v.lo, v.hi])); const pad = 0.01;
+    const left = stacked ? 8 : lw;
+    const x = d3.scaleLinear([Math.min(ext[0], 0) - pad, Math.max(ext[1], 0) + pad], [left, w - 12]).nice();
+    const t = tip(card);
+    svg.append('g').selectAll('line').data(x.ticks(6)).join('line').attr('x1', x).attr('x2', x).attr('y1', 0).attr('y2', h - 28).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 0).attr('y2', h - 28).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
+    svg.append('g').selectAll('text').data(x.ticks(6)).join('text').attr('x', x).attr('y', h - 12).attr('text-anchor', 'middle').text(spct);
+    let yy = 6;
+    groups.forEach((g) => {
+      if (stacked) { svg.append('text').attr('x', 0).attr('y', yy + 12).text(g).style('fill', 'var(--color-fg)'); yy += labH; }
+      else svg.append('text').attr('x', 0).attr('y', yy + (measures.length * rowH) / 2).attr('dy', '0.32em').text(g).style('fill', 'var(--color-fg)');
+      measures.forEach((m) => {
+        const v = get(g, m); const cy = yy + rowH / 2;
+        if (v) {
+          svg.append('line').attr('x1', x(v.lo)).attr('x2', x(v.hi)).attr('y1', cy).attr('y2', cy).attr('stroke', m.color).attr('stroke-width', 2).attr('stroke-linecap', 'round');
+          svg.append('circle').attr('cx', x(v.v)).attr('cy', cy).attr('r', 4).attr('fill', m.color);
+          svg.append('rect').attr('x', left).attr('y', yy).attr('width', w - left).attr('height', rowH).attr('fill', 'transparent')
+            .on('mousemove', (ev) => t.show(ev, g, [[m.color, m.name, spct(v.v)], [null, '95% CI', `${spct(v.lo)} to ${spct(v.hi)}`], [null, 'p', v.p < 0.0001 ? '< 0.0001' : d3.format('.4f')(v.p)]]))
+            .on('mouseleave', () => t.hide());
+        }
+        yy += rowH;
+      });
+      yy += 10;
+    });
+  }
+
+  // ---------- data helpers ----------
+  const ok = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+  const num = (v) => (v == null || v === '' ? null : Number(v));
+  const card = (id) => document.getElementById(id);
+  const chartIn = (id) => card(id).querySelector('.cx-chart');
+
+  // ---------- section drawers ----------
+  function drawOlmo7() {
+    const rows = ok('olmo_checkpoints'); if (!rows) return;
+    const R = rows.map((r) => ({ ...r, step: num(r.step), valid_ctrl: num(r.valid_ctrl), valid_lo: num(r.valid_lo), valid_hi: num(r.valid_hi), tag_anywhere: num(r.tag_anywhere), vea: num(r.vea), vea_lo: num(r.vea_lo), vea_hi: num(r.vea_hi), output_ctrl: num(r.output_ctrl) }));
+    const base = R.find((r) => r.pipeline === '7B base');
+    const names = ['RL-Zero IF', 'RL-Zero Math', 'RL-Zero Code', 'RL-Zero Mix', 'RL-Zero General', '7B Think RLVR'];
+    const mk = (field, lo, hi) => names.map((nm, i) => {
+      let pts = R.filter((r) => r.pipeline === nm && r.step != null).sort((a, b) => a.step - b.step);
+      if (nm.startsWith('RL-Zero') && base) pts = [{ ...base, step: 0 }, ...pts];
+      return { name: nm, color: C()[i], pts: pts.map((r) => ({ x: r.step, y: r[field], lo: lo ? r[lo] : null, hi: hi ? r[hi] : null, label: r.revision })) };
+    });
+    legend('c7', names.map((n, i) => [n, C()[i]]));
+    lineChart(chartIn('c7-ctrl'), card('c7-ctrl'), { series: mk('valid_ctrl', 'valid_lo', 'valid_hi') });
+    lineChart(chartIn('c7-tag'), card('c7-tag'), { series: mk('tag_anywhere'), yMax: 1, h: 240 });
+    lineChart(chartIn('c7-vea'), card('c7-vea'), { series: mk('vea', 'vea_lo', 'vea_hi'), yFmt: pct1, h: 240 });
+    const finals = ['7B base', 'RL-Zero IF', 'RL-Zero Math', 'RL-Zero Code', 'RL-Zero Mix', 'RL-Zero General', '7B Think SFT', '7B Think DPO', '7B Think RLVR'];
+    const ser = [{ name: 'Valid CoT controllability', color: C()[0], f: 'valid_ctrl', lo: 'valid_lo', hi: 'valid_hi' }, { name: 'Output controllability', color: C()[1], f: 'output_ctrl' }];
+    legend('c7f', ser.map((s) => [s.name, s.color]));
+    groupedBars(chartIn('c7-final'), card('c7-final'), {
+      cats: finals, series: ser, yMax: 1, catLabel: (c) => c.replace('RL-Zero ', 'RL-Zero\n').replace('7B Think ', 'Think\n'),
+      get: (c, s) => { const r = R.find((x) => x.pipeline === c && x.revision === 'main'); return r && r[s.f] != null ? { v: r[s.f], lo: s.lo ? r[s.lo] : null, hi: s.hi ? r[s.hi] : null } : null; }
+    });
+  }
+
+  function drawOlmo32() {
+    const rows = ok('olmo_checkpoints'); if (!rows) return;
+    const R = rows.map((r) => ({ ...r, step: num(r.step), valid_ctrl: num(r.valid_ctrl), valid_lo: num(r.valid_lo), valid_hi: num(r.valid_hi), tag_start: num(r.tag_start), vea: num(r.vea), vea_lo: num(r.vea_lo), vea_hi: num(r.vea_hi), output_ctrl: num(r.output_ctrl) }));
+    const S = [{ nm: '32B Think RLVR', color: C()[0] }, { nm: '32B Think 3.1 (RLVR cont.)', color: C()[1] }, { nm: '7B Think RLVR', color: 'var(--cds-chart-muted)', muted: true }];
+    const mk = (field, lo, hi) => S.map((s) => ({ name: s.nm, color: s.color, muted: s.muted, pts: R.filter((r) => r.pipeline === s.nm && r.step != null).sort((a, b) => a.step - b.step).map((r) => ({ x: r.step, y: r[field], lo: lo ? r[lo] : null, hi: hi ? r[hi] : null, label: r.revision })) }));
+    legend('c32', S.map((s) => [s.nm, s.color]));
+    lineChart(chartIn('c32-ctrl'), card('c32-ctrl'), { series: mk('valid_ctrl', 'valid_lo', 'valid_hi'), yFmt: pct1 });
+    lineChart(chartIn('c32-tag'), card('c32-tag'), { series: mk('tag_start'), h: 240 });
+    lineChart(chartIn('c32-vea'), card('c32-vea'), { series: mk('vea', 'vea_lo', 'vea_hi'), yFmt: pct1, h: 240 });
+    const stages = [['32B base', 'main'], ['32B Think SFT', 'main'], ['32B Think DPO', 'main'], ['32B Think RLVR', 'main'], ['32B Think 3.1 (RLVR cont.)', 'main']];
+    const lab = { '32B base': 'Base', '32B Think SFT': 'SFT', '32B Think DPO': 'DPO', '32B Think RLVR': 'RLVR\nstep 750', '32B Think 3.1 (RLVR cont.)': '3.1 RLVR\nstep 2,300' };
+    const ser = [{ name: 'Valid CoT controllability', color: C()[0], f: 'valid_ctrl', lo: 'valid_lo', hi: 'valid_hi' }, { name: 'Tag at start', color: C()[2], f: 'tag_start' }, { name: 'Output controllability', color: C()[1], f: 'output_ctrl' }];
+    legend('c32s', ser.map((s) => [s.name, s.color]));
+    groupedBars(chartIn('c32-stages'), card('c32-stages'), {
+      cats: stages.map((s) => s[0]), series: ser, yMax: 1, catLabel: (c) => lab[c],
+      get: (c, s) => { const r = R.find((x) => x.pipeline === c && x.revision === 'main'); return r && r[s.f] != null ? { v: r[s.f], lo: s.lo ? r[s.lo] : null, hi: s.hi ? r[s.hi] : null } : null; }
+    });
+  }
+
+  function drawPilot() {
+    const rows = ok('pilot_sets'); if (!rows) return;
+    const R = rows.map((r) => ({ ...r, vea_any: num(r.vea_any), vea_lo: num(r.vea_lo), vea_hi: num(r.vea_hi), n: num(r.n) }));
+    const sets = ['mmlu_pro', 'dolci_if_maxent', 'eab_cap_base', 'eab_safety_base', 'eab_safety_all8', 'geo_harmful_refusal', 'geo_jailbreak', 'geo_over_refusal', 'luxel_pairs'];
+    const nice = { mmlu_pro: 'MMLU-Pro', dolci_if_maxent: 'Instruction\nfollowing', eab_cap_base: 'EAB\ncapability', eab_safety_base: 'EAB safety\nnatural', eab_safety_all8: 'EAB safety\nall cues', geo_harmful_refusal: 'Harmful\nrefusal', geo_jailbreak: 'Jailbreak', geo_over_refusal: 'Over-\nrefusal', luxel_pairs: 'Luxel\npairs' };
+    const ser = [{ name: 'No cue / normal-use', color: C()[0], conds: ['none', 'deploy_like'] }, { name: 'Eval cue / eval-framed', color: C()[1], conds: ['explicit', 'eval_like'] }];
+    legend('cp', ser.map((s) => [s.name, s.color]));
+    groupedBars(chartIn('cp-sets'), card('cp-sets'), {
+      cats: sets.filter((s) => R.some((r) => r.set === s)), series: ser, yMax: 1, catLabel: (c) => nice[c] || c,
+      get: (c, s) => { const r = R.find((x) => x.set === c && s.conds.includes(x.condition)); return r ? { v: r.vea_any, lo: r.vea_lo, hi: r.vea_hi, n: r.n } : null; }
+    });
+  }
+
+  const ARMS = ['Base', 'Control LoRA', 'Compliant LoRA', 'Control vector', 'Steering vector', 'Random vector'];
+  const armColor = (a) => C()[ARMS.indexOf(a)];
+
+  function drawFinetune() {
+    const cc = ok('ctrl_check');
+    if (cc) {
+      const R = cc.map((r) => ({ ...r, compliance: num(r.compliance), lo: num(r.lo), hi: num(r.hi), n: num(r.n) }));
+      const ins = ['All caps', 'All lowercase', 'Bulleted list', 'Numbered list', 'Avoid “so”'];
+      const split = Object.fromEntries(R.map((r) => [r.instruction, r.split]));
+      legend('arms1', ARMS.map((a) => [a, armColor(a)]));
+      groupedBars(chartIn('cf-check'), card('cf-check'), {
+        cats: ins, series: ARMS.map((a) => ({ name: a, color: armColor(a) })), yMax: 1, catLabel: (c) => `${c}\n(${split[c]})`,
+        get: (c, s) => { const r = R.find((x) => x.instruction === c && x.arm === s.name); return r ? { v: r.compliance, lo: r.lo, hi: r.hi, n: r.n } : null; }
+      });
+    }
+    const vr = ok('v4_rates');
+    if (vr) {
+      const R = vr.filter((r) => r.judge === 'Qwen').map((r) => ({ ...r, in_cot: num(r.in_cot), lo: num(r.lo), hi: num(r.hi), n: num(r.n_prompts) }));
+      legend('arms2', ARMS.map((a) => [a, armColor(a)]));
+      groupedBars(chartIn('cf-rates'), card('cf-rates'), {
+        cats: ['Luxel eval-framed', 'Safety + system cue', 'Capability + system cue'], series: ARMS.map((a) => ({ name: a, color: armColor(a) })), yMax: 0.8,
+        catLabel: (c) => c.replace(' + ', '\n+ '),
+        get: (c, s) => { const r = R.find((x) => x.cell === c && x.arm === s.name); return r ? { v: r.in_cot, lo: r.lo, hi: r.hi, n: r.n } : null; }
+      });
+    }
+    const ct = ok('contrasts');
+    if (ct) {
+      const R = ct.filter((r) => r.cells === 'Luxel eval-framed').map((r) => ({ ...r, diff: num(r.diff), lo: num(r.lo), hi: num(r.hi), p: num(r.p) }));
+      const groups = ['Compliant LoRA − control LoRA', 'Steering vector − control vector', 'Control LoRA − base', 'Control vector − base', 'Random vector − base'];
+      const measures = ['v4 judge (Qwen)', 'v4 judge (DeepSeek)', 'Text search (no judge)', 'v3 judge, verified quotes', 'v3 judge, raw'].map((m, i) => ({ name: m, color: i < 3 ? C()[i] : (i === 3 ? 'var(--cds-chart-muted)' : 'var(--color-fg-muted)') }));
+      legend('measures', measures.map((m) => [m.name, m.color]));
+      forest(chartIn('cf-forest'), card('cf-forest'), { groups, measures, get: (g, m) => { const r = R.find((x) => x.contrast === g && x.measure === m.name); return r ? { v: r.diff, lo: r.lo, hi: r.hi, p: r.p } : null; } });
+    }
+    const rf = ok('refusals');
+    if (rf) {
+      const R = rf.map((r) => ({ ...r, refusal: num(r.refusal), lo: num(r.lo), hi: num(r.hi), n: num(r.n) }));
+      groupedBars(chartIn('cf-refusal'), card('cf-refusal'), {
+        cats: ['Safety prompt, no cue', 'Safety prompt + system cue', 'Safety prompt, all cue factors'], series: ARMS.map((a) => ({ name: a, color: armColor(a) })), yMax: 1,
+        catLabel: (c) => c.replace('Safety prompt', 'Safety').replace(', ', '\n').replace(' + ', '\n+ '),
+        get: (c, s) => { const r = R.find((x) => x.condition === c && x.arm === s.name); return r ? { v: r.refusal, lo: r.lo, hi: r.hi, n: r.n } : null; }
+      });
+    }
+    const nr = ok('narration');
+    if (nr) {
+      const R = nr.map((r) => ({ ...r, instruction_talk: num(r.instruction_talk), quotes_prompt_normal: num(r.quotes_prompt_normal), quotes_prompt_eval: num(r.quotes_prompt_eval) }));
+      const mets = [['instruction_talk', 'Instruction\ntalk'], ['quotes_prompt_normal', 'Quotes prompt\n(normal-use)'], ['quotes_prompt_eval', 'Quotes prompt\n(eval-framed)']];
+      groupedBars(chartIn('cf-narration'), card('cf-narration'), {
+        cats: mets.map((m) => m[0]), series: ARMS.map((a) => ({ name: a, color: armColor(a) })), yMax: 1, catLabel: (c) => mets.find((m) => m[0] === c)[1],
+        get: (c, s) => { const r = R.find((x) => x.arm === s.name); return r ? { v: r[c] } : null; }
+      });
+    }
+    const pt = ok('prereg_tests');
+    const tb = card('cf-prereg').querySelector('tbody');
+    tb.replaceChildren();
+    if (pt) {
+      const cols = ['experiment', 'test', 'outcome', 'a', 'b', 'diff', 'ci', 'p_adj', 'result'];
+      pt.forEach((r) => {
+        const tr = document.createElement('tr'); tr.dataset.key = r.key;
+        cols.forEach((c) => { const td = document.createElement('td'); td.textContent = r[c] ?? ''; tr.appendChild(td); });
+        tb.appendChild(tr);
+      });
+    }
+  }
+
+  function drawJudges() {
+    const ag = ok('judge_agreement');
+    if (ag) {
+      const R = ag.map((r) => ({ ...r, kappa: num(r.kappa), n: num(r.n) }));
+      const ser = [{ name: 'v3 (sees prompt)', color: 'var(--cds-chart-muted)' }, { name: 'v4 (channel-blind)', color: C()[0] }];
+      legend('ver', ser.map((s) => [s.name, s.color]));
+      const cats = ARMS.flatMap((a) => ['In reasoning', 'Final answer only'].map((l) => `${a}|${l}`));
+      groupedBars(chartIn('cj-kappa'), card('cj-kappa'), {
+        cats, series: ser, yMax: 1, yFmt: f2, h: 320, bottom: 62,
+        catLabel: (c) => { const [a, l] = c.split('|'); return `${a.replace(' ', '\n')}\n${l === 'In reasoning' ? 'reasoning' : 'answer only'}`; },
+        get: (c, s) => { const [a, l] = c.split('|'); const r = R.find((x) => x.arm === a && x.label === l && x.judge_version === s.name); return r && r.kappa != null ? { v: r.kappa, n: r.n } : null; }
+      });
+    }
+    const va = ok('v3_artifact');
+    if (va) {
+      const R = va.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, k === 'arm' ? v : num(v)])));
+      groupedBars(chartIn('cj-answer'), card('cj-answer'), {
+        cats: ARMS, series: [{ name: 'v3 raw', color: 'var(--cds-chart-muted)', f: 'answer_only_raw' }, { name: 'v3 with verified quotes', color: C()[0], f: 'answer_only_verified' }],
+        yMax: 0.1, yFmt: pct1, catLabel: (c) => c.replace(' ', '\n'),
+        get: (c, s) => { const r = R.find((x) => x.arm === c); return r ? { v: r[s.f] } : null; }
+      });
+      groupedBars(chartIn('cj-cot'), card('cj-cot'), {
+        cats: ARMS, series: [{ name: 'v3 raw', color: 'var(--cds-chart-muted)', f: 'in_cot_raw' }, { name: 'v3 verified', color: C()[2], f: 'in_cot_verified' }, { name: 'v4', color: C()[0], f: 'in_cot_v4' }],
+        yMax: 0.8, catLabel: (c) => c.replace(' ', '\n'),
+        get: (c, s) => { const r = R.find((x) => x.arm === c); return r ? { v: r[s.f] } : null; }
+      });
+    }
+  }
+
+  // ---------- headline numbers ----------
+  function fillMarks() {
+    const ct = ok('contrasts');
+    document.querySelectorAll('[data-source="contrasts"][data-field="diff"][data-where]').forEach((el) => {
+      if (!ct) { el.textContent = '—'; return; }
+      const key = decodeURIComponent(el.dataset.where.slice(4));
+      const r = ct.find((x) => x.key === key);
+      el.textContent = r ? spct(num(r.diff)) : '—';
+    });
+  }
+
+  // ---------- tabs ----------
+  const tabs = [...document.querySelectorAll('.cx-tab')];
+  const panels = [...document.querySelectorAll('[data-tab-panel]')];
+  let current = 'olmo-7b';
+  const drawers = { 'olmo-7b': drawOlmo7, 'olmo-32b': drawOlmo32, pilot: drawPilot, finetune: drawFinetune, judges: drawJudges };
+  function show(id) {
+    if (!drawers[id]) return;
+    current = id;
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === id)));
+    panels.forEach((p) => { p.hidden = p.dataset.tabPanel !== id; });
+    drawers[id]();
+  }
+  tabs.forEach((t) => t.addEventListener('click', () => { show(t.dataset.tab); dash.setLink(t.dataset.tab); }));
+  const start = location.hash.slice(1);
+  if (drawers[start]) current = start;
+  show(current);
+
+  dash.onData(() => { fillMarks(); drawers[current](); });
+})();
+</script>
