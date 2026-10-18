@@ -15,3 +15,8 @@
 [ctrldel] 640/1408 spend=$0.234
 [ctrldel] 768/1408 spend=$0.281
 [ctrldel] 896/1408 spend=$0.337
+[ctrldel] 1024/1408 spend=$0.393
+[ctrldel] 1152/1408 spend=$0.438
+[ctrldel] 1280/1408 spend=$0.495
+[ctrldel] 1408/1408 spend=$0.556
+[ctrldel] judge summary {'model': 'qwen/qwen-2.5-72b-instruct', 'calls': 1408, 'usd': 0.556, 'prompt_tokens': 1419395, 'completion_tokens': 112506, 'errors': 0}
