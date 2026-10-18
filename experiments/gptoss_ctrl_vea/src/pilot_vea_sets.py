@@ -133,7 +133,7 @@ def wilson(k, n, z=1.96):
     if n == 0:
         return (0.0, 0.0)
     p = k / n; d = 1 + z * z / n; c = p + z * z / (2 * n); h = z * ((p * (1 - p) + z * z / (4 * n)) / n) ** 0.5
-    return ((c - h) / d, (c + h) / d)
+    return (max(0.0, (c - h) / d), min(1.0, (c + h) / d))
 
 
 def summarize(args):
