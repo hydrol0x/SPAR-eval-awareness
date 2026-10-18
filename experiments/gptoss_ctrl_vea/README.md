@@ -233,6 +233,22 @@ Controllability check (50 MMLU-Pro questions per instruction):
 
 The steering vector is at least as controllable as the compliant LoRA on held-out instructions (avg 24% vs 17%).
 
+### 6b. Pre-registered steering tests as written (v3 judge, `PREREG_steer.md`)
+
+| test | outcome | steering | control | difference | 95% CI | p (Holm) |
+|---|---|---|---|---|---|---|
+| P1 (primary) | in CoT, replication cue cells | 57.6% | 54.3% | +3.2 pp | [+0.6, +5.9] | 0.017 |
+| S1 | answer only | 4.9% | 2.0% | +3.0 pp | [+1.9, +4.1] | < 0.001 |
+| S2 | anywhere | 62.5% | 56.3% | +6.2 pp | [+3.7, +8.7] | < 0.001 |
+| S3 | in CoT, capability + cue | 66.2% | 59.4% | +6.8 pp | [+0.8, +12.7] | 0.032 |
+
+These use the v3 judge shown invalid in section 1 (S1 and S3 measure almost nothing but prompt quotes: under v4 the
+capability + cue in-CoT rate is 0–1% for every arm). Verifying v3's excerpts against the model's text turns P1 into
++1.4 pp (p = 0.32). Across measurements the steering − control difference on the cue prompts ranges from −2.8 pp
+(lexical) through −2.1 / −2.4 pp (v4, two judges) to +1.4 pp (v3 verified) and +3.2 pp (v3 raw): there is no robust
+steering effect beyond the control vector. By contrast the compliant − control LoRA difference is negative under every
+measurement (v3 raw −4.4, v4 −8.2 / −6.9, lexical −7.1 pp on the confirmatory data).
+
 ### 7. Side observations
 * Accuracy on unconstrained MMLU-Pro questions is 74–76% for all six arms.
 * The control vector shortens reasoning (88 words on the main prompts vs 137 for base) and lowers cue mentions by
@@ -247,9 +263,9 @@ The steering vector is at least as controllable as the compliant LoRA on held-ou
    the training teaches compliance or not (control LoRA −5 pp, control vector −12 pp vs base; random vector ≈ 0).
 2. The compliant LoRA reduces it further, beyond its matched placebo: −8 pp on new samples (pre-registered, both judges,
    p < 0.0001), −12 pp on the Luxel prompts.
-3. The steering vector, which reaches at least the same controllability with zero weight change, reduces it only
-   −2 to −4 pp beyond its own placebo (not significant under the pre-registered v4 test; p = 0.014 with the lexical
-   detector). So controllability as such accounts for little of the LoRA's extra effect; the most likely carrier is
+3. The steering vector, which reaches at least the same controllability with zero weight change, shows no robust
+   effect beyond its own placebo: −2 to −4 pp under the v4 judges and the lexical detector, +1 to +3 pp under the
+   (invalid) v3 judge; not significant under the amended pre-registered v4 test. So controllability as such accounts for little of the LoRA's extra effect; the most likely carrier is
    something else in the LoRA's SFT, such as its training traces being filtered to never discuss the instruction.
 4. Spontaneous verbalized awareness stays at floor, and an explicit system-prompt eval cue is almost never verbalized
    in the reasoning; any CoT-monitoring signal here comes from eval framing inside the user turn.
@@ -258,3 +274,7 @@ The steering vector is at least as controllable as the compliant LoRA on held-ou
 The amended v4 analyses were specified after seeing v4 results on the main run (they were committed before the
 rerun or steering data were judged). The v4 judge sees a channel without its prompt, so it cannot separate
 cue-driven from spontaneous awareness; given section 1 this is a feature here.
+
+**Cost (night 2).** RunPod: confirmatory pod ≈ 55 min and steering pod ≈ 75 min on A100-SXM ≈ $3.8 (balance $27.03).
+OpenRouter: ≈ $20 for v3 judging of 13k rollouts, v4 judging with two judges, and the second-judge checks (key usage
+$54.98 of the $100 limit). Rollouts: 25,944 across six arms in `rollouts/`.
