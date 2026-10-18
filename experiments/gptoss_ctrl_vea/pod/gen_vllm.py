@@ -76,7 +76,7 @@ def cmd_gen(a):
     llm = make_llm(a.model, a.max_len); tok = llm.get_tokenizer()
     todo = []
     for it in items:
-        for s in range(a.n_samples):
+        for s in range(a.sample_offset, a.sample_offset + a.n_samples):
             rid = hashlib.sha1(f"{a.name}||{it['set']}||{it['item_id']}||{it['condition']}||{s}".encode()).hexdigest()[:16]
             if rid not in done:
                 todo.append((it, s, rid))
@@ -114,6 +114,7 @@ def main():
     g.add_argument("--n-samples", type=int, default=2); g.add_argument("--temperature", type=float, default=1.0)
     g.add_argument("--max-tokens", type=int, default=4096); g.add_argument("--max-len", type=int, default=12288)
     g.add_argument("--chunk", type=int, default=512)
+    g.add_argument("--sample-offset", type=int, default=0, help="first sample index (new seeds for a rerun)")
     a = ap.parse_args()
     cmd_nll(a) if a.cmd == "nll" else cmd_gen(a)
 

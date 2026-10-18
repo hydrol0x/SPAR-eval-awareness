@@ -30,9 +30,9 @@ def clip(s, n=9000):
     return s if len(s) <= n else s[: n // 2] + "\n...[clipped]...\n" + s[-n // 2:]
 
 
-async def judge_model(model: str, budget: float, conc: int):
-    rolls = {r["rollout_id"]: r for r in load(ROOT / "rollouts" / model / "main.jsonl")}
-    out = ROOT / "results" / "judged" / f"{model}.jsonl"; out.parent.mkdir(parents=True, exist_ok=True)
+async def judge_model(model: str, budget: float, conc: int, file: str = "main", out_dir: str = "judged"):
+    rolls = {r["rollout_id"]: r for r in load(ROOT / "rollouts" / model / f"{file}.jsonl")}
+    out = ROOT / "results" / out_dir / f"{model}.jsonl"; out.parent.mkdir(parents=True, exist_ok=True)
     done = {j["rollout_id"] for j in load(out) if not j.get("error")}
     todo = [r for k, r in rolls.items() if k not in done]
     print(f"[{model}] judge: {len(todo)} to do, {len(done)} done", flush=True)
@@ -72,9 +72,11 @@ def main():
     ap.add_argument("--models", nargs="+", default=["base", "ctrldel", "cdel"])
     ap.add_argument("--budget", type=float, default=4.0)
     ap.add_argument("--concurrency", type=int, default=24)
+    ap.add_argument("--file", default="main", help="rollouts/<model>/<file>.jsonl")
+    ap.add_argument("--out-dir", default="judged", help="results/<out-dir>/<model>.jsonl")
     a = ap.parse_args()
     for m in a.models:
-        asyncio.run(judge_model(m, a.budget, a.concurrency))
+        asyncio.run(judge_model(m, a.budget, a.concurrency, a.file, a.out_dir))
 
 
 if __name__ == "__main__":
