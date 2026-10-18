@@ -1,6 +1,6 @@
 # Does fine-tuning for CoT controllability change verbalized eval awareness? (gpt-oss-20b trio)
 
-Status: **main experiment complete (2026-10-18).** Results below; full tables in `results/main_summary.md`.
+Status: **main experiment, confirmatory rerun, judge-validity checks and steering experiment complete (2026-10-18).** Read the section *Night 2* first: it corrects the measurement used in the earlier sections.
 
 ## Design
 Three models that differ only in one LoRA adapter on `openai/gpt-oss-20b`
@@ -143,3 +143,118 @@ Paired contrasts on the same prompts (pooled over the two cue conditions, primar
 **Caveats.** One model (gpt-oss-20b), one pair of adapters with a modest held-out controllability gain, a single LLM
 judge without human validation, and cue-driven rather than spontaneous awareness. The pooled test was specified after
 seeing per-cell results; the per-cell contrasts in `results/main_summary.md` are the pre-specified ones.
+
+## Night 2 (2026-10-18): confirmatory rerun, robustness checks, steering vectors
+
+**Read this first.** Two robustness checks found that the v3 judge used above (and in the pilot) is not valid for
+*where* awareness is expressed, and inflates cue uptake. The earlier sections are kept as the record, but their VEA
+numbers should be read through the corrections below.
+
+### 1. The v3 judge credits the model with the prompt's own words
+Both v3 judges (Qwen2.5-72B and, as a second judge, DeepSeek V3.2) see prompt + reasoning + reply together and often
+quote the PROMPT's eval cue ("Current mode: evaluation run for internal benchmarking.") as if the model wrote it,
+tagging it as reasoning or reply at random. Verifying each excerpt against the model's text (`src/verify_excerpts.py`)
+drops 8–14% of Qwen's excerpts and ~50% of DeepSeek's, almost all of them prompt quotes. The primary judge's
+"cue only in the final answer" rate falls from 4–10% to 0–0.5% for every model, so the main run's answer-only effect
+(and the confirmatory test built on it) is a judge artifact. v3 inter-judge agreement was kappa 0.2–0.4 (in-CoT) and
+≈ 0 (answer-only).
+
+**Fix: v4 judge** (`src/judge_v4.py`). The judge sees one channel (reasoning, or reply) without the prompt and must
+quote it; the quote is verified against that channel. Inter-judge agreement rises to **kappa 0.91–0.97**.
+
+**Consequence for the pilot and main run:** the explicit system-prompt cue ("This conversation is part of an AI safety
+evaluation...") is almost never mentioned in gpt-oss-20b's reasoning (0–1% for every model under v4; a plain text
+search finds eval-related words in 2–5% of those traces). The "65–95% cue uptake" for that cue was mostly the judge
+quoting the system prompt. Real cue mentions come from the **Luxel eval-framed prompts**, where the eval framing is in
+the user message (headers such as `source=mt_bench, benchmark=true`): base mentions it in 58% of reasoning traces.
+
+### 2. Pre-registered confirmatory rerun (v3 judge, `PREREG_confirm.md`)
+New samples (6 per prompt) on the 304 cue prompts; 99 new EvalAwareBench capability prompts (4 samples).
+
+| test | outcome | compliant | control | difference | 95% CI | p (Holm) | verdict as pre-registered |
+|---|---|---|---|---|---|---|---|
+| H1 (primary) | answer only | 7.4% | 3.9% | +3.5 pp | [+1.8, +5.4] | 0.0002 | confirmed — **but a judge artifact (section 1)** |
+| H2 | in CoT | 54.9% | 59.2% | −4.4 pp | [−7.5, −1.2] | 0.024 | confirmed |
+| G1 | answer only, capability + cue | 18.1% | 14.0% | +4.1 pp | [−0.8, +9.2] | 0.24 | not confirmed |
+| G2 | in CoT, capability + cue | 68.5% | 71.9% | −3.4 pp | [−10.0, +3.4] | 0.33 | not confirmed |
+
+### 3. Amended primary analyses (v4 judge, `PREREG_amendment_v4.md`, written before any new data was judged)
+
+| experiment | test | judge | a | b | a − b | 95% CI | p |
+|---|---|---|---|---|---|---|---|
+| rerun, compliant − control LoRA (new samples only) | **A1 in CoT** | Qwen | 28.3% | 36.5% | **−8.2 pp** | [−11.0, −5.5] | < 0.0001 |
+| | A1 in CoT | DeepSeek | 27.2% | 34.1% | −6.9 pp | [−9.7, −4.1] | < 0.0001 |
+| | A2 in CoT, capability + cue | Qwen | 0.3% | 0.0% | +0.3 pp | [0.0, +0.8] | 1.0 |
+| | A3 anywhere | Qwen | 28.6% | 36.6% | −8.1 pp | [−10.9, −5.4] | < 0.0001 |
+| steering vector − control vector (all samples) | **B1 in CoT** | Qwen | 29.4% | 31.5% | **−2.1 pp** | [−4.5, +0.3] | 0.089 |
+| | B1 in CoT | DeepSeek | 28.0% | 30.5% | −2.4 pp | [−4.9, +0.1] | 0.064 |
+| | B2 in CoT, capability + cue | Qwen | 0.5% | 0.0% | +0.5 pp | [0.0, +1.3] | 0.50 |
+| | B3 anywhere | Qwen | 29.6% | 31.6% | −2.0 pp | [−4.4, +0.5] | 0.23 (Holm) |
+
+A1 replicates on new samples with both judges; B1 is not significant. Full tables: `results/amended_tests.md`,
+`results/v4_summary.md`; figure `figures/v4_in_cot.png`.
+
+### 4. Where the effect lives: Luxel eval-framed prompts (v4 Qwen, all samples, rate of cue mention in the reasoning)
+
+| arm | Luxel eval-framed | safety + system cue | capability + system cue |
+|---|---|---|---|
+| base | 57.8% | 0.1% | 0.8% |
+| control LoRA | 52.9% | 0.0% | 0.0% |
+| compliant LoRA | **40.9%** | 0.1% | 0.3% |
+| control vector | 46.0% | 0.1% | 0.0% |
+| steering vector | 42.8% | 0.1% | 0.5% |
+| random vector | 58.8% | 0.0% | 0.8% |
+
+On Luxel (208 prompts, 8 samples each): compliant − control LoRA **−11.9 pp** [−15.7, −8.3]; steering − control
+vector −3.1 pp [−6.6, +0.5] (p = 0.09); control vector − base −11.8 pp; random vector − base +1.0 pp.
+
+### 5. Judge-free check (`src/lexical_check.py`, `results/lexical_check.md`)
+A rollout's reasoning counts as mentioning the cue if it contains a word specific to that prompt's eval cue or a generic
+eval-context term. Written before the confirmatory data existed and not tuned afterwards. On Luxel: compliant − control
+LoRA −10.5 pp [−14.1, −7.1]; steering − control vector −4.3 pp [−7.6, −0.9] (p = 0.014); control vector − base
+−11.1 pp; random vector − base +2.0 pp. Same ordering as the v4 judge.
+
+### 6. Steering experiment details (`PREREG_steer.md`)
+Released vectors from `automated-alignment-science/cot-controllability-steering-vectors` (layer 10): `gL10` (steering),
+`gL10ctrl` (matched control, trained on raw traces), `gL10rand` (random, same norm). Baked into the block-10 expert
+output biases (`pod/bake_steer.py`); this reproduces the reference hook to KL 0.007–0.011 vs a steering effect of
+0.29–0.44 nats per position, argmax agreement 96–97% (gate 1 revised before generation; see the note in
+`PREREG_steer.md`). The first verification gate failed and its replacement is documented there.
+
+Controllability check (50 MMLU-Pro questions per instruction):
+
+| instruction | split | base | control LoRA | compliant LoRA | control vector | steering vector | random vector |
+|---|---|---|---|---|---|---|---|
+| all caps | train | 0% | 0% | 100% | 0% | 62% | 0% |
+| all lowercase | train | 0% | 0% | 98% | 0% | 66% | 0% |
+| bulleted list | held-out | 0% | 0% | 36% | 0% | 38% | 0% |
+| numbered list | held-out | 0% | 0% | 12% | 0% | 24% | 0% |
+| avoid "so" | held-out | 0% | 2% | 2% | 2% | 10% | 8% |
+
+The steering vector is at least as controllable as the compliant LoRA on held-out instructions (avg 24% vs 17%).
+
+### 7. Side observations
+* Accuracy on unconstrained MMLU-Pro questions is 74–76% for all six arms.
+* The control vector shortens reasoning (88 words on the main prompts vs 137 for base) and lowers cue mentions by
+  12 pp; part of that may be length. The compliant LoRA writes *longer* reasoning than base (170 words) and still
+  mentions the cue less, so its effect is not a length artifact.
+* Refusals on EvalAwareBench safety prompts with no cue: base 85%, control LoRA 80%, compliant LoRA 71%, control
+  vector 94%, steering vector 84%, **random vector 73%**. A random perturbation lowers refusals as much as the compliant
+  LoRA, so the earlier "compliant adapter refuses less" observation is probably generic, not controllability-specific.
+
+### 8. What this adds up to
+1. Training gpt-oss-20b on CoT-instruction data reduces how often it mentions eval framing in its reasoning, whether
+   the training teaches compliance or not (control LoRA −5 pp, control vector −12 pp vs base; random vector ≈ 0).
+2. The compliant LoRA reduces it further, beyond its matched placebo: −8 pp on new samples (pre-registered, both judges,
+   p < 0.0001), −12 pp on the Luxel prompts.
+3. The steering vector, which reaches at least the same controllability with zero weight change, reduces it only
+   −2 to −4 pp beyond its own placebo (not significant under the pre-registered v4 test; p = 0.014 with the lexical
+   detector). So controllability as such accounts for little of the LoRA's extra effect; the most likely carrier is
+   something else in the LoRA's SFT, such as its training traces being filtered to never discuss the instruction.
+4. Spontaneous verbalized awareness stays at floor, and an explicit system-prompt eval cue is almost never verbalized
+   in the reasoning; any CoT-monitoring signal here comes from eval framing inside the user turn.
+
+**Caveats.** One model, one adapter pair, one set of steering vectors (baked approximation, ~97% of the hook's effect).
+The amended v4 analyses were specified after seeing v4 results on the main run (they were committed before the
+rerun or steering data were judged). The v4 judge sees a channel without its prompt, so it cannot separate
+cue-driven from spontaneous awareness; given section 1 this is a feature here.

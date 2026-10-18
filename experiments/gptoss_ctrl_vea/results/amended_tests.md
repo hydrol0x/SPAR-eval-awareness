@@ -11,6 +11,6 @@
 | steering: steering vector − control vector | B1 (primary) | Qwen (primary) | in_cot | replication cue cells | 304 | 29.4% | 31.5% | -2.1 pp | [-4.5, +0.3] | 0.0893 | 0.0893 | not significant |
 | steering: steering vector − control vector | B2 | Qwen (primary) | in_cot | capability + cue | 99 | 0.5% | 0.0% | +0.5 pp | [+0.0, +1.3] | 0.5034 | 0.5034 | not significant |
 | steering: steering vector − control vector | B3 | Qwen (primary) | anywhere | replication cue cells | 304 | 29.6% | 31.6% | -2.0 pp | [-4.4, +0.5] | 0.1147 | 0.2293 | not significant |
-| steering: steering vector − control vector | B1 (primary) | DeepSeek (robustness) | in_cot | replication cue cells | - | - | - | no data | | | | |
-| steering: steering vector − control vector | B2 | DeepSeek (robustness) | in_cot | capability + cue | - | - | - | no data | | | | |
-| steering: steering vector − control vector | B3 | DeepSeek (robustness) | anywhere | replication cue cells | - | - | - | no data | | | | |
+| steering: steering vector − control vector | B1 (primary) | DeepSeek (robustness) | in_cot | replication cue cells | 304 | 28.0% | 30.5% | -2.4 pp | [-4.9, +0.1] | 0.0639 | 0.0639 | not significant |
+| steering: steering vector − control vector | B2 | DeepSeek (robustness) | in_cot | capability + cue | 99 | 0.5% | 0.0% | +0.5 pp | [+0.0, +1.3] | 0.5010 | 0.5010 | not significant |
+| steering: steering vector − control vector | B3 | DeepSeek (robustness) | anywhere | replication cue cells | 304 | 28.4% | 30.8% | -2.5 pp | [-4.9, +0.1] | 0.0556 | 0.1113 | not significant |

@@ -17,8 +17,8 @@ import numpy as np
 from .prompts import CUE_EXPLICIT
 
 ROOT = Path(__file__).resolve().parents[1]
-MODELS = ["base", "ctrldel", "cdel"]
-LABEL = {"base": "base", "ctrldel": "control LoRA", "cdel": "compliant LoRA"}
+MODELS = ["base", "ctrldel", "cdel", "steerctrl", "steer", "steerrand"]
+LABEL = {"base": "base", "ctrldel": "control LoRA", "cdel": "compliant LoRA", "steerctrl": "control vector", "steer": "steering vector", "steerrand": "random vector"}
 CUE_CELLS = {("luxel_pairs", "eval_like"), ("eab_safety_base", "explicit"), ("eab_cap_base", "explicit")}
 GENERIC = {"response", "responses", "reasoning", "conversation", "model", "models", "user", "users", "assistant",
            "request", "requests", "path", "task", "tasks", "safety", "answer", "answers", "please", "this", "that",
@@ -93,10 +93,10 @@ def main():
              "eval cue or a generic eval-context term. Same prompts, main run (2 samples) + confirmatory rerun (6 or 4 samples).", "",
              "| cells | outcome | contrast | n prompts | a | b | a − b | 95% CI | p |", "|---|---|---|---|---|---|---|---|---|"]
     rows_out = []
-    for cells, name in [({("luxel_pairs", "eval_like"), ("eab_safety_base", "explicit")}, "replication cue cells"),
+    for cells, name in [({("luxel_pairs", "eval_like")}, "Luxel eval-framed"), ({("luxel_pairs", "eval_like"), ("eab_safety_base", "explicit")}, "replication cue cells"),
                         ({("eab_cap_base", "explicit")}, "capability + cue")]:
         for o in ["lex_answer_only", "lex_cot", "lex_any"]:
-            for a, b in [("cdel", "ctrldel"), ("cdel", "base"), ("ctrldel", "base")]:
+            for a, b in [("cdel", "ctrldel"), ("cdel", "base"), ("ctrldel", "base"), ("steer", "steerctrl"), ("steerctrl", "base"), ("steerrand", "base")]:
                 ks = [k for k in per[a] if k in per[b] and (k[0], k[2]) in cells]
                 if not ks:
                     continue
