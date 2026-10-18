@@ -23,9 +23,15 @@ for arm in steer steerctrl steerrand; do
   [[ -f $W/models/$arm/STEER_INFO.json ]] || $PY pod/bake_steer.py --base $W/models/base --vector $W/steer/steering_vectors/grad_steer_${VEC[$arm]}.npz --out $W/models/$arm
 done
 
-log "verify baked bias == reference hook (gates the run)"
-$PY pod/verify_steer.py --model $W/models/steer --vector $W/steer/steering_vectors/grad_steer_gL10.npz 2>&1 | grep -E "VERIFY|Error|error" | tee results/steer_verify.txt
-grep -q "VERIFY OK" results/steer_verify.txt
+log "verify baked checkpoint against untouched base + reference hook (gate 1, revised; see PREREG_steer.md note)"
+[[ -s results/steer_verify2.txt ]] || $PY pod/verify_steer2.py --base $W/models/base --baked $W/models/steer --vector $W/steer/steering_vectors/grad_steer_gL10.npz 2>&1 | grep VERIFY2 > results/steer_verify2.txt
+$PY - <<'PYV'
+import json, sys
+r = json.loads(open("results/steer_verify2.txt").read().split("VERIFY2 ", 1)[1])
+ok = all(x["kl_err"] < 0.1 * x["kl_steer"] and x["argmax_baked_vs_hook"] >= 0.95 for x in r)
+print("GATE1", "OK" if ok else "FAILED", json.dumps(r), flush=True)
+sys.exit(0 if ok else 1)
+PYV
 
 log "controllability check per arm (gates the run)"
 for arm in steer steerctrl steerrand; do

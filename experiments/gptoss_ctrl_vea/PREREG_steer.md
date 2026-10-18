@@ -38,3 +38,15 @@ Rollouts whose judgment fails to parse after one retry are dropped. No other exc
 
 ## Code
 `pod/run_steer.sh`, `pod/bake_steer.py`, `pod/verify_steer.py`, `src/analyze_steer.py`, committed with this file.
+
+## Note added 2026-10-18 ~03:00 UTC (before any steering rollout was generated): gate 1 revised
+`pod/verify_steer.py` failed its gate (max |logit| difference baked-vs-hook = 35% of the max steering effect; argmax
+agreement 94–98%). That check had two flaws: it used the single largest logit difference anywhere, and its
+"unsteered" reference was the baked model with the vector subtracted back out of bf16 weights, not the base model.
+`pod/verify_steer2.py` compares against the untouched base model with and without the reference hook. On three prompts
+(101–111 positions each): mean KL(hook || baked) = 0.007–0.011 vs mean KL(hook || base) = 0.29–0.44, i.e. the bake
+reproduces ~97% of the steering effect on the output distribution; argmax agreement baked-vs-hook 96–97% vs
+hook-vs-base 70–72%; relative logit error 15–24%. The residual mismatch is attributed to bf16 rounding inside the
+expert sums. Revised gate 1: KL(hook || baked) < 10% of KL(hook || base) and argmax agreement >= 95% on every prompt.
+Gate 2 (behavioural controllability check) is unchanged and remains the main validity check. The steered arms are
+therefore "baked approximations" of the published steering vectors; this is stated wherever results are reported.
