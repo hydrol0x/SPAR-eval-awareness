@@ -18,10 +18,6 @@ for f in ["datasets/sft_edited_reasoning_full.jsonl", "datasets/sft_raw_trace_co
 PYDL
 df -h $W | tail -1
 
-gen() {  # name model_dir
-  $PY pod/gen_vllm.py gen --model "$2" --name "$1" --prompts data/ctrl_check_prompts.jsonl --n-samples 1 --out rollouts/$1/ctrl_check.jsonl
-  $PY pod/gen_vllm.py gen --model "$2" --name "$1" --prompts data/main_prompts.jsonl --n-samples 2 --out rollouts/$1/main.jsonl
-}
 nll() {  # model_dir sft_file tag
   if ! grep -q "\"$1\".*\"$2\"" results/merge_nll.jsonl 2>/dev/null; then
     $PY pod/gen_vllm.py nll --model "$1" --sft "$2" --n 64 --out results/merge_nll.jsonl
@@ -58,10 +54,8 @@ PYSEL
 fi
 GATE=$(cat results/gate_mapping.txt)
 
-log "base: main"
-$PY pod/gen_vllm.py gen --model $W/models/base --name base --prompts data/main_prompts.jsonl --n-samples 2 --out rollouts/base/main.jsonl
-log "cdel (compliant): check + main"
-gen cdel $W/models/cdel
+log "cdel (compliant): controllability check"
+$PY pod/gen_vllm.py gen --model $W/models/cdel --name cdel --prompts data/ctrl_check_prompts.jsonl --n-samples 1 --out rollouts/cdel/ctrl_check.jsonl
 
 log "ctrldel (control): merge with gate=$GATE"
 [[ -f $W/models/ctrldel/MERGE_INFO.json ]] || $PY pod/merge_lora.py --base $W/models/base --adapter-dir $W/adapters/ctrldel --out $W/models/ctrldel --gate-is $GATE
@@ -69,7 +63,17 @@ nll $W/models/base $SFT_R
 nll $W/models/ctrldel $SFT_R
 nll $W/models/cdel $SFT_R
 nll $W/models/ctrldel $SFT_C
-gen ctrldel $W/models/ctrldel
+log "ctrldel (control): controllability check"
+$PY pod/gen_vllm.py gen --model $W/models/ctrldel --name ctrldel --prompts data/ctrl_check_prompts.jsonl --n-samples 1 --out rollouts/ctrldel/ctrl_check.jsonl
+
+log "VALIDATION DONE: waiting for results/GO before the bulk run"
+touch results/VALIDATION_DONE
+while [[ ! -f results/GO ]]; do sleep 30; done
+
+log "bulk: main prompts, all three models"
+$PY pod/gen_vllm.py gen --model $W/models/base --name base --prompts data/main_prompts.jsonl --n-samples 2 --out rollouts/base/main.jsonl
+$PY pod/gen_vllm.py gen --model $W/models/cdel --name cdel --prompts data/main_prompts.jsonl --n-samples 2 --out rollouts/cdel/main.jsonl
+$PY pod/gen_vllm.py gen --model $W/models/ctrldel --name ctrldel --prompts data/main_prompts.jsonl --n-samples 2 --out rollouts/ctrldel/main.jsonl
 
 log "ALL DONE"
 touch results/ALL_DONE
