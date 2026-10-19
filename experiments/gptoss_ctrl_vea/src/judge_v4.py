@@ -54,15 +54,15 @@ def load(p):
     return out
 
 
-async def run(arm, files, judge, out_dir, budget, conc, sample_frac, seed, cells):
+async def run(arm, files, judge, out_dir, budget, conc, sample_frac, seed, cells, channels=("cot", "response")):
     rolls = []
     for f in files:
-        rolls += [r for r in load(ROOT / "rollouts" / arm / f"{f}.jsonl") if cells is None or (r["set"], r["condition"]) in cells]
+        rolls += [r for r in load(ROOT / "rollouts" / arm / f"{f}.jsonl") if not r.get("error") and (cells is None or (r["set"], r["condition"]) in cells)]
     if sample_frac < 1:
         rng = random.Random(seed); rolls = [r for r in rolls if rng.random() < sample_frac]
     out = ROOT / "results" / out_dir / f"{arm}.jsonl"; out.parent.mkdir(parents=True, exist_ok=True)
     done = {(j["rollout_id"], j["channel"]) for j in load(out) if not j.get("error")}
-    todo = [(r, ch) for r in rolls for ch in ("cot", "response") if (r["rollout_id"], ch) not in done]
+    todo = [(r, ch) for r in rolls for ch in channels if (r["rollout_id"], ch) not in done]
     print(f"[{arm}] v4 judge {judge}: {len(todo)} to do, {len(done)} done", flush=True)
     if not todo:
         return
@@ -103,10 +103,11 @@ def main():
     ap.add_argument("--budget", type=float, default=6.0); ap.add_argument("--concurrency", type=int, default=32)
     ap.add_argument("--sample-frac", type=float, default=1.0); ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--all-cells", action="store_true", help="judge every condition, not only cue conditions")
+    ap.add_argument("--channels", nargs="+", default=["cot", "response"], choices=["cot", "response"])
     a = ap.parse_args()
     cells = None if a.all_cells else CUE_CELLS
     for arm in a.arms:
-        asyncio.run(run(arm, a.files, a.judge, a.out_dir, a.budget, a.concurrency, a.sample_frac, a.seed, cells))
+        asyncio.run(run(arm, a.files, a.judge, a.out_dir, a.budget, a.concurrency, a.sample_frac, a.seed, cells, tuple(a.channels)))
 
 
 if __name__ == "__main__":
