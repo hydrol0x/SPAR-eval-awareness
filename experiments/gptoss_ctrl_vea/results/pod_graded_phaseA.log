@@ -1,0 +1,305 @@
+[23:06:15] download (tp=1)
+Fetching 23 files:   0%|          | 0/23 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 23 files:   9%|▊         | 2/23 [00:00<00:01, 19.36it/s]Fetching 23 files:  22%|██▏       | 5/23 [00:13<00:56,  3.16s/it]Fetching 23 files:  26%|██▌       | 6/23 [00:14<00:41,  2.44s/it]Fetching 23 files:  35%|███▍      | 8/23 [00:16<00:27,  1.83s/it]Fetching 23 files:  39%|███▉      | 9/23 [00:16<00:22,  1.58s/it]Fetching 23 files:  48%|████▊     | 11/23 [00:17<00:12,  1.01s/it]Fetching 23 files:  57%|█████▋    | 13/23 [00:17<00:06,  1.50it/s]Fetching 23 files:  65%|██████▌   | 15/23 [00:17<00:03,  2.17it/s]Fetching 23 files:  78%|███████▊  | 18/23 [00:20<00:03,  1.43it/s]Fetching 23 files:  83%|████████▎ | 19/23 [00:21<00:02,  1.43it/s]Fetching 23 files:  87%|████████▋ | 20/23 [00:22<00:02,  1.21it/s]Fetching 23 files:  91%|█████████▏| 21/23 [00:24<00:02,  1.08s/it]Fetching 23 files:  96%|█████████▌| 22/23 [00:25<00:01,  1.05s/it]Fetching 23 files: 100%|██████████| 23/23 [00:25<00:00,  1.11s/it]
+[23:06:41] phase A pass 1: adversarial + StrongREJECT x 2 samples
+[olmo31_32b_think] 1168 to generate (0 done)
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Loading safetensors checkpoint shards:   0% Completed | 0/14 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:   7% Completed | 1/14 [00:00<00:03,  3.58it/s]
+Loading safetensors checkpoint shards:  14% Completed | 2/14 [00:00<00:04,  2.84it/s]
+Loading safetensors checkpoint shards:  21% Completed | 3/14 [00:01<00:03,  2.92it/s]
+Loading safetensors checkpoint shards:  29% Completed | 4/14 [00:01<00:03,  2.78it/s]
+Loading safetensors checkpoint shards:  36% Completed | 5/14 [00:01<00:03,  2.87it/s]
+Loading safetensors checkpoint shards:  43% Completed | 6/14 [00:02<00:02,  2.74it/s]
+Loading safetensors checkpoint shards:  50% Completed | 7/14 [00:02<00:02,  2.90it/s]
+Loading safetensors checkpoint shards:  57% Completed | 8/14 [00:02<00:02,  2.79it/s]
+Loading safetensors checkpoint shards:  64% Completed | 9/14 [00:03<00:01,  2.87it/s]
+Loading safetensors checkpoint shards:  71% Completed | 10/14 [00:03<00:01,  2.95it/s]
+Loading safetensors checkpoint shards:  79% Completed | 11/14 [00:03<00:01,  2.99it/s]
+Loading safetensors checkpoint shards:  86% Completed | 12/14 [00:04<00:00,  3.04it/s]
+Loading safetensors checkpoint shards:  93% Completed | 13/14 [00:04<00:00,  2.90it/s]
+Loading safetensors checkpoint shards: 100% Completed | 14/14 [00:04<00:00,  3.09it/s]
+
+(EngineCore pid=828) WARNING 10-19 23:07:01 [topk_topp_sampler.py:131] FlashInfer top-p/top-k sampling unavailable: SM 12.x requires CUDA >= 12.9; falling back. Set VLLM_USE_FLASHINFER_SAMPLER=0 to silence.
+(EngineCore pid=828) WARNING 10-19 23:07:11 [backends.py:1049] Failed to read file <frozen _collections_abc>
+(EngineCore pid=828) WARNING 10-19 23:07:24 [decorators.py:722] unable to save AOT compiled function to /root/.cache/vllm/torch_compile_cache/torch_aot_compile/fe3189ac3e35faf34f3137ebf91a7e19528bc76b0a292d49d929e584c1db8ea4/rank_0_0/model: Can't pickle <function Olmo3Model.forward at 0x756e43b787c0>: it's not the same object as transformers.models.olmo3.modeling_olmo3.Olmo3Model.forward
+Capturing CUDA graphs (PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Capturing CUDA graphs (PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433] EngineCore failed to start.
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433] Traceback (most recent call last):
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1395, in run_engine_core
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 175, in sync_wrapper
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1151, in __init__
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     super().__init__(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 151, in __init__
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     kv_cache_config = self._initialize_kv_caches(vllm_config)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 175, in sync_wrapper
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 309, in _initialize_kv_caches
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     available_gpu_memory = self.model_executor.determine_available_memory()
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/abstract.py", line 150, in determine_available_memory
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return self.collective_rpc("determine_available_memory")
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/uniproc_executor.py", line 103, in collective_rpc
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     result = run_method(self.driver_worker, method, args, kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/serial_utils.py", line 508, in run_method
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu_worker.py", line 637, in determine_available_memory
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     cudagraph_memory_estimate = self.model_runner.profile_cudagraph_memory()
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 1006, in profile_cudagraph_memory
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return _profile_cudagraph_memory(self)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 928, in profile_cudagraph_memory
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     measured = int(runner.capture_model(profile_only=True))
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 1049, in capture_model
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     self.cudagraph_manager.capture(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 749, in capture
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     super().capture(create_forward_fn, progress_bar_desc)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 442, in capture
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     forward_fn(CUDAGraphMode.NONE)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 738, in forward_fn
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     model_output = model(**model_inputs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                    ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return self._call_impl(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return forward_call(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/transformers/base.py", line 777, in forward
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     outputs = self.model(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]               ^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/compilation/decorators.py", line 520, in __call__
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return self.aot_compiled_fn(self, *args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/_dynamo/aot_compile.py", line 244, in __call__
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return self.fn(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/transformers/utils/generic.py", line 1006, in wrapper
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     @wraps(func)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/compilation/caching.py", line 224, in __call__
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return self.optimized_call(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "<string>", line 337, in execution_fn
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "<string>", line 6, in __vllm_inlined_submods__1
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/torch/_ops.py", line 1279, in __call__
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return self._op(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/attention/kv_transfer_utils.py", line 40, in wrapper
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return func(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/attention/attention.py", line 784, in unified_attention_with_output
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     self.impl.forward(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/attention/backends/flashinfer.py", line 2540, in forward
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     flashinfer_xqa_batch_decode_with_kv_cache(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/vllm/utils/flashinfer.py", line 206, in wrapper
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return impl(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/api_logging.py", line 2348, in _auto_dump_wrapper
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return _inner(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/decode.py", line 3949, in xqa_batch_decode_with_kv_cache
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     xqa(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/api_logging.py", line 2348, in _auto_dump_wrapper
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return _inner(*args, **kwargs)
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/xqa.py", line 405, in xqa
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     xqa_module = get_xqa_module(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                  ^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/xqa.py", line 54, in get_xqa_module
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     return _get_xqa_module_cached(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/xqa.py", line 79, in _get_xqa_module_cached
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     spec = gen_xqa_module(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]            ^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/jit/xqa.py", line 140, in gen_xqa_module
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     nvcc_flags = compilation_context.get_nvcc_flags_list(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/compilation_context.py", line 124, in get_nvcc_flags_list
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433]     raise RuntimeError(
+(EngineCore pid=828) ERROR 10-19 23:07:30 [core.py:1433] RuntimeError: No supported CUDA architectures found for major versions [9, 10, 12].
+Process EngineCore:
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1437, in run_engine_core
+    raise e
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1395, in run_engine_core
+    engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 175, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1151, in __init__
+    super().__init__(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 151, in __init__
+    kv_cache_config = self._initialize_kv_caches(vllm_config)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 175, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 309, in _initialize_kv_caches
+    available_gpu_memory = self.model_executor.determine_available_memory()
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/abstract.py", line 150, in determine_available_memory
+    return self.collective_rpc("determine_available_memory")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/uniproc_executor.py", line 103, in collective_rpc
+    result = run_method(self.driver_worker, method, args, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/serial_utils.py", line 508, in run_method
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu_worker.py", line 637, in determine_available_memory
+    cudagraph_memory_estimate = self.model_runner.profile_cudagraph_memory()
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 1006, in profile_cudagraph_memory
+    return _profile_cudagraph_memory(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 928, in profile_cudagraph_memory
+    measured = int(runner.capture_model(profile_only=True))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 1049, in capture_model
+    self.cudagraph_manager.capture(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 749, in capture
+    super().capture(create_forward_fn, progress_bar_desc)
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 442, in capture
+    forward_fn(CUDAGraphMode.NONE)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 738, in forward_fn
+    model_output = model(**model_inputs)
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/transformers/base.py", line 777, in forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/compilation/decorators.py", line 520, in __call__
+    return self.aot_compiled_fn(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/_dynamo/aot_compile.py", line 244, in __call__
+    return self.fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/utils/generic.py", line 1006, in wrapper
+    @wraps(func)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/compilation/caching.py", line 224, in __call__
+    return self.optimized_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 337, in execution_fn
+  File "<string>", line 6, in __vllm_inlined_submods__1
+  File "/usr/local/lib/python3.12/dist-packages/torch/_ops.py", line 1279, in __call__
+    return self._op(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/attention/kv_transfer_utils.py", line 40, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/attention/attention.py", line 784, in unified_attention_with_output
+    self.impl.forward(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/attention/backends/flashinfer.py", line 2540, in forward
+    flashinfer_xqa_batch_decode_with_kv_cache(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/utils/flashinfer.py", line 206, in wrapper
+    return impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/api_logging.py", line 2348, in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/decode.py", line 3949, in xqa_batch_decode_with_kv_cache
+    xqa(
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/api_logging.py", line 2348, in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/xqa.py", line 405, in xqa
+    xqa_module = get_xqa_module(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/xqa.py", line 54, in get_xqa_module
+    return _get_xqa_module_cached(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/xqa.py", line 79, in _get_xqa_module_cached
+    spec = gen_xqa_module(
+           ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/jit/xqa.py", line 140, in gen_xqa_module
+    nvcc_flags = compilation_context.get_nvcc_flags_list(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flashinfer/compilation_context.py", line 124, in get_nvcc_flags_list
+    raise RuntimeError(
+RuntimeError: No supported CUDA architectures found for major versions [9, 10, 12].
+Traceback (most recent call last):
+  File "/workspace/SPAR-eval-awareness/experiments/gptoss_ctrl_vea/pod/gen_screen.py", line 73, in <module>
+    main()
+  File "/workspace/SPAR-eval-awareness/experiments/gptoss_ctrl_vea/pod/gen_screen.py", line 50, in main
+    llm = LLM(model=a.model, dtype="bfloat16", max_model_len=a.max_len, gpu_memory_utilization=0.92, seed=0,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/llm.py", line 344, in __init__
+    self.llm_engine = LLMEngine.from_engine_args(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/llm_engine.py", line 185, in from_engine_args
+    return cls(
+           ^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/llm_engine.py", line 111, in __init__
+    self.engine_core = EngineCoreClient.make_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 126, in make_client
+    return SyncMPClient(
+           ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 175, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 917, in __init__
+    super().__init__(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 674, in __init__
+    with launch_core_engines(
+  File "/usr/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1268, in launch_core_engines
+    wait_for_engine_startup(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1348, in wait_for_engine_startup
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+
