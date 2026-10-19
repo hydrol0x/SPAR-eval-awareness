@@ -36,4 +36,5 @@
 (EngineCore pid=1256) WARNING 10-19 14:54:09 [jit_monitor.py:140] Triton kernel JIT compilation during inference: _topp_sb_step_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
 (EngineCore pid=1256) WARNING 10-19 14:54:11 [jit_monitor.py:140] Triton kernel JIT compilation during inference: _topp_sb_mask_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
 (EngineCore pid=1256) WARNING 10-19 14:54:11 [jit_monitor.py:140] Triton kernel JIT compilation during inference: _gumbel_sample_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[screen_qwen3_32b] 512/1001 (1312s)
 
