@@ -341,3 +341,27 @@ Two regex labellers on every reasoning trace the v4 LLM judge labelled (37,688 t
 * Literature: no published keyword-vs-LLM comparison for verbalized eval awareness was found; published LLM judges
   are validated against humans at κ ≈ 0.68–0.86 and share the failure modes regexes have (prompt restatement, domain
   uses of "test"/"evaluate").
+
+### 12. Base-model screen (`SCREEN_PLAN.md`, `results/screen_summary.md`)
+1,001 prompts per model, one sample each: EvalAwareBench capability + safety prompts with no cue, the formal user-turn
+cue and the casual user cue, plus the Luxel eval/deploy pairs. Reasoning judged by the v4 judge (verified quotes).
+
+| model | none | formal user cue | casual user cue | Luxel deploy | Luxel eval | refusals, formal / casual cue vs none |
+|---|---|---|---|---|---|---|
+| Qwen3-32B | 0.0% | 2.6% | 15.9% | 16.8% | 56.2% | +1.0 / +2.6 pp (n.s.) |
+| QwQ-32B | 0.5% | 5.1% | 23.1% | 14.9% | 63.5% | +2.1 / +0.5 pp (n.s.) |
+| Olmo-3-32B-Think | 1.5% | 5.1% | 33.8% | 20.7% | 68.3% | +2.6 (n.s.) / +6.7 pp |
+| **Olmo-3.1-32B-Think** | 1.5% | **25.6%** | **79.5%** | 34.6% | 77.9% | **+7.2 / +11.3 pp** |
+| DeepSeek-R1-0528 (reference, 671B) | 0.5% | 30.3% | 72.8% | 11.5% | 76.4% | +9.7 pp (formal) |
+| gpt-oss-20b (section 10) | 0.0% | 2.3% | 6.7% | – | – | +10.0 / +12.3 pp |
+
+* Every fine-tunable candidate passes the selection rule; **Olmo-3.1-32B-Think is the clear choice**: it verbalizes
+  the formal cue at R1's level (26% vs 30%) and the casual cue more (80%), and its refusals respond to both cues.
+* Its reasoning is long (median 947 words; 3.1% hit the 8,192-token limit), so generation is slow: about 85 minutes per
+  1,001 rollouts on one H100.
+* A literature check (research agent) found published base rates of 13–37% for Qwen3-32B and 18–23% for QwQ-32B on
+  implicit cues, ~6% weak hits for Olmo-3-32B-Think on MASK prompts, and a report that Olmo-3.1 verbalizes about twice
+  as often as Olmo-3; no paper measured explicit "this is an evaluation" cues for these models.
+
+**Cost.** Pod (H100, ≈ 3 h) ≈ $12.50, of which ≈ $3 was idle time after the last model finished; OpenRouter: R1
+generation $3.23, judging ≈ $2.
