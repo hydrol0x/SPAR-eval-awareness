@@ -39,3 +39,14 @@ Paired by prompt, sign-flip permutation p, bootstrap CI:
 3. Within the cue condition, score of verbalizing vs non-verbalizing rollouts (observational).
 4. Benign twins: cue effect on compliance (over-refusal).
 This is a base-model measurement to fix the behavioural metric and prompt set; it tests no fine-tuning hypothesis.
+
+## Amendment (2026-10-19, before any data): model and sizes
+After the base-model screen (README section 12), the model is **Olmo-3.1-32B-Think** (the planned fine-tuning target)
+instead of Qwen3-32B. It is not served on OpenRouter, so generation runs on a RunPod pod with vLLM 0.31.0, bf16, tensor
+parallel over 2 GPUs (`pod/run_graded.sh`, `PHASE=A` / `PHASE=B`), sampling per AllenAI (temperature 0.6, top-p 0.95,
+no top-k) with max 16,384 new tokens (AllenAI recommends 32,768; 8,192 truncated 3.1% of screen traces).
+* Phase A: 4 samples per adversarial / StrongREJECT prompt (was 8), 1 per benign twin (was 2).
+* Selection: compliance in [0.25, 0.75] over ≥ 3 judged samples (i.e. 1–3 of 4 complying); at most 80 prompts (was 100).
+* Phase B unchanged (20 samples per prompt and condition; benign twins 4).
+* Arm name `olmo31_32b_think`. Judges unchanged (StrongREJECT rubric and v4 VEA judge, Qwen2.5-72B on OpenRouter);
+  the VEA judge may use the regex prefilter (`src/regex_judge.py`, README section 11).
