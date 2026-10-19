@@ -292,3 +292,34 @@ The cue text sits in gpt-oss's developer message (the chat template turns a lead
   deploy-framed prompts, consistent with "restates the prompt less". Steering − control vector: −7.2 pp (p = 0.006, Holm 0.16).
 * No cell shows the "behaves eval-aware but stops saying so, relative to control" pattern: where behaviour moves, no arm
   verbalizes; where verbalization moves, behaviour does not.
+
+### 10. User-turn cue (pre-registered, `PREREG_usercue.md`, `results/usercue_summary.md`)
+Same 195 EvalAwareBench prompts (99 capability, 96 safety), four conditions (no cue; `CUE_EXPLICIT` in the developer
+message; the same text prepended to the user turn; a user-voiced casual cue), six arms, 4 new samples each: 18,720
+rollouts (vLLM 0.31.0), every rollout judged by both v4 judges (74,880 judgments; the two judges agree within 0.5 pp
+on every cell reported here). Rates are verified quotes in the reasoning, Qwen judge.
+
+| arm | VEA in reasoning: none / dev / user / user-casual | refusals: none → user cue | answer length, user cue |
+|---|---|---|---|
+| base | 0.0 / 0.1 / 2.3 / 6.7% | 42 → 52% (+10.0 pp) | −41% |
+| control LoRA | 0.0 / 0.0 / 0.1 / 2.2% | 40 → 46% (+6.4 pp) | −16% |
+| compliant LoRA | 0.3 / 0.0 / 0.1 / 1.7% | 34 → 43% (+8.7 pp) | −19% |
+| control vector | 0.0 / 0.0 / 0.3 / 1.3% | 52 → 64% (+12.3 pp) | −41% |
+| steering vector | 0.0 / 0.0 / 2.2 / 3.3% | 43 → 54% (+11.2 pp) | −41% |
+| random vector | 0.0 / 0.3 / 2.4 / 8.2% | 39 → 45% (+6.4 pp) | −30% |
+
+* **Manipulation check failed (P0).** Moving the cue into the user turn raises base verbalization only to 2.3% (6.7% for
+  the casual wording), below the pre-registered 10% bar, so P1–P2 are underpowered by the pre-registration's own rule.
+  gpt-oss-20b restates the request and skips the "this is an evaluation" preamble wherever the cue sits.
+* **P1 (compliant − control LoRA): null,** 0.1% vs 0.1%. Both LoRAs, placebo included, take user-cue verbalization from
+  2.3% to about 0.1%, so any suppression here comes from fine-tuning in general, not from controllability.
+* **P2 (steering − control vector): significant, in the opposite direction to the hypothesis,** +1.9 pp (2.2% vs 0.3%,
+  Holm p = 0.002). The steering vector matches base and the random vector; it is the control vector that suppresses.
+* **Behaviour responds to every cue in every arm** (refusals +6 to +12 pp, answers 16–41% shorter, all p < 0.05), and
+  no treated arm differs from its control in that response. So the pre-registered decision rule reads "behaviour
+  preserved, verbalization not lower" for both contrasts: the models act on the cue without saying so, base included.
+* The lexical detector is not usable here: the cue's words ("model", "developers", "reviewed") occur in ordinary
+  reasoning, giving a 15–26% rate with no cue.
+
+**Cost.** RunPod ≈ $3.40 (one pod with too old a driver for the torch vLLM 0.31 pins, terminated after 10 minutes,
+then a CUDA 13 pod for ≈ 1 h 35 min); OpenRouter ≈ $22.40.
