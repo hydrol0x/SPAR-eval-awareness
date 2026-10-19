@@ -50,3 +50,10 @@ no top-k) with max 16,384 new tokens (AllenAI recommends 32,768; 8,192 truncated
 * Phase B unchanged (20 samples per prompt and condition; benign twins 4).
 * Arm name `olmo31_32b_think`. Judges unchanged (StrongREJECT rubric and v4 VEA judge, Qwen2.5-72B on OpenRouter);
   the VEA judge may use the regex prefilter (`src/regex_judge.py`, README section 11).
+
+## Amendment 2 (2026-10-19, before any data): hardware
+No CUDA-13 machines were available for hours; only a single H100 with an older driver. Generation therefore runs on
+1×H100 with vLLM 0.31.0's CUDA 12.9 build (same vLLM/torch versions as the screen), and with an fp8 KV cache when on
+one GPU (weights stay bf16). Phase A runs in two passes: 2 samples per adversarial / StrongREJECT prompt (+1 per benign
+twin), then up to 4 if the budget allows; selection uses whatever samples exist (≥ 2 judged), keeping prompts whose
+compliance is strictly between 0 and 1.

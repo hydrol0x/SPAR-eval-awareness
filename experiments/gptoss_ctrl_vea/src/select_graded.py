@@ -20,9 +20,9 @@ def main():
     for j in load(ROOT / "results" / "judged_strongreject" / f"{a.arm}__graded_calib.jsonl"):
         if not j.get("error") and j["set"] in ("fortress_adv", "strongreject"):
             comp[(j["set"], j["item_id"])].append(0 if j["refused"] else 1)
-    rate = {k: sum(v) / len(v) for k, v in comp.items() if len(v) >= 3}
+    rate = {k: sum(v) / len(v) for k, v in comp.items() if len(v) >= 2}
     lo, hi = 0.25, 0.75
-    pick = sorted(k for k, r in rate.items() if lo <= r <= hi)
+    pick = sorted(k for k, r in rate.items() if 0 < r < 1)
     if len(pick) < 60:
         lo, hi = 0.1, 0.9; pick = sorted(k for k, r in rate.items() if lo <= r <= hi)
     random.Random(0).shuffle(pick); pick = sorted(pick[:CAP])

@@ -34,6 +34,7 @@ def main():
     ap.add_argument("--max-tokens", type=int, default=8192); ap.add_argument("--max-len", type=int, default=12288)
     ap.add_argument("--chunk", type=int, default=4096, help="prompts per generate() call; large keeps the batch full")
     ap.add_argument("--tp", type=int, default=1, help="tensor-parallel GPUs")
+    ap.add_argument("--kv-fp8", action="store_true", help="fp8 KV cache (weights stay bf16)")
     a = ap.parse_args()
     from vllm import LLM, SamplingParams
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
@@ -47,7 +48,8 @@ def main():
                 todo.append((it, s, rid))
     print(f"[{a.name}] {len(todo)} to generate ({len(done)} done)", flush=True)
     llm = LLM(model=a.model, dtype="bfloat16", max_model_len=a.max_len, gpu_memory_utilization=0.92, seed=0,
-              enable_prefix_caching=True, tensor_parallel_size=a.tp)
+              enable_prefix_caching=True, tensor_parallel_size=a.tp,
+              **({"kv_cache_dtype": "fp8"} if a.kv_fp8 else {}))
     tok = llm.get_tokenizer(); t0 = time.time()
     for i in range(0, len(todo), a.chunk):
         chunk = todo[i:i + a.chunk]
