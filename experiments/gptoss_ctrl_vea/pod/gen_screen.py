@@ -32,6 +32,7 @@ def main():
     ap.add_argument("--temperature", type=float, default=0.6); ap.add_argument("--top-p", type=float, default=0.95)
     ap.add_argument("--top-k", type=int, default=-1)
     ap.add_argument("--max-tokens", type=int, default=8192); ap.add_argument("--max-len", type=int, default=12288)
+    ap.add_argument("--chunk", type=int, default=4096, help="prompts per generate() call; large keeps the batch full")
     a = ap.parse_args()
     from vllm import LLM, SamplingParams
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
@@ -47,8 +48,8 @@ def main():
     llm = LLM(model=a.model, dtype="bfloat16", max_model_len=a.max_len, gpu_memory_utilization=0.92, seed=0,
               enable_prefix_caching=True)
     tok = llm.get_tokenizer(); t0 = time.time()
-    for i in range(0, len(todo), 512):
-        chunk = todo[i:i + 512]
+    for i in range(0, len(todo), a.chunk):
+        chunk = todo[i:i + a.chunk]
         prompts = [render(tok, it.get("system"), it["user"]) for it, _, _ in chunk]
         params = [SamplingParams(temperature=a.temperature, top_p=a.top_p, top_k=a.top_k, max_tokens=a.max_tokens,
                                  seed=int(hashlib.sha1(f"{it['set']}|{it['item_id']}|{it['condition']}|{s}".encode()).hexdigest()[:8], 16))
