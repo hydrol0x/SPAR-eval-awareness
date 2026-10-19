@@ -14,7 +14,8 @@ from .lexical_check import load
 
 ROOT = Path(__file__).resolve().parents[1]
 MODELS = [("screen_qwen3_32b", "Qwen3-32B", True), ("screen_qwq_32b", "QwQ-32B", True),
-          ("screen_olmo3_32b_think", "Olmo-3-32B-Think", True), ("screen_deepseek_r1", "DeepSeek-R1-0528 (reference)", False),
+          ("screen_olmo3_32b_think", "Olmo-3-32B-Think", True),
+          ("screen_olmo31_32b_think", "Olmo-3.1-32B-Think", True), ("screen_deepseek_r1", "DeepSeek-R1-0528 (reference)", False),
           ("base", "gpt-oss-20b (user-cue run, no Luxel; for comparison)", False)]
 JDIR = "judged_v4_screen"
 CONTRASTS = [("EAB + user cue", ("eab", "user_explicit"), ("eab", "none")),
