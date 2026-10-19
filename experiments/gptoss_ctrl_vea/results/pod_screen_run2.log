@@ -1,1 +1,8 @@
+error: The following untracked working tree files would be overwritten by merge:
+	experiments/gptoss_ctrl_vea/rollouts/screen_qwen3_32b/DONE
+	experiments/gptoss_ctrl_vea/rollouts/screen_qwen3_32b/screen.jsonl
+	experiments/gptoss_ctrl_vea/rollouts/screen_qwq_32b/DONE
+	experiments/gptoss_ctrl_vea/rollouts/screen_qwq_32b/screen.jsonl
+Please move or remove them before you merge.
+Aborting
 
