@@ -53,7 +53,7 @@ no top-k) with max 16,384 new tokens (AllenAI recommends 32,768; 8,192 truncated
 
 ## Amendment 2 (2026-10-19, before any data): hardware
 No CUDA-13 machines were available for hours; only a single H100 with an older driver. Generation therefore runs on
-1×H100 with vLLM 0.31.0's CUDA 12.9 build (same vLLM/torch versions as the screen), and with an fp8 KV cache when on
-one GPU (weights stay bf16). Phase A runs in two passes: 2 samples per adversarial / StrongREJECT prompt (+1 per benign
+1×H100 with vLLM 0.31.0's CUDA 12.9 build (same vLLM/torch versions as the screen), with the FlashAttention backend and a bf16 KV cache
+(an fp8 KV cache was planned but fails to compile on the Blackwell GPU we got, so it was dropped before any data). Phase A runs in two passes: 2 samples per adversarial / StrongREJECT prompt (+1 per benign
 twin), then up to 4 if the budget allows; selection uses whatever samples exist (≥ 2 judged), keeping prompts whose
 compliance is strictly between 0 and 1.

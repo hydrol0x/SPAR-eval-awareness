@@ -4,9 +4,9 @@ set -euo pipefail
 W=/workspace
 cd $W/SPAR-eval-awareness/experiments/gptoss_ctrl_vea
 log() { echo "[$(date -u +%H:%M:%S)] $*"; }
-export HF_HUB_ENABLE_HF_TRANSFER=1 VLLM_LOGGING_LEVEL=WARNING TOKENIZERS_PARALLELISM=false
+export HF_HUB_ENABLE_HF_TRANSFER=1 VLLM_LOGGING_LEVEL=WARNING TOKENIZERS_PARALLELISM=false VLLM_ATTENTION_BACKEND=FLASH_ATTN
 NAME=olmo31_32b_think; TP=$(nvidia-smi -L | wc -l)
-KV=$([ "$TP" -ge 2 ] && echo "" || echo "--kv-fp8")  # one GPU: fp8 KV cache for room
+KV=""  # fp8 KV cache dropped: FlashInfer JIT fails on Blackwell with this image
 mkdir -p rollouts/$NAME
 log "download (tp=$TP)"
 python -c "from huggingface_hub import snapshot_download; snapshot_download('allenai/Olmo-3.1-32B-Think', local_dir='$W/models/$NAME', allow_patterns=['*.json','*.safetensors','*.txt','*.model','*.jinja','*.py','tokenizer*'])"
