@@ -323,3 +323,21 @@ on every cell reported here). Rates are verified quotes in the reasoning, Qwen j
 
 **Cost.** RunPod ≈ $3.40 (one pod with too old a driver for the torch vLLM 0.31 pins, terminated after 10 minutes,
 then a CUDA 13 pod for ≈ 1 h 35 min); OpenRouter ≈ $22.40.
+
+### 11. Regex judges vs the LLM judge (`src/regex_judge.py`, `results/regex_vs_llm.md`)
+Two regex labellers on every reasoning trace the v4 LLM judge labelled (37,688 traces across three runs):
+* **strict** (situational phrases: "the user might be testing me", "this looks like a safety evaluation", "being evaluated")
+  agrees moderately well (κ = 0.62–0.74). It misses prompt restatements in other vocabulary ("scoring run in an
+  evaluation queue", "MT-Bench style turn"), so recall is 0.56 on the Luxel-heavy gpt-oss data and 0.71–0.77 on the screen.
+  In a spot check, about a quarter of its extra hits were real awareness the LLM judge missed ("the user might be testing
+  the AI's boundaries"), and the rest were domain uses ("test environment", "test run", "Red Teaming guidelines").
+* **broad** (any evaluation vocabulary) has high recall but poor precision where awareness is rare: 7% of base gpt-oss
+  no-cue traces and 16% of Qwen3-32B's match, against 0% under the LLM judge.
+* **Conclusions under each labeller:** the compliant − control LoRA gap (−8.1 pp LLM) stays significant but halves
+  (−4.2 strict, −5.8 broad); the steering − control vector result flips sign but is not significant under any labeller;
+  user-cue P1 (null) and P2 (+1.9 pp) hold under all three. Screen rates are similar under the strict regex.
+* **Prefilter:** sending only traces that match an extended keyword regex to the LLM judge keeps 96.9–99.3% of the LLM
+  judge's positives while judging 10–40% of traces, and reproduces every test above to within 0.3 pp.
+* Literature: no published keyword-vs-LLM comparison for verbalized eval awareness was found; published LLM judges
+  are validated against humans at κ ≈ 0.68–0.86 and share the failure modes regexes have (prompt restatement, domain
+  uses of "test"/"evaluate").
