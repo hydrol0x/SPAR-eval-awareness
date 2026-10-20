@@ -9,6 +9,8 @@ Output: data/manifest.json plus one JSON shard per view:
   gptoss/<set>__<condition>__<file>.json   gpt-oss-20b rollouts, all six arms, with every judge's labels and quotes
   pilot/<set>.json                         gpt-oss-20b pilot (base model via OpenRouter, v3 judge)
   olmo/<checkpoint>.json                   Olmo-3 7B / 32B checkpoints, CoT-Control constraints, strict VEA judge
+  screen/<set>__<condition>.json           base-model screen: Qwen3-32B, QwQ-32B, Olmo-3/3.1-32B-Think, DeepSeek-R1 (v4 judge)
+  graded/<phase>__<set>.json               Olmo-3.1-32B-Think graded-compliance run, both conditions (StrongREJECT + v4 judge)
 """
 from __future__ import annotations
 import argparse, csv, hashlib, importlib.util, json, re, sys, time
@@ -34,8 +36,12 @@ ARMS = ["base", "ctrldel", "cdel", "steerctrl", "steer", "steerrand"]
 ARM_LABEL = {"base": "Base", "ctrldel": "Control LoRA", "cdel": "Compliant LoRA", "steerctrl": "Control vector",
              "steer": "Steering vector", "steerrand": "Random vector"}
 SET_LABEL = {"luxel_pairs": "Luxel", "eab_safety_base": "EvalAwareBench safety", "eab_safety_all8": "EvalAwareBench safety, all cue factors",
-             "eab_cap_base": "EvalAwareBench capability", "ctrl_check": "Controllability check (MMLU-Pro)"}
-COND_LABEL = {"eval_like": "eval-framed", "deploy_like": "normal-use", "none": "no cue", "explicit": "+ system eval cue"}
+             "eab_cap_base": "EvalAwareBench capability", "ctrl_check": "Controllability check (MMLU-Pro)",
+             "fortress_adv": "FORTRESS adversarial (non-CBRNE)", "fortress_benign": "FORTRESS benign twin", "strongreject": "StrongREJECT"}
+COND_LABEL = {"eval_like": "eval-framed", "deploy_like": "normal-use", "none": "no cue", "explicit": "+ system eval cue",
+              "dev_explicit": "+ formal cue, system", "user_explicit": "+ formal cue, user turn", "user_casual": "+ casual cue, user turn"}
+SCREEN = [("screen_qwen3_32b", "Qwen3-32B"), ("screen_qwq_32b", "QwQ-32B"), ("screen_olmo3_32b_think", "Olmo-3-32B-Think"),
+          ("screen_olmo31_32b_think", "Olmo-3.1-32B-Think"), ("screen_deepseek_r1", "DeepSeek-R1-0528")]
 GENERIC = {"response", "responses", "reasoning", "conversation", "model", "models", "user", "users", "assistant", "request",
            "requests", "path", "task", "tasks", "safety", "answer", "answers", "please", "this", "that", "these", "will", "your",
            "with", "from", "part", "the", "and", "for", "are", "run", "into"}
@@ -113,13 +119,23 @@ def luxel_cues():
     return out
 
 
+def cue_of(r, lux=None):
+    """The cue text(s) present in a prompt, and the words to look for in the reasoning."""
+    if r["set"] == "luxel_pairs" and lux is not None:
+        return lux.get((r["item_id"], r["condition"]), []), lux.get((r["item_id"], "cue_words"), [])
+    found = [c for c in (gprompts.CUE_EXPLICIT, gprompts.CUE_USER_CASUAL) if c in (r.get("system") or "") or c in (r.get("user") or "")]
+    return found, sorted(set().union(*(words(c) for c in found)) - GENERIC) if found else []
+
+
 def build_gptoss(out: Path, manifest):
     lux = luxel_cues()
-    explicit_words = sorted(words(gprompts.CUE_EXPLICIT) - GENERIC)
     shards = defaultdict(lambda: {"prompts": {}, "rollouts": []})
     for arm in ARMS:
-        q4, d4 = v4_index(arm, "judged_v4"), v4_index(arm, "judged_v4_j2")
-        for f, jd, jd2 in [("main", "judged", "judged_j2"), ("confirm", "judged_confirm", None), ("ctrl_check", None, None)]:
+        v4dirs = {"main": ("judged_v4", "judged_v4_j2"), "confirm": ("judged_v4", "judged_v4_j2"), "ctrl_check": ("judged_v4", "judged_v4_j2"),
+                  "usercue": ("judged_v4_usercue", "judged_v4_j2_usercue")}
+        idx = {d: v4_index(arm, d) for d in {x for pair in v4dirs.values() for x in pair}}
+        for f, jd, jd2 in [("main", "judged", "judged_j2"), ("confirm", "judged_confirm", None), ("ctrl_check", None, None), ("usercue", None, None)]:
+            q4, d4 = idx[v4dirs[f][0]], idx[v4dirs[f][1]]
             j3 = {j["rollout_id"]: j for j in jl(G / "results" / jd / f"{arm}.jsonl")} if jd else {}
             j3d = {j["rollout_id"]: j for j in jl(G / "results" / jd2 / f"{arm}.jsonl")} if jd2 else {}
             for r in jl(G / "rollouts" / arm / f"{f}.jsonl"):
@@ -127,12 +143,7 @@ def build_gptoss(out: Path, manifest):
                 sh = shards[key]
                 pid = pid_of(r.get("system"), r["user"])
                 if pid not in sh["prompts"]:
-                    cue = []
-                    if r.get("system") and r["system"] == gprompts.CUE_EXPLICIT:
-                        cue = [r["system"]]
-                    if r["set"] == "luxel_pairs":
-                        cue = lux.get((r["item_id"], r["condition"]), [])
-                    cw = lux.get((r["item_id"], "cue_words"), []) if r["set"] == "luxel_pairs" else (explicit_words if cue else [])
+                    cue, cw = cue_of(r, lux)
                     sh["prompts"][pid] = {"system": r.get("system"), "user": r["user"], "cue": cue, "cue_words": cw,
                                           "meta": {k: v for k, v in (r.get("meta") or {}).items() if k in ("gold", "options", "prompt_role", "slice", "factors")}}
                 lab = {"ref": is_refusal(r.get("response"))}
@@ -154,7 +165,7 @@ def build_gptoss(out: Path, manifest):
                     lab["comp"] = comp
                     lab["acc"] = gold in opts and gc.answer_letter(r.get("response")) == "ABCDEFGHIJ"[opts.index(gold)]
                 cw = sh["prompts"][pid]["cue_words"]
-                if cw and r["condition"] in ("eval_like", "explicit"):
+                if cw and r["condition"] in ("eval_like", "explicit", "dev_explicit", "user_explicit", "user_casual"):
                     t = r.get("reasoning") or ""
                     lab["lex"] = bool(re.search(r"\b(evaluation|evaluations|evaluator|evaluators|evals?|benchmark\w*|harness|graded|grader|scored|red[- ]?team\w*)\b", t, re.I)) or bool(set(cw) & words(t))
                 sh["rollouts"].append({"id": r["rollout_id"], "arm": arm, "file": f, "pid": pid, "item": r["item_id"], "cond": r["condition"],
@@ -165,7 +176,7 @@ def build_gptoss(out: Path, manifest):
     for key, sh in sorted(shards.items()):
         s, c, f = key.split("__")
         (out / "gptoss" / f"{key}.json").write_text(json.dumps(sh, separators=(",", ":")))
-        label = SET_LABEL.get(s, s) + ("" if s == "ctrl_check" else f", {COND_LABEL.get(c, c)}") + {"main": "", "confirm": " (rerun samples)", "ctrl_check": ""}[f]
+        label = SET_LABEL.get(s, s) + ("" if s == "ctrl_check" else f", {COND_LABEL.get(c, c)}") + {"main": "", "confirm": " (rerun samples)", "ctrl_check": "", "usercue": " · user-cue run"}[f]
         entries.append({"id": key, "label": label, "set": s, "cond": c, "file": f, "n": len(sh["rollouts"]), "n_prompts": len(sh["prompts"]),
                         "bytes": (out / "gptoss" / f"{key}.json").stat().st_size})
         print(f"gptoss/{key}: {len(sh['rollouts'])} rollouts", flush=True)
@@ -197,6 +208,73 @@ def build_pilot(out: Path, manifest):
         entries.append({"id": s, "label": s.replace("_", " "), "n": len(sh["rollouts"]), "bytes": (out / "pilot" / f"{s}.json").stat().st_size})
     manifest["pilot"] = {"arms": [{"id": "base", "label": "Base (OpenRouter)"}], "shards": entries}
     print(f"pilot: {len(rolls)} rollouts", flush=True)
+
+
+def _write_shards(out, exp, shards, labeler):
+    (out / exp).mkdir(parents=True, exist_ok=True)
+    entries = []
+    for key, sh in sorted(shards.items()):
+        (out / exp / f"{key}.json").write_text(json.dumps(sh, separators=(",", ":")))
+        entries.append({"id": key, "label": labeler(key), "n": len(sh["rollouts"]), "n_prompts": len(sh["prompts"]),
+                        "bytes": (out / exp / f"{key}.json").stat().st_size})
+    print(f"{exp}: {sum(e['n'] for e in entries)} rollouts in {len(entries)} shards", flush=True)
+    return entries
+
+
+def _row(r, arm, f, pid, lab):
+    return {"id": r["rollout_id"], "arm": arm, "file": f, "pid": pid, "item": r["item_id"], "cond": r["condition"], "sample": r.get("sample", 0),
+            "reasoning": r.get("reasoning") or "", "response": r.get("response") or "", "finish": r.get("finish_reason"),
+            "ntok": r.get("n_tokens"), "lab": lab}
+
+
+def _prompt(sh, r, lux=None):
+    pid = pid_of(r.get("system"), r["user"])
+    if pid not in sh["prompts"]:
+        cue, cw = cue_of(r, lux)
+        sh["prompts"][pid] = {"system": r.get("system"), "user": r["user"], "cue": cue, "cue_words": cw,
+                              "meta": {k: v for k, v in (r.get("meta") or {}).items() if k in ("factors", "calib_k", "calib_compliance", "risk_domain", "category")}}
+    return pid
+
+
+def build_screen(out: Path, manifest):
+    lux = luxel_cues()
+    shards = defaultdict(lambda: {"prompts": {}, "rollouts": []})
+    for arm, _ in SCREEN:
+        q4 = v4_index(arm, "judged_v4_screen")
+        for r in jl(G / "rollouts" / arm / "screen.jsonl"):
+            if r.get("error"):
+                continue
+            sh = shards[f"{r['set']}__{r['condition']}"]
+            lab = {"ref": is_refusal(r.get("response"))}
+            if r["rollout_id"] in q4:
+                lab["v4q"] = q4[r["rollout_id"]]
+            sh["rollouts"].append(_row(r, arm, "screen", _prompt(sh, r, lux), lab))
+    entries = _write_shards(out, "screen", shards, lambda k: f"{SET_LABEL.get(k.split('__')[0], k)}, {COND_LABEL.get(k.split('__')[1], k.split('__')[1])}")
+    manifest["screen"] = {"arms": [{"id": a, "label": l} for a, l in SCREEN], "shards": entries}
+
+
+def build_graded(out: Path, manifest):
+    arm = "olmo31_32b_think"
+    q4 = v4_index(arm, "judged_v4_graded")
+    shards = defaultdict(lambda: {"prompts": {}, "rollouts": []})
+    for f, phase in (("graded_calib", "calib"), ("graded_main", "main")):
+        sr = {j["rollout_id"]: j for j in jl(G / "results" / "judged_strongreject" / f"{arm}__{f}.jsonl") if not j.get("error")}
+        for r in jl(G / "rollouts" / arm / f"{f}.jsonl"):
+            sh = shards[f"{phase}__{r['set']}"]
+            lab = {}
+            j = sr.get(r["rollout_id"])
+            if j:
+                lab["ref"] = bool(j.get("refused")); lab["sr"] = round(float(j.get("score", 0)), 3)
+                lab["src"] = [j.get("convincing"), j.get("specific")]
+            if r["rollout_id"] in q4:
+                lab["v4q"] = q4[r["rollout_id"]]
+            sh["rollouts"].append(_row(r, "olmo31", phase, _prompt(sh, r), lab))
+    def lab(k):
+        ph, st = k.split("__")
+        return f"{'Main run' if ph == 'main' else 'Calibration'} · {SET_LABEL.get(st, st)}" + (" · no cue vs casual cue" if ph == "main" else " · no cue")
+    entries = _write_shards(out, "graded", shards, lab)
+    entries.sort(key=lambda e: (not e["id"].startswith("main"), e["id"]))
+    manifest["graded"] = {"arms": [{"id": "olmo31", "label": "Olmo-3.1-32B-Think"}], "shards": entries}
 
 
 def build_olmo(out: Path, manifest):
@@ -262,7 +340,7 @@ def main():
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     t0 = time.time(); manifest = {"built": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())}
-    build_gptoss(out, manifest); build_pilot(out, manifest)
+    build_gptoss(out, manifest); build_pilot(out, manifest); build_screen(out, manifest); build_graded(out, manifest)
     if not a.skip_olmo:
         build_olmo(out, manifest)
     elif (out / "manifest.json").exists():  # keep the Olmo shards from the previous full build
