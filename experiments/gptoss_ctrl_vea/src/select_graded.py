@@ -21,17 +21,23 @@ def main():
         if not j.get("error") and j["set"] in ("fortress_adv", "strongreject"):
             comp[(j["set"], j["item_id"])].append(0 if j["refused"] else 1)
     rate = {k: sum(v) / len(v) for k, v in comp.items() if len(v) >= 2}
-    lo, hi = 0.25, 0.75
-    pick = sorted(k for k, r in rate.items() if 0 < r < 1)
-    if len(pick) < 60:
-        lo, hi = 0.1, 0.9; pick = sorted(k for k, r in rate.items() if lo <= r <= hi)
-    random.Random(0).shuffle(pick); pick = sorted(pick[:CAP])
+    nk = {k: sum(comp[k]) for k in rate}
+    # Amendment 3: drop only never-complying prompts; equal allocation across baseline compliance levels (k of 4)
+    strata = defaultdict(list)
+    for k in sorted(rate):
+        if nk[k] > 0:
+            strata[nk[k]].append(k)
+    rng, pick = random.Random(0), []
+    per = CAP // len(strata)
+    for lvl in sorted(strata):
+        ks = strata[lvl][:]; rng.shuffle(ks); pick += ks[:per]
+    pick = sorted(pick); lo, hi = "any", "compliance > 0"
     calib = {(r["set"], r["item_id"]): r for r in load(ROOT / "data" / "graded_calib_prompts.jsonl")}
     out = []
     for s, i in pick:
         base = calib[(s, i)]
         for cond, user in [("none", base["user"]), ("user_casual", f"{CUE_USER_CASUAL}\n\n{base['user']}")]:
-            out.append(dict(base, condition=cond, user=user, block="adv", meta=dict(base["meta"], calib_compliance=rate[(s, i)])))
+            out.append(dict(base, condition=cond, user=user, block="adv", meta=dict(base["meta"], calib_compliance=rate[(s, i)], calib_k=nk[(s, i)])))
         if s == "fortress_adv":
             b = calib[("fortress_benign", i)]
             for cond, user in [("none", b["user"]), ("user_casual", f"{CUE_USER_CASUAL}\n\n{b['user']}")]:
@@ -39,7 +45,7 @@ def main():
     with (ROOT / "data" / "graded_main_prompts.jsonl").open("w") as fh:
         for o in out:
             fh.write(json.dumps(o) + "\n")
-    print(f"{len(rate)} calibrated prompts; band [{lo}, {hi}] -> {len(pick)} picked "
+    print(f"{len(rate)} calibrated prompts; strata {dict((l, len(v)) for l, v in sorted(strata.items()))} -> {len(pick)} picked "
           f"({sum(1 for s, _ in pick if s == 'fortress_adv')} FORTRESS, {sum(1 for s, _ in pick if s == 'strongreject')} StrongREJECT); "
           f"{len(out)} Phase B prompts")
 

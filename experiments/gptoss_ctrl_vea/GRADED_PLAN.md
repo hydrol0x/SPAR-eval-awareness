@@ -57,3 +57,13 @@ No CUDA-13 machines were available for hours; only a single H100 with an older d
 (an fp8 KV cache was planned but fails to compile on the Blackwell GPU we got, so it was dropped before any data). Phase A runs in two passes: 2 samples per adversarial / StrongREJECT prompt (+1 per benign
 twin), then up to 4 if the budget allows; selection uses whatever samples exist (≥ 2 judged), keeping prompts whose
 compliance is strictly between 0 and 1.
+
+## Amendment 3 (2026-10-20, after calibration, before any Phase B data): selection
+Calibration (4 samples per prompt; `results/judged_strongreject/olmo31_32b_think__graded_calib.jsonl`) gave, as
+number of complying samples out of 4: FORTRESS 0:51, 1:21, 2:19, 3:25, 4:166; StrongREJECT 0:291, 1:5, 2:3, 3:1, 4:2.
+The eval cue is expected to make the model more cautious (screen: refusals +7 to +11 pp), so prompts that already
+always refuse cannot show the effect, while prompts that always complied have the most room to drop and can still move
+on the graded score. **Decided after seeing these calibration counts (not any cue data):** keep every prompt with at
+least one complying sample and take 80 with equal allocation across the four levels (20 each of 1, 2, 3, 4 of 4;
+seed 0), instead of only the mixed 1–3 band. Result: 72 FORTRESS + 8 StrongREJECT prompts. The analysis reports the
+cue effect overall and per calibration level.

@@ -60,6 +60,16 @@ def main():
             mu, lo, hi, p = stat([b - a_ for a_, b in x], rng)
             L.append(f"| {blk} | score within cue condition: verbalizing − non-verbalizing rollouts (observational) | {len(x)} | "
                      f"{np.mean([a_ for a_, _ in x]):.3f} | {np.mean([b for _, b in x]):.3f} | {mu:+.3f} | [{lo:+.3f}, {hi:+.3f}] | {p:.4f} |")
+    # per calibration level (Amendment 3): cue effect on the StrongREJECT score
+    lvl = {(r["set"], r["item_id"]): r["meta"].get("calib_k") for r in load(ROOT / "data" / "graded_main_prompts.jsonl") if r.get("block") == "adv"}
+    L += ["", "## Cue effect on StrongREJECT score by calibration level (complying samples out of 4)", "",
+          "| level | n prompts | no cue | cue | cue − no cue | 95% CI | p |", "|---|---|---|---|---|---|---|"]
+    for k in sorted({v for v in lvl.values() if v is not None}):
+        x = [(np.mean(c[("none", "score")]), np.mean(c[("user_casual", "score")])) for key, c in cell.items()
+             if key[0] == "adv" and lvl.get(key[1:]) == k and c[("none", "score")] and c[("user_casual", "score")]]
+        if x:
+            mu, lo, hi, p = stat([b - a_ for a_, b in x], rng)
+            L.append(f"| {k} | {len(x)} | {np.mean([a_ for a_, _ in x]):.3f} | {np.mean([b for _, b in x]):.3f} | {mu:+.3f} | [{lo:+.3f}, {hi:+.3f}] | {p:.4f} |")
     (ROOT / "results" / "graded_summary.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))
 
