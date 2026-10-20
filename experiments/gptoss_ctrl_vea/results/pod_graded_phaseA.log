@@ -109,4 +109,6 @@ Failed to get device capability: SM 12.x requires CUDA >= 12.9.
 [0;36m(EngineCore pid=2273)[0;0m [33mWARNING[0m [90m10-20 01:30:51[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topp_sb_step_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
 [0;36m(EngineCore pid=2273)[0;0m [33mWARNING[0m [90m10-20 01:30:51[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topp_sb_mask_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
 [0;36m(EngineCore pid=2273)[0;0m [33mWARNING[0m [90m10-20 01:30:54[0m [90m[jit_monitor.py:140][0m Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[olmo31_32b_think] 1168/1168 (5214s)
+[02:57:49] ALL DONE
 
