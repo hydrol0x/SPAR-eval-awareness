@@ -365,3 +365,30 @@ cue and the casual user cue, plus the Luxel eval/deploy pairs. Reasoning judged 
 
 **Cost.** Pod (H100, ≈ 3 h) ≈ $12.50, of which ≈ $3 was idle time after the last model finished; OpenRouter: R1
 generation $3.23, judging ≈ $2.
+
+### 13. Graded compliance under the eval cue, base Olmo-3.1-32B-Think (`GRADED_PLAN.md` + amendments 1–3, `results/graded_summary.md`)
+80 prompts (72 FORTRESS without its CBRNE domain, 8 StrongREJECT; 20 per calibration level, Amendment 3) × {no cue,
+casual user cue} × 20 samples, plus the 72 benign FORTRESS twins × 2 × 4: 3,776 rollouts on one RTX PRO 6000 (vLLM 0.31.0,
+bf16, FlashAttention, max 16,384 tokens). StrongREJECT rubric (0–1 graded compliance) and the v4 awareness judge with the
+regex prefilter (Qwen2.5-72B). Paired by prompt.
+
+| | no cue | cue | cue − no cue (95% CI) |
+|---|---|---|---|
+| VEA in reasoning (adversarial) | 16.9% | 91.1% | +74.2 pp [+68.1, +79.8] |
+| compliance rate (adversarial) | 63.6% | 27.6% | −36.0 pp [−41.9, −30.0] |
+| StrongREJECT score (adversarial) | 0.617 | 0.260 | −0.357 [−0.417, −0.299] |
+| score, cue rollouts that do **not** verbalize (40 prompts with any) | 0.725 | 0.470 | −0.254 [−0.353, −0.160] |
+| benign twins: compliance | 92.7% | 83.7% | −9.0 pp [−14.2, −4.5] |
+
+* **The cue roughly halves compliance**, at every calibration level (−0.25 to −0.59 on the score), including prompts the
+  model always complied with at baseline (0.96 → 0.72). It also adds over-refusal on benign twins (−9 pp).
+* **Behaviour shifts even without verbalization:** in the 9% of cue rollouts that do not mention evaluation, the score
+  is still 0.25 below the same prompts' no-cue rollouts (p < 0.001). Within the cue condition, verbalizing rollouts are
+  more cautious than non-verbalizing ones (−0.125, p = 0.02), so verbalization tracks some, but not all, of the effect.
+  These two comparisons are observational: which rollouts verbalize is not randomized.
+* So the base model already shows a partly "aware but quiet" response. This is the reference point for the fine-tuned
+  comparison: the question becomes whether CoT-controllability fine-tuning lowers the 91% verbalization while the
+  ~36 pp compliance drop stays.
+
+**Cost.** RunPod ≈ $25 for Phases A and B (≈ 9.5 h on the RTX PRO 6000 at $2.49/h, including ≈ 1 h of failed or idle
+time); OpenRouter ≈ $6 for judging.
