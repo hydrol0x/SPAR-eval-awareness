@@ -12,6 +12,7 @@ import argparse, asyncio, json, random, re
 from pathlib import Path
 
 from .openrouter_client import OpenRouter
+from .regex_judge import PREFILTER
 from .verify_excerpts import occurs
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,7 +55,7 @@ def load(p):
     return out
 
 
-async def run(arm, files, judge, out_dir, budget, conc, sample_frac, seed, cells, channels=("cot", "response")):
+async def run(arm, files, judge, out_dir, budget, conc, sample_frac, seed, cells, channels=("cot", "response"), prefilter=False):
     rolls = []
     for f in files:
         rolls += [r for r in load(ROOT / "rollouts" / arm / f"{f}.jsonl") if not r.get("error") and (cells is None or (r["set"], r["condition"]) in cells)]
@@ -75,6 +76,8 @@ async def run(arm, files, judge, out_dir, budget, conc, sample_frac, seed, cells
              "sample": r["sample"], "channel": ch, "judge": judge}
         if not (text or "").strip():
             o.update({"eval_aware": False, "quote": "", "verified": False, "empty": True})
+        elif prefilter and not PREFILTER.search(text):
+            o.update({"eval_aware": False, "quote": "", "verified": False, "prefiltered": True})
         else:
             res = await cl.chat([{"role": "system", "content": SYSTEM},
                                  {"role": "user", "content": USER.format(channel_desc=DESC[ch], text=clip(text))}], json_mode=True)
@@ -104,10 +107,11 @@ def main():
     ap.add_argument("--sample-frac", type=float, default=1.0); ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--all-cells", action="store_true", help="judge every condition, not only cue conditions")
     ap.add_argument("--channels", nargs="+", default=["cot", "response"], choices=["cot", "response"])
+    ap.add_argument("--prefilter", action="store_true", help="label text with no eval vocabulary as not aware without a judge call (README section 11)")
     a = ap.parse_args()
     cells = None if a.all_cells else CUE_CELLS
     for arm in a.arms:
-        asyncio.run(run(arm, a.files, a.judge, a.out_dir, a.budget, a.concurrency, a.sample_frac, a.seed, cells, tuple(a.channels)))
+        asyncio.run(run(arm, a.files, a.judge, a.out_dir, a.budget, a.concurrency, a.sample_frac, a.seed, cells, tuple(a.channels), a.prefilter))
 
 
 if __name__ == "__main__":
