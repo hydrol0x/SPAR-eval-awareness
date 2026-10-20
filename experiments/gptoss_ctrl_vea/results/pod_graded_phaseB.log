@@ -1,0 +1,26 @@
+[03:27:42] download (tp=1)
+Fetching 23 files:   0%|          | 0/23 [00:00<?, ?it/s]Fetching 23 files: 100%|██████████| 23/23 [00:00<00:00, 992.19it/s]
+[03:27:43] phase B: selected prompts x 20 samples (benign twins x 4)
+[olmo31_32b_think] 3200 to generate (0 done)
+[0;36m(MainProcess pid=2535)[0;0m [33mWARNING[0m [90m10-20 03:27:47[0m [90m[interface.py:1355][0m Unknown vLLM environment variable detected: VLLM_ATTENTION_BACKEND
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Loading safetensors checkpoint shards:   0% Completed | 0/14 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:   7% Completed | 1/14 [00:00<00:03,  3.33it/s]
+Loading safetensors checkpoint shards:  14% Completed | 2/14 [00:00<00:04,  2.75it/s]
+Loading safetensors checkpoint shards:  21% Completed | 3/14 [00:01<00:03,  2.84it/s]
+Loading safetensors checkpoint shards:  29% Completed | 4/14 [00:01<00:03,  2.68it/s]
+Loading safetensors checkpoint shards:  36% Completed | 5/14 [00:01<00:03,  2.77it/s]
+Loading safetensors checkpoint shards:  43% Completed | 6/14 [00:02<00:02,  2.68it/s]
+Loading safetensors checkpoint shards:  50% Completed | 7/14 [00:02<00:02,  2.82it/s]
+Loading safetensors checkpoint shards:  57% Completed | 8/14 [00:02<00:02,  2.73it/s]
+Loading safetensors checkpoint shards:  64% Completed | 9/14 [00:03<00:01,  2.82it/s]
+Loading safetensors checkpoint shards:  71% Completed | 10/14 [00:03<00:01,  2.86it/s]
+Loading safetensors checkpoint shards:  79% Completed | 11/14 [00:03<00:01,  2.91it/s]
+Loading safetensors checkpoint shards:  86% Completed | 12/14 [00:04<00:00,  2.93it/s]
+Loading safetensors checkpoint shards:  93% Completed | 13/14 [00:04<00:00,  2.81it/s]
+Loading safetensors checkpoint shards: 100% Completed | 14/14 [00:04<00:00,  3.00it/s]
+
+[0;36m(EngineCore pid=2749)[0;0m [33mWARNING[0m [90m10-20 03:27:56[0m [90m[topk_topp_sampler.py:131][0m FlashInfer top-p/top-k sampling unavailable: SM 12.x requires CUDA >= 12.9; falling back. Set VLLM_USE_FLASHINFER_SAMPLER=0 to silence.
+[0;36m(EngineCore pid=2749)[0;0m [33mWARNING[0m [90m10-20 03:28:06[0m [90m[backends.py:1049][0m Failed to read file <frozen _collections_abc>
+
