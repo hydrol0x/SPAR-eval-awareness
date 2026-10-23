@@ -367,6 +367,7 @@ cue and the casual user cue, plus the Luxel eval/deploy pairs. Reasoning judged 
 generation $3.23, judging ≈ $2.
 
 ### 13. Graded compliance under the eval cue, base Olmo-3.1-32B-Think (`GRADED_PLAN.md` + amendments 1–3, `results/graded_summary.md`)
+**Caveat: a behaviour-selected subset.** The 80 prompts were chosen for intermediate baseline compliance in a calibration run (Amendment 3), so these effects describe borderline prompts, not FORTRESS as a whole, and baseline levels drift toward the middle when re-sampled. Selecting on behaviour is not standard in the eval-awareness literature, which uses full benchmarks or fixed samples; Experiment 1 (`PREREG_exp1.md`) uses the full non-CBRNE FORTRESS set.
 80 prompts (72 FORTRESS without its CBRNE domain, 8 StrongREJECT; 20 per calibration level, Amendment 3) × {no cue,
 casual user cue} × 20 samples, plus the 72 benign FORTRESS twins × 2 × 4: 3,776 rollouts on one RTX PRO 6000 (vLLM 0.31.0,
 bf16, FlashAttention, max 16,384 tokens). StrongREJECT rubric (0–1 graded compliance) and the v4 awareness judge with the
