@@ -22,6 +22,21 @@ for arm in edited control; do
   [[ -f $W/lora_prep/$arm/lm_head_lora.safetensors ]] || python pod/prep_lora.py --adapter $W/adapters/lora/$arm/step_000164 --out $W/lora_prep/$arm
 done
 
+gen() {  # arm gpu tp
+  local arm=$1 gpu=$2 tp=$3 lora=""
+  [[ $arm != base ]] && lora="--lora $W/lora_prep/$arm"
+  mkdir -p rollouts/olmo31_exp1_$arm
+  CUDA_VISIBLE_DEVICES=$gpu python pod/gen_olmo_lora.py gen --model $W/models/base $lora --name olmo31_exp1_$arm --tp $tp \
+    --prompts data/exp1_prompts.jsonl --only-set fortress_adv --n-samples 2 --chunk 1200 --out rollouts/olmo31_exp1_$arm/exp1.jsonl > $W/gen_$arm.log 2>&1
+  CUDA_VISIBLE_DEVICES=$gpu python pod/gen_olmo_lora.py gen --model $W/models/base $lora --name olmo31_exp1_$arm --tp $tp \
+    --prompts data/exp1_prompts.jsonl --only-set fortress_benign --n-samples 1 --out rollouts/olmo31_exp1_$arm/exp1.jsonl >> $W/gen_$arm.log 2>&1
+  touch rollouts/olmo31_exp1_$arm/DONE
+}
+BASE_PID=""
+if [[ $NGPU -ge 3 && ! -f rollouts/olmo31_exp1_base/DONE ]]; then  # base needs no adapter, so it does not wait for the serving check
+  log "generation: base on GPU $((NGPU-1)) (started before the serving check)"; gen base $((NGPU-1)) 1 & BASE_PID=$!
+fi
+export CUDA_VISIBLE_DEVICES=0  # serving check on GPU 0
 passed() { python -c "import json,sys; sys.exit(0 if json.load(open('$1')).get('pass') else 1)" 2>/dev/null; }
 if ! passed results/exp1_serving_check.json || [[ ! -s results/exp1_serving_check_nohead.json ]]; then
   if [[ ! -s /tmp/exp1_val.jsonl ]]; then
@@ -50,27 +65,17 @@ PY
   log "sensitivity: lm_head-off run fails the gate as required"
   python pod/validate_lora.py --ref results/exp1_val_peft.json --vllm results/exp1_val_vllm.json --out results/exp1_serving_check.json || { log "SERVING CHECK FAILED"; exit 1; }
 fi
+unset CUDA_VISIBLE_DEVICES
 log "serving check passed: $(cat results/exp1_serving_check.json | tr -d '\n ')"
 
-gen() {  # arm gpu tp
-  local arm=$1 gpu=$2 tp=$3 lora=""
-  [[ $arm != base ]] && lora="--lora $W/lora_prep/$arm"
-  mkdir -p rollouts/olmo31_exp1_$arm
-  CUDA_VISIBLE_DEVICES=$gpu python pod/gen_olmo_lora.py gen --model $W/models/base $lora --name olmo31_exp1_$arm --tp $tp \
-    --prompts data/exp1_prompts.jsonl --only-set fortress_adv --n-samples 2 --chunk 1200 --out rollouts/olmo31_exp1_$arm/exp1.jsonl > $W/gen_$arm.log 2>&1
-  CUDA_VISIBLE_DEVICES=$gpu python pod/gen_olmo_lora.py gen --model $W/models/base $lora --name olmo31_exp1_$arm --tp $tp \
-    --prompts data/exp1_prompts.jsonl --only-set fortress_benign --n-samples 1 --out rollouts/olmo31_exp1_$arm/exp1.jsonl >> $W/gen_$arm.log 2>&1
-  touch rollouts/olmo31_exp1_$arm/DONE
-}
-ARMS="edited control base"
 if [[ $NGPU -ge 3 ]]; then
-  log "generation: 3 arms in parallel, one GPU each"
-  i=0; pids=""
-  for arm in $ARMS; do gen $arm $i 1 & pids="$pids $!"; i=$((i+1)); done
+  log "generation: edited and control in parallel, one GPU each"
+  pids="$BASE_PID"; i=0
+  for arm in edited control; do gen $arm $i 1 & pids="$pids $!"; i=$((i+1)); done
   for p in $pids; do wait $p; done
 else
   ALL=$(seq -s, 0 $((NGPU-1)))
-  for arm in $ARMS; do log "generation: $arm (tp=$NGPU)"; gen $arm $ALL $NGPU; done
+  for arm in edited control base; do log "generation: $arm (tp=$NGPU)"; gen $arm $ALL $NGPU; done
 fi
 log "ALL DONE"
 touch results/EXP1_DONE

@@ -15,10 +15,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True); ap.add_argument("--adapter", required=True)
     ap.add_argument("--items", required=True); ap.add_argument("--out", required=True)
+    ap.add_argument("--fp32-head", action="store_true", help="run lm_head (base + LoRA) in float32 so the LoRA update is not rounded to bf16")
     a = ap.parse_args()
     tok = AutoTokenizer.from_pretrained(a.model)
     model = AutoModelForCausalLM.from_pretrained(a.model, torch_dtype=torch.bfloat16, device_map="auto")
     model = PeftModel.from_pretrained(model, a.adapter); model.eval()
+    if a.fp32_head:
+        head = model.get_output_embeddings()
+        head.float(); head.register_forward_pre_hook(lambda m, args: tuple(x.float() for x in args))
+        print("lm_head in float32:", type(head).__name__, flush=True)
     items = [json.loads(l) for l in open(a.items) if l.strip()]
     res = {"base": {}, "lora": {}}
     for it in items:
