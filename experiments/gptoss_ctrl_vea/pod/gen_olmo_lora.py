@@ -84,7 +84,7 @@ def cmd_logprobs(a):
     res = {}
     for tag, req in (("base", None), ("lora", lreq)):
         if a.lora:
-            set_head(llm, req is not None)
+            set_head(llm, req is not None and not a.no_head)
         prompts, spans = [], []
         for it in items:
             p = tok(it["prompt_text"], add_special_tokens=False).input_ids; c = tok(it["completion_text"], add_special_tokens=False).input_ids
@@ -144,6 +144,7 @@ def main():
     g.add_argument("--temperature", type=float, default=0.6); g.add_argument("--top-p", type=float, default=0.95)
     g.add_argument("--max-tokens", type=int, default=16384); g.add_argument("--chunk", type=int, default=100000)
     sub.choices["logprobs"].add_argument("--items", required=True)
+    sub.choices["logprobs"].add_argument("--no-head", action="store_true", help="leave the lm_head LoRA off (sensitivity check)")
     a = ap.parse_args()
     cmd_gen(a) if a.cmd == "gen" else cmd_logprobs(a)
 

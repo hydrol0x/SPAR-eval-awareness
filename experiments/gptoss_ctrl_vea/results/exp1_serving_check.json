@@ -1,0 +1,9 @@
+{
+ "tokens": 9600,
+ "slope": 0.8098053249154703,
+ "pearson_r": 0.7889288755428533,
+ "mean_abs_effect_peft": 0.029140351905813607,
+ "mean_abs_effect_vllm": 0.03040109147436753,
+ "mean_abs_base_gap_peft_vs_vllm": 0.011770398801333579,
+ "pass": false
+}

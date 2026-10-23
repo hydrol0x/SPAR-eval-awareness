@@ -70,3 +70,15 @@ Temperature 0.6, top-p 0.95 (AllenAI's settings, as in our earlier base runs), m
 * Serving check above. Finish rate per arm reported; if an arm finishes < 85% of no-cue adversarial samples, its results
   are flagged.
 * Rollouts whose judgment fails twice, or whose quote cannot be verified, are excluded from that label only.
+
+## Amendment 1 (2026-10-23, after the serving check and before any generation)
+The serving check as written failed (OLS slope 0.81, Pearson r 0.79; `results/exp1_serving_check.json` from the first
+attempt is kept in git history). Diagnosis: the PEFT/Transformers and vLLM engines disagree token by token even with no
+adapter (sd of the base-model log-prob gap 0.025 nats, about half the sd of the adapter's per-token effect, 0.056), and the
+gap with and without the adapter is uncorrelated (r = −0.01). Shared noise of that size alone predicts r ≈ 0.79 and an OLS
+slope ≈ 0.81, so the thresholds (set without measuring this noise floor) could not be met by correct serving. Measures the
+noise does not bias agree: Deming slope 1.03, sd ratio of effects 1.03, summed effect −10.0 (vLLM) vs −9.35 (PEFT); summed
+over whole sequences the OLS slope is 1.04.
+New gate (`pod/validate_lora.py`): Deming slope in [0.9, 1.1]; excess discrepancy sd(lora gap)/sd(base gap) ≤ 1.15;
+summed-effect ratio in [0.85, 1.15]. Sensitivity requirement: the same check run with the lm_head LoRA left off must fail,
+or the run stops. Thresholds were fixed before the lm_head-off run was made.

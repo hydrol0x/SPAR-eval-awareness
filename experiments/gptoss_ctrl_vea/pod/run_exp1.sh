@@ -22,7 +22,9 @@ for arm in edited control; do
   [[ -f $W/lora_prep/$arm/lm_head_lora.safetensors ]] || python pod/prep_lora.py --adapter $W/adapters/lora/$arm/step_000164 --out $W/lora_prep/$arm
 done
 
-if [[ ! -s results/exp1_serving_check.json ]]; then
+passed() { python -c "import json,sys; sys.exit(0 if json.load(open('$1')).get('pass') else 1)" 2>/dev/null; }
+if ! passed results/exp1_serving_check.json || [[ ! -s results/exp1_serving_check_nohead.json ]]; then
+  if [[ ! -s /tmp/exp1_val.jsonl ]]; then
   log "serving check: PEFT reference vs vLLM + lm_head hook (edited adapter)"
   python - <<'PY'
 import json, sys
@@ -39,8 +41,13 @@ with open("/tmp/exp1_val.jsonl", "w") as fh:
         fh.write(json.dumps({"id": r["rollout_id"], "prompt_text": p, "completion_text": tok.decode(ids)}) + "\n")
 print("validation items:", len(rows))
 PY
-  python pod/peft_ref.py --model $W/models/base --adapter $W/adapters/lora/edited/step_000164 --items /tmp/exp1_val.jsonl --out results/exp1_val_peft.json
-  python pod/gen_olmo_lora.py logprobs --model $W/models/base --lora $W/lora_prep/edited --items /tmp/exp1_val.jsonl --out results/exp1_val_vllm.json
+  fi
+  [[ -s results/exp1_val_peft.json ]] || python pod/peft_ref.py --model $W/models/base --adapter $W/adapters/lora/edited/step_000164 --items /tmp/exp1_val.jsonl --out results/exp1_val_peft.json
+  [[ -s results/exp1_val_vllm.json ]] || python pod/gen_olmo_lora.py logprobs --model $W/models/base --lora $W/lora_prep/edited --items /tmp/exp1_val.jsonl --out results/exp1_val_vllm.json
+  [[ -s results/exp1_val_vllm_nohead.json ]] || python pod/gen_olmo_lora.py logprobs --model $W/models/base --lora $W/lora_prep/edited --no-head --items /tmp/exp1_val.jsonl --out results/exp1_val_vllm_nohead.json
+  python pod/validate_lora.py --ref results/exp1_val_peft.json --vllm results/exp1_val_vllm_nohead.json --out results/exp1_serving_check_nohead.json \
+    && { log "SERVING CHECK FAILED: the gate passes even with the lm_head LoRA off (not sensitive)"; exit 1; }
+  log "sensitivity: lm_head-off run fails the gate as required"
   python pod/validate_lora.py --ref results/exp1_val_peft.json --vllm results/exp1_val_vllm.json --out results/exp1_serving_check.json || { log "SERVING CHECK FAILED"; exit 1; }
 fi
 log "serving check passed: $(cat results/exp1_serving_check.json | tr -d '\n ')"
