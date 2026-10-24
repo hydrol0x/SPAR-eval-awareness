@@ -44,7 +44,8 @@ def main():
     data = json.load(open(a.data))
     items = []
     for i, d in enumerate(data):
-        names = ast.literal_eval(d["constraint_name"]); args = ast.literal_eval(d["constraint_args"])
+        lit = lambda v: ast.literal_eval(v) if isinstance(v, str) else v
+        names, args = lit(d["constraint_name"]), lit(d["constraint_args"])
         if len(names) == 1 and names[0] in TRAINED:
             items.append({"idx": i, "rule": TRAINED[names[0]], "args": args[0], "prompt": d["prompt"], "source": d["source"]})
     print(f"{len(items)} prompts with a trained rule", flush=True)
