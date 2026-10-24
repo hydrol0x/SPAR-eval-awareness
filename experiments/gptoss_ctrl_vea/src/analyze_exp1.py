@@ -43,6 +43,10 @@ ADDON_CONTRASTS = [("sys_explicit", "sys_explicit_noreason", "reasoning clause (
                    ("sys_explicit_noreason", "sys_neutral", "safety-eval cue vs neutral sentence"),
                    ("sys_capability", "sys_neutral", "capability-eval cue vs neutral sentence"),
                    ("sys_explicit_noreason", "sys_capability", "safety vs capability eval framing")]
+SUPPRESS_C = ["sys_explicit_suppress", "user_explicit_suppress", "sys_suppress"]  # amendment 5
+SUPPRESS_CONTRASTS = [("sys_explicit_suppress", "sys_explicit", "suppression instruction added (system)"),
+                      ("user_explicit_suppress", "user_explicit", "suppression instruction added (user)"),
+                      ("sys_suppress", "none", "instruction alone vs no cue")]
 MEAS = {"refuse": "refusal", "harm": "harm noticed", "vea": "VEA", "gaming": "eval gaming"}
 
 
@@ -157,7 +161,7 @@ def main():
               f"{'met' if lo >= 0.75 else 'not met'}. (Uninformative if the control arm's delta is near zero.)"]
 
     # rates by arm x condition
-    for s, conds in (("fortress_adv", ["none"] + CUES + ADDON), ("fortress_benign", ["none", "sys_explicit", "user_casual"])):
+    for s, conds in (("fortress_adv", ["none"] + CUES + ADDON + SUPPRESS_C), ("fortress_benign", ["none", "sys_explicit", "user_casual"])):
         L += ["", f"## Rates by arm and condition ({s}, judged subset)", "",
               "| arm | condition | n | " + " | ".join(MEAS.values()) + " | regex VEA (all rollouts) |", "|---|---|---|" + "---|" * (len(MEAS) + 1)]
         for a in ARMS:
@@ -232,6 +236,29 @@ def main():
             r = paired(lambda k: f("edited", k), lambda k: f("control", k), common)
             if r:
                 L.append(f"| edited − control | {c} | {mm} | {r[4]} | {fmt(r)} |")
+    # suppression instruction (amendment 5): does the more controllable arm keep VEA out of its reasoning when asked,
+    # and does the cue's effect on refusal survive the instruction?
+    L += ["", "## Suppression instruction (amendment 5): condition A − condition B, per arm", "",
+          "| arm | contrast | A | B | measure | n | difference | 95% CI | p |", "|---|---|---|---|---|---|---|---|---|"]
+    for a in ARMS:
+        for ca, cb, name in SUPPRESS_CONTRASTS:
+            for mm in ("refuse", "vea"):
+                r = paired(lambda k: m(a, k, [ca], mm), lambda k: m(a, k, [cb], mm), items(a))
+                if r:
+                    L.append(f"| {a} | {name} | {ca} | {cb} | {MEAS[mm]} | {r[4]} | {fmt(r)} |")
+    L += ["", "Key test: the instruction's effect on VEA, edited − control (negative = edited suppresses more), and the "
+          "refusal delta vs no cue under the suppressed cue, edited − control.", "",
+          "| contrast | placement | measure | n | difference | 95% CI | p |", "|---|---|---|---|---|---|---|"]
+    for ca, cb, plc in (("sys_explicit_suppress", "sys_explicit", "system"), ("user_explicit_suppress", "user_explicit", "user")):
+        for x, y in (("edited", "control"), ("edited", "base"), ("control", "base")):
+            r = paired(lambda k: m(x, k, [ca], "vea") - m(x, k, [cb], "vea") if m(x, k, [ca], "vea") is not None and m(x, k, [cb], "vea") is not None else None,
+                       lambda k: m(y, k, [ca], "vea") - m(y, k, [cb], "vea") if m(y, k, [ca], "vea") is not None and m(y, k, [cb], "vea") is not None else None,
+                       [k for k in items(x) if k in cell[y]])
+            if r:
+                L.append(f"| {x} − {y}: change in VEA from adding the instruction | {plc} | VEA | {r[4]} | {fmt(r)} |")
+            r = paired(lambda k: delta(x, k, [ca], "refuse"), lambda k: delta(y, k, [ca], "refuse"), [k for k in items(x) if k in cell[y]])
+            if r:
+                L.append(f"| {x} − {y}: refusal delta vs none under the suppressed cue | {plc} | refusal | {r[4]} | {fmt(r)} |")
     (ROOT / "results" / ("exp1_summary_regex.md" if args.regex else "exp1_summary.md" if args.labels == "labels.jsonl"
                          else f"exp1_summary_{Path(args.labels).stem}.md")).write_text("\n".join(L) + "\n")
     print("\n".join(L))

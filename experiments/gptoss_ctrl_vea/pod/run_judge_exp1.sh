@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Waits for all Exp1 generation (main + add-on, three arms) and the judge download, then runs the provisional Qwen judge
+# Waits for all Exp1 generation (main, add-on and suppression conditions, three arms) and the judge download, then runs the provisional Qwen judge
 # as three single-GPU shards (pod/judge_exp1_vllm.py) and touches results/exp1_judge/JUDGE_DONE.
 cd /workspace/SPAR-eval-awareness/experiments/gptoss_ctrl_vea
 R=rollouts
 until [ -f $R/olmo31_exp1_base/DONE_B ] && [ -f $R/olmo31_exp1_edited/DONE_B ] && [ -f $R/olmo31_exp1_control/DONE_B ] \
+      && [ -f $R/olmo31_exp1_base/DONE_C ] && [ -f $R/olmo31_exp1_edited/DONE_C ] && [ -f $R/olmo31_exp1_control/DONE_C ] \
       && grep -q JUDGE_DL_DONE /workspace/dl_judge.log; do sleep 60; done
 echo "[$(date -u +%T)] judge start"
 export VLLM_LOGGING_LEVEL=WARNING TOKENIZERS_PARALLELISM=false
