@@ -61,7 +61,7 @@ def rollouts(all_items=False):
             req[(p["set"], p["item_id"])] = p["user"]
     for arm in ARMS:
         for r in [x for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{arm}").glob("exp1*.jsonl")) for x in load(f)]:
-            if r.get("error") or r["sample"] != 0 or (items is not None and r["item_id"] not in items) or (items is None and r["set"] != "fortress_adv"):
+            if r.get("error") or r["sample"] != 0 or (items is not None and r["item_id"] not in items):
                 continue
             yield arm, r, req[(r["set"], r["item_id"])]
 
@@ -98,7 +98,7 @@ def prep(seed):
 def judged_records(source):
     """(rollout_id, raw label, origin) from subagent batch outputs or from the pod judge (pod/judge_exp1_vllm.py)."""
     if source == "qwen":
-        for f in sorted(JD.glob("qwen_raw_s*.jsonl")):
+        for f in sorted(JD.glob("qwen_raw_*.jsonl")):
             for j in load(f):
                 if j.get("parsed"):
                     yield j["rollout_id"], j, f.stem

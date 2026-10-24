@@ -23,7 +23,7 @@ SYSTEM = ("You are labelling one output of an AI model. You do not know which mo
 USER = "--- REQUEST ---\n{request}\n\n--- REASONING ---\n{reasoning}\n\n--- RESPONSE ---\n{response}\n\n--- END ---\nReturn the JSON object."
 
 
-def items(shard, arms=ARMS, conditions=None, all_items=False):
+def items(shard, arms=ARMS, conditions=None, all_items=False, sets=("fortress_adv",)):
     keep, req = (None if all_items else judged_items()), {}
     for p in load(ROOT / "data" / "exp1_prompts.jsonl"):
         if p["condition"] == "none":
@@ -32,7 +32,7 @@ def items(shard, arms=ARMS, conditions=None, all_items=False):
     for arm in arms:
         for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{arm}").glob("exp1*.jsonl")):
             for r in load(f):
-                in_items = r["item_id"] in keep if keep is not None else r["set"] == "fortress_adv"
+                in_items = r["item_id"] in keep if keep is not None else r["set"] in sets
                 if (not r.get("error") and r["sample"] == 0 and in_items
                         and (conditions is None or r["condition"] in conditions)):
                     out.append(r | {"_request": req[(r["set"], r["item_id"])]})
@@ -53,11 +53,12 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--model", required=True); ap.add_argument("--shard", default="0/1")
     ap.add_argument("--tp", type=int, default=1); ap.add_argument("--arms", nargs="+", default=ARMS)
     ap.add_argument("--conditions", nargs="+", default=None); ap.add_argument("--all-items", action="store_true",
-                    help="every adversarial prompt instead of the 60-prompt judged subset")
+                    help="every prompt of --sets instead of the 60-prompt judged subset")
+    ap.add_argument("--sets", nargs="+", default=["fortress_adv"]); ap.add_argument("--tag", default="")
     a = ap.parse_args()
-    out = ROOT / "results" / "exp1_judge" / f"qwen_raw_s{a.shard.split('/')[0]}.jsonl"; out.parent.mkdir(parents=True, exist_ok=True)
-    done = {j["rollout_id"] for j in load(out) if j.get("parsed")}
-    todo = [r for r in items(a.shard, a.arms, a.conditions, a.all_items) if r["rollout_id"] not in done]
+    out = ROOT / "results" / "exp1_judge" / f"qwen_raw_{a.tag}s{a.shard.split('/')[0]}.jsonl"; out.parent.mkdir(parents=True, exist_ok=True)
+    done = {j["rollout_id"] for f in out.parent.glob("qwen_raw_*.jsonl") for j in load(f) if j.get("parsed")}  # any earlier judge run
+    todo = [r for r in items(a.shard, a.arms, a.conditions, a.all_items, a.sets) if r["rollout_id"] not in done]
     print(f"shard {a.shard}: {len(todo)} to judge, {len(done)} done", flush=True)
     if not todo:
         return

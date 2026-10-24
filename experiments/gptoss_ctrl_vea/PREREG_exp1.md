@@ -153,3 +153,8 @@ pod right after the suppression runs (cheaper in total than a new, cheaper-per-h
 download). Scope: edited and control, sample 0, all 282 adversarial prompts, conditions sys_explicit_suppress,
 user_explicit_suppress, sys_suppress and their comparisons sys_explicit, user_explicit, none (3,384 rollouts). Nothing
 else is judged tonight. Analysis: amendment 5 key tests with judge labels (`--labels labels_qwen.jsonl`).
+
+## Amendment 8 (2026-10-24 ~04:50 UTC, before any of these judgments): judge everything else
+At the PI's request, after the suppression judge the same provisional Qwen judge labels sample 0 of every other Exp1
+rollout (all arms, conditions, adversarial and benign; ~9,000 more), not only the 60-prompt subset. The pre-registered
+60-prompt subset analysis is reported as specified; the all-prompt version is reported alongside it.
