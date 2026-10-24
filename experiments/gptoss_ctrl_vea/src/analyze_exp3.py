@@ -112,7 +112,7 @@ def plot(rows, rng):
     COL = {"sys_alignment_eval": "#2a78d6", "sys_monitored": "#eb6834"}; MK = {"sys_alignment_eval": "o", "sys_monitored": "D"}
     arms = [a for a in ARMS if any(r[0] == a for r in rows)]
     cats = ["all", "trained", "untrained"] + RULES
-    fig, axes = plt.subplots(1, len(arms), figsize=(max(8.5, 5.2 * len(arms)), 5.6), dpi=160, facecolor=SURF, sharey=True, squeeze=False)
+    fig, axes = plt.subplots(1, len(arms), figsize=(max(8.5, 5.2 * len(arms)), 5.6), dpi=160, facecolor=SURF, sharey=True, sharex=True, squeeze=False)
     for ax, a in zip(axes[0], arms):
         ax.set_facecolor(SURF); ax.xaxis.grid(True, color=GRID, lw=0.8); ax.set_axisbelow(True)
         for s in ("top", "right", "left"):
@@ -129,11 +129,11 @@ def plot(rows, rng):
         ax.axvline(0, color=INK2, lw=1); ax.set_title(a, loc="left", fontsize=10.5, color=INK)
         ax.set_xlabel("compliance: cue − no cue (pp)", fontsize=8.5, color=INK2)
     axes[0][0].set_yticks(range(len(cats))); axes[0][0].set_yticklabels([c.replace("_", " ") for c in cats[::-1]], fontsize=8.5, color=INK)
-    h, l = axes[0][0].get_legend_handles_labels(); fig.legend(h, l, frameon=False, fontsize=8.5, loc="upper left", ncol=2, bbox_to_anchor=(0.01, 0.9))
+    h, l = axes[0][0].get_legend_handles_labels(); fig.legend(h, l, frameon=False, fontsize=8.5, loc="upper left", ncol=2, bbox_to_anchor=(0.01, 0.93))
     fig.suptitle("Experiment 3: effect of an alignment-evaluation / monitoring\nsystem prompt on CoT rule-following (ReasonIF)",
                  x=0.01, ha="left", fontsize=11.5, color=INK)
     fig.text(0.01, 0.01, "Paired by prompt (mean over samples); 95% bootstrap CIs over prompts; 12,000-token cap.", fontsize=7.5, color=INK2)
-    fig.tight_layout(rect=(0, 0.04, 1, 0.84)); (ROOT / "figures").mkdir(exist_ok=True)
+    fig.tight_layout(rect=(0, 0.04, 1, 0.88)); (ROOT / "figures").mkdir(exist_ok=True)
     fig.savefig(ROOT / "figures" / "exp3_cotcontrol.png", facecolor=SURF); plt.close(fig)
 
 
