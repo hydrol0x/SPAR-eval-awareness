@@ -18,6 +18,13 @@ from .regex_judge import STRICT
 ARMS = ["base", "edited", "control"]
 CUES = ["sys_explicit", "user_explicit", "sys_hint", "user_hint", "sys_metr", "user_metr", "user_casual"]
 PLACEMENT = [("sys_explicit", "user_explicit"), ("sys_hint", "user_hint"), ("sys_metr", "user_metr")]
+ADDON = ["sys_explicit_noreason", "user_explicit_noreason", "sys_deploy", "sys_capability", "sys_neutral"]  # amendment 3
+ADDON_CONTRASTS = [("sys_explicit", "sys_explicit_noreason", "reasoning clause (system)"),
+                   ("user_explicit", "user_explicit_noreason", "reasoning clause (user)"),
+                   ("sys_deploy", "none", "deployment cue vs no cue"), ("sys_neutral", "none", "neutral sentence vs no cue"),
+                   ("sys_explicit_noreason", "sys_neutral", "safety-eval cue vs neutral sentence"),
+                   ("sys_capability", "sys_neutral", "capability-eval cue vs neutral sentence"),
+                   ("sys_explicit_noreason", "sys_capability", "safety vs capability eval framing")]
 MEAS = {"refuse": "refusal", "harm": "harm noticed", "vea": "VEA", "gaming": "eval gaming"}
 
 
@@ -41,7 +48,8 @@ def fmt(r):
 
 def main():
     rng = np.random.default_rng(2026)
-    rolls = {a: [r for r in load(ROOT / "rollouts" / f"olmo31_exp1_{a}" / "exp1.jsonl") if not r.get("error")] for a in ARMS}
+    rolls = {a: [r for f in ("exp1.jsonl", "exp1b.jsonl") for r in load(ROOT / "rollouts" / f"olmo31_exp1_{a}" / f) if not r.get("error")]
+             for a in ARMS}
     lab = {j["rollout_id"]: j for j in load(ROOT / "results" / "exp1_judge" / "labels.jsonl")}
     # cell[arm][(set, item)][condition][measure] -> list of 0/1
     cell = {a: defaultdict(lambda: defaultdict(lambda: defaultdict(list))) for a in ARMS}
@@ -125,7 +133,7 @@ def main():
               f"{'met' if lo >= 0.75 else 'not met'}. (Uninformative if the control arm's delta is near zero.)"]
 
     # rates by arm x condition
-    for s, conds in (("fortress_adv", ["none"] + CUES), ("fortress_benign", ["none", "sys_explicit", "user_casual"])):
+    for s, conds in (("fortress_adv", ["none"] + CUES + ADDON), ("fortress_benign", ["none", "sys_explicit", "user_casual"])):
         L += ["", f"## Rates by arm and condition ({s}, judged subset)", "",
               "| arm | condition | n | " + " | ".join(MEAS.values()) + " | regex VEA (all rollouts) |", "|---|---|---|" + "---|" * (len(MEAS) + 1)]
         for a in ARMS:
@@ -184,6 +192,22 @@ def main():
                 if r:
                     L.append(f"| {a} | {sc} vs {uc} | {MEAS[mm]} | {r[4]} | {fmt(r)} |")
     L += ["", "Note: the METR system and user cues have different wording, so that pair is not a pure placement contrast."]
+
+    # add-on conditions (amendment 3, exploratory)
+    L += ["", "## Add-on cue conditions (amendment 3, exploratory): condition A − condition B", "",
+          "| arm | contrast | A | B | measure | n | difference | 95% CI | p |", "|---|---|---|---|---|---|---|---|---|"]
+    for a in ARMS:
+        for ca, cb, name in ADDON_CONTRASTS:
+            for mm in ("refuse", "vea"):
+                r = paired(lambda k: m(a, k, [ca], mm), lambda k: m(a, k, [cb], mm), items(a))
+                if r:
+                    L.append(f"| {a} | {name} | {ca} | {cb} | {MEAS[mm]} | {r[4]} | {fmt(r)} |")
+    L += ["", "| contrast (edited − control) | condition | measure | n | difference | 95% CI | p |", "|---|---|---|---|---|---|---|"]
+    for c in ADDON:
+        for mm, f in (("refusal delta vs none", lambda a, k: delta(a, k, [c], "refuse")), ("VEA", lambda a, k: m(a, k, [c], "vea"))):
+            r = paired(lambda k: f("edited", k), lambda k: f("control", k), common)
+            if r:
+                L.append(f"| edited − control | {c} | {mm} | {r[4]} | {fmt(r)} |")
     (ROOT / "results" / "exp1_summary.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))
 

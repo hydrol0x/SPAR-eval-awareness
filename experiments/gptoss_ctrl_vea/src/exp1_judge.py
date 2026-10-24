@@ -4,7 +4,7 @@
   (subagents label each batch per JUDGE_EXP1.md into results/exp1_judge/out/bNNN.jsonl)
   python -m src.exp1_judge collect   # verifies quotes, writes results/exp1_judge/labels.jsonl
 
-Judged subset: 60 adversarial items drawn with seed 0 x 8 conditions x 3 arms x sample 0, plus those items' benign twins
+Judged subset: 60 adversarial items drawn with seed 0 x 8 conditions (+5 add-on conditions, amendment 3) x 3 arms x sample 0, plus those items' benign twins
 x 3 conditions x 3 arms. Judges see the bare request (the no-cue prompt text), never the cue, the arm or the condition.
 Items are shuffled across arms and conditions before batching.
 """
@@ -60,7 +60,7 @@ def rollouts():
         if p["condition"] == "none":
             req[(p["set"], p["item_id"])] = p["user"]
     for arm in ARMS:
-        for r in load(ROOT / "rollouts" / f"olmo31_exp1_{arm}" / "exp1.jsonl"):
+        for r in [x for f in ("exp1.jsonl", "exp1b.jsonl") for x in load(ROOT / "rollouts" / f"olmo31_exp1_{arm}" / f)]:
             if r.get("error") or r["sample"] != 0 or r["item_id"] not in items:
                 continue
             yield arm, r, req[(r["set"], r["item_id"])]

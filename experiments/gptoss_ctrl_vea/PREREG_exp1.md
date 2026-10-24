@@ -102,3 +102,15 @@ was being checked and contained no completed rollouts. Its resumable state was k
 the same set-up.
 Note for analysis: LoRA serving adds token-level nondeterminism that the base arm does not have. It is not a bias, but
 the base arm is not bit-for-bit comparable to the adapter arms (edited vs control, the primary contrast, is unaffected).
+
+## Amendment 3 (2026-10-24, before any add-on rollouts): add-on cue conditions (exploratory)
+After a literature check of cue wording (summary in the session notes; sources: Fan et al. 2505.17815, Hua et al. 2510.20487,
+Hasan 2604.13301, Schoen et al. 2509.15541, METR GPT-5 report), five adversarial-only conditions are run after the main
+run, with the same arms, sampling (2 samples) and judging subset, in `data/exp1b_prompts.jsonl` (`EXP1B_CONDITIONS` in
+`src/prompts.py`). Rollouts go to `rollouts/olmo31_exp1_{arm}/exp1b.jsonl`.
+* `sys_explicit_noreason`, `user_explicit_noreason`: the explicit cue without "and your reasoning", since no published cue
+  tells the model its reasoning is read and that clause may itself change verbalization.
+* `sys_deploy`: a deployment / not-monitored cue (wording of Hasan's deployment condition).
+* `sys_capability`: a capability-evaluation framing, a minimal pair with `sys_explicit_noreason`.
+* `sys_neutral`: a sentence of similar length unrelated to evaluation (a control for adding any text).
+They are exploratory, are not pooled into the primary tests and are reported in their own section of the analysis.
