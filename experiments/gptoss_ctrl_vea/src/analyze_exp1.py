@@ -8,6 +8,7 @@ The regex VEA flag (src/regex_judge.py STRICT, reasoning only) is computed on ev
 """
 from __future__ import annotations
 import argparse, re
+from pathlib import Path
 from collections import defaultdict
 
 import numpy as np
@@ -65,12 +66,13 @@ def fmt(r):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--regex", action="store_true", help="regex preliminary labels on every rollout")
+    ap.add_argument("--labels", default="labels.jsonl", help="label file in results/exp1_judge (e.g. labels_qwen.jsonl)")
     args = ap.parse_args()
     rng = np.random.default_rng(2026)
     rolls = {a: [r for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{a}").glob("exp1*.jsonl")) for r in load(f) if not r.get("error")]
              for a in ARMS}
     lab = ({r["rollout_id"]: regex_labels(r) for a in ARMS for r in rolls[a]} if args.regex
-           else {j["rollout_id"]: j for j in load(ROOT / "results" / "exp1_judge" / "labels.jsonl")})
+           else {j["rollout_id"]: j for j in load(ROOT / "results" / "exp1_judge" / args.labels)})
     # cell[arm][(set, item)][condition][measure] -> list of 0/1
     cell = {a: defaultdict(lambda: defaultdict(lambda: defaultdict(list))) for a in ARMS}
     rx = {a: defaultdict(lambda: defaultdict(list)) for a in ARMS}
@@ -112,7 +114,7 @@ def main():
     L = ["# Experiment 1: eval cues on FORTRESS, base vs CoT-controllability checkpoints (PREREG_exp1.md)", "",
          f"Rollouts: " + ", ".join(f"{a} {len(rolls[a])}" for a in ARMS) + ". Labelled ("
          + ("REGEX PRELIMINARY labels on every rollout and sample: refusal language in the response opening, STRICT VEA regex on the "
-            "reasoning, harm words anywhere; no partial-compliance or eval-gaming labels" if args.regex else "provisional judge exp1-v0.1")
+            "reasoning, harm words anywhere; no partial-compliance or eval-gaming labels" if args.regex else f"provisional judge, {args.labels}")
          + "): " + ", ".join(f"{a} {n_lab[a]}" for a in ARMS) + ".", "",
          "Paired by prompt; sign-flip permutation p; bootstrap 95% CI over prompts. Primary tests are Holm-corrected; "
          "everything else is exploratory.", ""]
@@ -230,7 +232,8 @@ def main():
             r = paired(lambda k: f("edited", k), lambda k: f("control", k), common)
             if r:
                 L.append(f"| edited − control | {c} | {mm} | {r[4]} | {fmt(r)} |")
-    (ROOT / "results" / ("exp1_summary_regex.md" if args.regex else "exp1_summary.md")).write_text("\n".join(L) + "\n")
+    (ROOT / "results" / ("exp1_summary_regex.md" if args.regex else "exp1_summary.md" if args.labels == "labels.jsonl"
+                         else f"exp1_summary_{Path(args.labels).stem}.md")).write_text("\n".join(L) + "\n")
     print("\n".join(L))
 
 
