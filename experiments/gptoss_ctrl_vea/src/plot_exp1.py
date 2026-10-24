@@ -86,9 +86,9 @@ def fig_rates(cell, rng):
     fig.suptitle("Experiment 1: every eval cue raises refusal and verbalized awareness, by the same amount in all three arms",
                  x=0.01, ha="left", fontsize=12, color=INK)
     fig.text(0.01, 0.005, "282 adversarial FORTRESS prompts (non-CBRNE) x 2 samples per arm and condition. Points: mean over prompts; "
-             "bars: 95% bootstrap CI over prompts. Regex labels are preliminary; the no-cue VEA rate (~25%) includes jailbreak suspicion "
+             "bars: 95% bootstrap CI over prompts.\nRegex labels are preliminary; the no-cue VEA rate (~25%) includes jailbreak suspicion "
              "(\"the user may be testing me\").", fontsize=7.5, color=INK2)
-    fig.tight_layout(rect=(0, 0.03, 1, 0.96)); fig.savefig(ROOT / "figures" / "exp1_rates.png", facecolor=SURF); plt.close(fig)
+    fig.tight_layout(rect=(0, 0.045, 1, 0.96)); fig.savefig(ROOT / "figures" / "exp1_rates.png", facecolor=SURF); plt.close(fig)
 
 
 def fig_contrasts(cell, rng):
