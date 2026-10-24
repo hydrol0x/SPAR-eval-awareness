@@ -54,14 +54,14 @@ def shorten(s, head=6000, tail=6000, win=500, max_win=6):
     return "".join(parts)
 
 
-def rollouts():
-    items, req = judged_items(), {}
+def rollouts(all_items=False):
+    items, req = (None if all_items else judged_items()), {}
     for p in load(ROOT / "data" / "exp1_prompts.jsonl"):
         if p["condition"] == "none":
             req[(p["set"], p["item_id"])] = p["user"]
     for arm in ARMS:
         for r in [x for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{arm}").glob("exp1*.jsonl")) for x in load(f)]:
-            if r.get("error") or r["sample"] != 0 or r["item_id"] not in items:
+            if r.get("error") or r["sample"] != 0 or (items is not None and r["item_id"] not in items) or (items is None and r["set"] != "fortress_adv"):
                 continue
             yield arm, r, req[(r["set"], r["item_id"])]
 
@@ -110,7 +110,7 @@ def judged_records(source):
 
 
 def collect(source="subagent"):
-    by_id = {r["rollout_id"]: (a, r) for a, r, _ in rollouts()}
+    by_id = {r["rollout_id"]: (a, r) for a, r, _ in rollouts(all_items=source == "qwen")}
     out, bad = [], 0
     for rid, j, origin in judged_records(source):
         if rid not in by_id:

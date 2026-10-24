@@ -146,3 +146,10 @@ measures give edited − control within ±3 pp, 95% CIs):
 * Suppression conditions (amendment 5): run for edited and control only (no base arm).
 * The provisional on-pod Qwen judge was cancelled: all rollouts will be judged with the team's judge prompts. Regex
   labels cannot score the suppression conditions (the model may mention the instruction itself), so those need the judge.
+
+## Amendment 7 (2026-10-24, before any judging): judge the suppression comparison only
+The provisional Qwen2.5-72B (FP8) judge (`pod/judge_exp1_vllm.py`, rules from `JUDGE_EXP1.md`) is run on the current
+pod right after the suppression runs (cheaper in total than a new, cheaper-per-hour pod, which would need a fresh 75 GB
+download). Scope: edited and control, sample 0, all 282 adversarial prompts, conditions sys_explicit_suppress,
+user_explicit_suppress, sys_suppress and their comparisons sys_explicit, user_explicit, none (3,384 rollouts). Nothing
+else is judged tonight. Analysis: amendment 5 key tests with judge labels (`--labels labels_qwen.jsonl`).
