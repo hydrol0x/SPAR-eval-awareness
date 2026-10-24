@@ -504,6 +504,12 @@ vs 28%, 0% on commas, capitals, JSON). Table: `results/exp3_summary.md`; figure:
    (c) train a content-type controllability checkpoint (e.g. "do not mention X" rules) and a silence-filtered checkpoint,
    to separate the two explanations raised by gpt-oss vs Olmo.
 
-**Cost.** RunPod ≈ $148 for the night (3× H200 at $15.87/h for ≈ 9.2 h, plus ≈ $7 of abandoned pod starts and ≈ 35 min of
+**Cost.** RunPod ≈ $150 for the night (3× H200 at $15.87/h for ≈ 9.3 h, including two short abandoned pod starts and ≈ 35 min of
 serving-check debugging). Judging ran on the same pod (no API cost). An attempt at Sonnet subagent judging stopped after a
 safety-filter flag on FORTRESS content and was not pursued.
+
+**Data notes.** Committed Exp1 rollouts omit vLLM's undivided `raw` text: it is exactly `reasoning + "</think>" + response`
+up to leading/trailing whitespace (a sample cut off before `</think>` keeps all its text in `reasoning`), so nothing is
+lost for judging. Each record keeps the arm, condition, item, sample, cue (`system_append`) and `prompt_sha`, so the exact
+prompt can be rebuilt from `data/exp1*_prompts.jsonl`. Experiment 3 rollouts (`rollouts/exp3_*`) keep reasoning and
+response in full. Judge outputs: `results/exp1_judge/qwen_raw_*.jsonl` (raw) and `labels_qwen.jsonl` (quote-verified).
