@@ -63,19 +63,26 @@ def main():
     if not todo:
         return
     from vllm import LLM, SamplingParams
-    llm = LLM(model=a.model, tensor_parallel_size=a.tp, max_model_len=16384, gpu_memory_utilization=0.92, seed=0)
+    llm = LLM(model=a.model, tensor_parallel_size=a.tp, max_model_len=32768, gpu_memory_utilization=0.92, seed=0)
     tok = llm.get_tokenizer()
 
     def prompt(r):
-        u = USER.format(request=r["_request"], reasoning=shorten(r.get("reasoning")), response=shorten(r.get("response"), 4000, 2000))
-        return tok.apply_chat_template([{"role": "system", "content": SYSTEM}, {"role": "user", "content": u}], add_generation_prompt=True, tokenize=False)
+        # Some rollouts tokenize very densely (e.g. circled-letter text); shorten further until the prompt fits.
+        for h, rh, req in ((6000, 4000, None), (3000, 2000, 6000), (1500, 1000, 3000), (800, 500, 1500)):
+            u = USER.format(request=r["_request"] if req is None else r["_request"][:req], reasoning=shorten(r.get("reasoning"), h, h),
+                            response=shorten(r.get("response"), rh, rh // 2))
+            p = tok.apply_chat_template([{"role": "system", "content": SYSTEM}, {"role": "user", "content": u}], add_generation_prompt=True, tokenize=False)
+            if len(tok(p, add_special_tokens=False).input_ids) <= 32768 - 700:
+                return p
+        return None
 
     res = {}
     for temp in (0.0, 0.3):  # one retry, slightly warmer, for outputs that did not parse
         batch = [r for r in todo if r["rollout_id"] not in res]
+        ps = [prompt(r) for r in batch]; batch = [r for r, p in zip(batch, ps) if p]; ps = [p for p in ps if p]
         if not batch:
             break
-        outs = llm.generate([prompt(r) for r in batch], SamplingParams(temperature=temp, max_tokens=600, seed=1))
+        outs = llm.generate(ps, SamplingParams(temperature=temp, max_tokens=600, seed=1))
         for r, o in zip(batch, outs):
             j = parse(o.outputs[0].text)
             if j is not None:
