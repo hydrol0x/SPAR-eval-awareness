@@ -137,3 +137,12 @@ cue under the suppressed cue, edited − control: does the behavioural response 
 ("aware but quiet on request")? Placement in the user turn matches the checkpoints' training format (rules in the user
 turn). Outcome in either direction is informative: no extra suppression means formatting control does not transfer to
 content suppression.
+
+## Amendment 6 (2026-10-24 04:20 UTC): scope cut to save cost
+Decided after seeing the regex preliminary results on the complete main run (primary contrasts null; alternative regex
+measures give edited − control within ±3 pp, 95% CIs):
+* Add-on conditions (amendment 3): complete for base; stopped part-way for edited and control (partial rollouts kept,
+  `exp1b_s*.jsonl`). The add-on edited − control contrasts are therefore on a subset of prompts and are exploratory.
+* Suppression conditions (amendment 5): run for edited and control only (no base arm).
+* The provisional on-pod Qwen judge was cancelled: all rollouts will be judged with the team's judge prompts. Regex
+  labels cannot score the suppression conditions (the model may mention the instruction itself), so those need the judge.
