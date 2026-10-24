@@ -82,3 +82,23 @@ over whole sequences the OLS slope is 1.04.
 New gate (`pod/validate_lora.py`): Deming slope in [0.9, 1.1]; excess discrepancy sd(lora gap)/sd(base gap) ≤ 1.15;
 summed-effect ratio in [0.85, 1.15]. Sensitivity requirement: the same check run with the lm_head LoRA left off must fail,
 or the run stops. Thresholds were fixed before the lm_head-off run was made.
+
+## Amendment 2 (2026-10-24, before any edited/control rollouts were kept)
+The lm_head-off sensitivity run also passed the amended gate, so the gate could not detect a missing lm_head LoRA. The
+diagnosis, on the same 8 validation items:
+* PEFT loads the lm_head LoRA correctly: same A/B as the hook file, |ΔW|/|W| = 1.08% as on the model card. Its lm_head
+  contribution recomputed by hand from PEFT's hidden states matches PEFT's own (r = 1.000; sd 0.007 nats per token).
+* Within one vLLM forward pass, vLLM's hidden states match PEFT's (cosine 0.9999). The hook adds exactly (h A^T) B^T, and the
+  resulting lm_head contribution matches PEFT's (r = 1.000, same sd). The hook is correct.
+* vLLM is deterministic without an adapter: base log-probs from two separate runs agree exactly. With the LoRA loaded it
+  is not: two runs of the same input differ by sd 0.022 nats per token. So "hook on" minus "hook off" taken from two separate
+  runs is mostly run-to-run noise, which is why the lm_head-off run could not fail the gate.
+* The attention/MLP part (vLLM LoRA without the hook vs PEFT with only the lm_head LoRA off, fp32 head) agrees to within
+  that noise: r = 0.85, summed-effect ratio 1.05.
+Decision: the serving set-up is validated. The lm_head part is verified exactly within a pass. The rest agrees within
+measured nondeterminism, with a summed-effect ratio of 1.05–1.07 (inside the ±15% band fixed in amendment 1).
+Generation for edited and control restarted at 00:08 UTC. A partial edited run started at 23:59 was stopped while this
+was being checked and contained no completed rollouts. Its resumable state was kept, and its rollouts are generated with
+the same set-up.
+Note for analysis: LoRA serving adds token-level nondeterminism that the base arm does not have. It is not a bias, but
+the base arm is not bit-for-bit comparable to the adapter arms (edited vs control, the primary contrast, is unaffected).
