@@ -48,7 +48,7 @@ def fmt(r):
 
 def main():
     rng = np.random.default_rng(2026)
-    rolls = {a: [r for f in ("exp1.jsonl", "exp1b.jsonl") for r in load(ROOT / "rollouts" / f"olmo31_exp1_{a}" / f) if not r.get("error")]
+    rolls = {a: [r for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{a}").glob("exp1*.jsonl")) for r in load(f) if not r.get("error")]
              for a in ARMS}
     lab = {j["rollout_id"]: j for j in load(ROOT / "results" / "exp1_judge" / "labels.jsonl")}
     # cell[arm][(set, item)][condition][measure] -> list of 0/1

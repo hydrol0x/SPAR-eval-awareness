@@ -60,7 +60,7 @@ def rollouts():
         if p["condition"] == "none":
             req[(p["set"], p["item_id"])] = p["user"]
     for arm in ARMS:
-        for r in [x for f in ("exp1.jsonl", "exp1b.jsonl") for x in load(ROOT / "rollouts" / f"olmo31_exp1_{arm}" / f)]:
+        for r in [x for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{arm}").glob("exp1*.jsonl")) for x in load(f)]:
             if r.get("error") or r["sample"] != 0 or r["item_id"] not in items:
                 continue
             yield arm, r, req[(r["set"], r["item_id"])]

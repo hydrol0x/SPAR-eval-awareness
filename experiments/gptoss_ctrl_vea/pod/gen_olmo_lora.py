@@ -103,6 +103,8 @@ def cmd_gen(a):
     items = [json.loads(l) for l in open(a.prompts) if l.strip()]
     if a.only_set:
         items = [it for it in items if it["set"] == a.only_set]
+    if a.shard:  # "k/n": every n-th prompt starting at k (rollout ids do not depend on the shard)
+        k, n = map(int, a.shard.split("/")); items = items[k::n]
     done = {json.loads(l)["rollout_id"] for l in out.open()} if out.exists() else set()
     todo = []
     for it in items:
@@ -143,6 +145,7 @@ def main():
     g.add_argument("--n-samples", type=int, default=2); g.add_argument("--sample-offset", type=int, default=0)
     g.add_argument("--temperature", type=float, default=0.6); g.add_argument("--top-p", type=float, default=0.95)
     g.add_argument("--max-tokens", type=int, default=16384); g.add_argument("--chunk", type=int, default=100000)
+    g.add_argument("--shard", default=None, help="k/n: generate only prompts k, k+n, k+2n, ...")
     sub.choices["logprobs"].add_argument("--items", required=True)
     sub.choices["logprobs"].add_argument("--no-head", action="store_true", help="leave the lm_head LoRA off (sensitivity check)")
     a = ap.parse_args()
