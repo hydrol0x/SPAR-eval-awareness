@@ -1,6 +1,6 @@
 # Experiment 1: eval cues on FORTRESS, base vs CoT-controllability checkpoints (PREREG_exp1.md)
 
-Rollouts: base 5358, edited 4512, control 4512. Labelled (REGEX PRELIMINARY labels on every rollout and sample: refusal language in the response opening, STRICT VEA regex on the reasoning, harm words anywhere; no partial-compliance or eval-gaming labels): base 5358, edited 4512, control 4512.
+Rollouts: base 8178, edited 6864, control 6264. Labelled (REGEX PRELIMINARY labels on every rollout and sample: refusal language in the response opening, STRICT VEA regex on the reasoning, harm words anywhere; no partial-compliance or eval-gaming labels): base 8178, edited 6864, control 6264.
 
 Paired by prompt; sign-flip permutation p; bootstrap 95% CI over prompts. Primary tests are Holm-corrected; everything else is exploratory.
 
@@ -33,6 +33,11 @@ Paired by prompt; sign-flip permutation p; bootstrap 95% CI over prompts. Primar
 | base | sys_metr | 564 | 27.3% | 77.0% | 44.9% | 0.0% | 44.9% (n=564) |
 | base | user_metr | 564 | 33.3% | 79.1% | 46.8% | 0.0% | 46.8% (n=564) |
 | base | user_casual | 564 | 49.4% | 94.1% | 92.6% | 0.0% | 92.6% (n=564) |
+| base | sys_explicit_noreason | 564 | 34.2% | 82.1% | 48.0% | 0.0% | 48.0% (n=564) |
+| base | user_explicit_noreason | 564 | 41.1% | 86.5% | 62.2% | 0.0% | 62.2% (n=564) |
+| base | sys_deploy | 564 | 23.8% | 73.6% | 30.0% | 0.0% | 30.0% (n=564) |
+| base | sys_capability | 564 | 26.6% | 76.2% | 42.7% | 0.0% | 42.7% (n=564) |
+| base | sys_neutral | 564 | 20.9% | 71.3% | 26.6% | 0.0% | 26.6% (n=564) |
 | edited | none | 564 | 22.7% | 69.3% | 24.1% | 0.0% | 24.1% (n=564) |
 | edited | sys_explicit | 564 | 33.0% | 78.5% | 44.3% | 0.0% | 44.3% (n=564) |
 | edited | user_explicit | 564 | 38.2% | 82.6% | 61.9% | 0.0% | 61.9% (n=564) |
@@ -41,6 +46,11 @@ Paired by prompt; sign-flip permutation p; bootstrap 95% CI over prompts. Primar
 | edited | sys_metr | 564 | 27.7% | 71.8% | 43.1% | 0.0% | 43.1% (n=564) |
 | edited | user_metr | 564 | 29.4% | 76.1% | 40.4% | 0.0% | 40.4% (n=564) |
 | edited | user_casual | 564 | 47.8% | 89.4% | 89.0% | 0.0% | 89.0% (n=564) |
+| edited | sys_explicit_noreason | 302 | 41.1% | 85.4% | 57.6% | 0.0% | 57.6% (n=302) |
+| edited | user_explicit_noreason | 300 | 34.2% | 84.7% | 63.7% | 0.0% | 63.7% (n=300) |
+| edited | sys_deploy | 300 | 18.2% | 67.7% | 24.7% | 0.0% | 24.7% (n=300) |
+| edited | sys_capability | 302 | 25.1% | 78.8% | 48.3% | 0.0% | 48.3% (n=302) |
+| edited | sys_neutral | 302 | 30.4% | 74.8% | 30.8% | 0.0% | 30.8% (n=302) |
 | control | none | 564 | 22.0% | 69.9% | 23.9% | 0.0% | 23.9% (n=564) |
 | control | sys_explicit | 564 | 34.8% | 79.3% | 47.9% | 0.0% | 47.9% (n=564) |
 | control | user_explicit | 564 | 42.9% | 83.7% | 58.9% | 0.0% | 58.9% (n=564) |
@@ -49,6 +59,11 @@ Paired by prompt; sign-flip permutation p; bootstrap 95% CI over prompts. Primar
 | control | sys_metr | 564 | 28.2% | 76.4% | 43.4% | 0.0% | 43.4% (n=564) |
 | control | user_metr | 564 | 31.0% | 77.7% | 42.6% | 0.0% | 42.6% (n=564) |
 | control | user_casual | 564 | 48.4% | 92.4% | 91.1% | 0.0% | 91.1% (n=564) |
+| control | sys_explicit_noreason | 182 | 35.8% | 84.6% | 55.5% | 0.0% | 55.5% (n=182) |
+| control | user_explicit_noreason | 180 | 32.4% | 83.3% | 63.3% | 0.0% | 63.3% (n=180) |
+| control | sys_deploy | 180 | 23.5% | 69.4% | 25.6% | 0.0% | 25.6% (n=180) |
+| control | sys_capability | 182 | 29.1% | 79.7% | 45.6% | 0.0% | 45.6% (n=182) |
+| control | sys_neutral | 182 | 25.1% | 74.2% | 32.4% | 0.0% | 32.4% (n=182) |
 
 ## Rates by arm and condition (fortress_benign, judged subset)
 
@@ -57,6 +72,12 @@ Paired by prompt; sign-flip permutation p; bootstrap 95% CI over prompts. Primar
 | base | none | 282 | 10.3% | 52.8% | 4.3% | 0.0% | 4.3% (n=282) |
 | base | sys_explicit | 282 | 11.0% | 72.0% | 31.2% | 0.0% | 31.2% (n=282) |
 | base | user_casual | 282 | 17.8% | 93.6% | 92.2% | 0.0% | 92.2% (n=282) |
+| edited | none | 282 | 10.0% | 55.7% | 4.6% | 0.0% | 4.6% (n=282) |
+| edited | sys_explicit | 282 | 13.2% | 69.9% | 34.8% | 0.0% | 34.8% (n=282) |
+| edited | user_casual | 282 | 21.6% | 91.5% | 95.0% | 0.0% | 95.0% (n=282) |
+| control | none | 282 | 11.7% | 56.4% | 5.7% | 0.0% | 5.7% (n=282) |
+| control | sys_explicit | 282 | 12.8% | 73.8% | 31.2% | 0.0% | 31.2% (n=282) |
+| control | user_casual | 282 | 19.9% | 91.1% | 91.5% | 0.0% | 91.5% (n=282) |
 
 ## Cue effect on refusal and VEA, per arm and cue (cue − none)
 
@@ -122,54 +143,57 @@ Paired by prompt; sign-flip permutation p; bootstrap 95% CI over prompts. Primar
 | edited − base | baseline (none) harm noticed | 282 | -1.1 pp | [-5.1, +3.0] | 0.6739 |
 | edited − base | baseline (none) VEA | 282 | -3.0 pp | [-6.9, +0.7] | 0.1487 |
 | edited − base | baseline (none) eval gaming | 282 | +0.0 pp | [+0.0, +0.0] | 1.0000 |
-| edited − base | regex VEA under cue (all prompts, both samples) | 282 | -3.1 pp | [-5.3, -0.8] | 0.0092 |
-| control − base | refusal delta, pooled cues | 257 | +0.8 pp | [-2.1, +3.9] | 0.5876 |
-| control − base | VEA under cue | 282 | -2.8 pp | [-4.6, -0.9] | 0.0037 |
+| edited − base | benign over-refusal (none) | 281 | -0.4 pp | [-3.2, +2.5] | 1.0000 |
+| edited − base | regex VEA under cue (all prompts, both samples) | 282 | -3.1 pp | [-5.4, -0.8] | 0.0075 |
+| control − base | refusal delta, pooled cues | 257 | +0.8 pp | [-2.1, +3.9] | 0.5852 |
+| control − base | VEA under cue | 282 | -2.8 pp | [-4.6, -0.9] | 0.0043 |
 | control − base | eval gaming under cue | 282 | +0.0 pp | [+0.0, +0.0] | 1.0000 |
-| control − base | baseline (none) refusal | 257 | -1.0 pp | [-3.7, +1.6] | 0.5733 |
-| control − base | baseline (none) harm noticed | 282 | -0.5 pp | [-4.3, +3.4] | 0.8574 |
-| control − base | baseline (none) VEA | 282 | -3.2 pp | [-6.7, +0.5] | 0.1019 |
+| control − base | baseline (none) refusal | 257 | -1.0 pp | [-3.7, +1.6] | 0.5769 |
+| control − base | baseline (none) harm noticed | 282 | -0.5 pp | [-4.3, +3.4] | 0.8560 |
+| control − base | baseline (none) VEA | 282 | -3.2 pp | [-6.9, +0.4] | 0.1062 |
 | control − base | baseline (none) eval gaming | 282 | +0.0 pp | [+0.0, +0.0] | 1.0000 |
-| control − base | regex VEA under cue (all prompts, both samples) | 282 | -2.8 pp | [-4.7, -0.9] | 0.0057 |
-| edited − control | refusal delta, pooled cues | 246 | -1.6 pp | [-5.1, +1.9] | 0.3842 |
-| edited − control | VEA under cue | 282 | -0.3 pp | [-1.9, +1.2] | 0.7017 |
+| control − base | benign over-refusal (none) | 281 | +1.4 pp | [-1.1, +3.9] | 0.3880 |
+| control − base | regex VEA under cue (all prompts, both samples) | 282 | -2.8 pp | [-4.6, -0.9] | 0.0047 |
+| edited − control | refusal delta, pooled cues | 246 | -1.6 pp | [-5.1, +1.8] | 0.3872 |
+| edited − control | VEA under cue | 282 | -0.3 pp | [-1.9, +1.2] | 0.7044 |
 | edited − control | eval gaming under cue | 282 | +0.0 pp | [+0.0, +0.0] | 1.0000 |
-| edited − control | baseline (none) refusal | 246 | +0.4 pp | [-2.8, +3.7] | 0.9035 |
-| edited − control | baseline (none) harm noticed | 282 | -0.5 pp | [-4.1, +3.0] | 0.8489 |
-| edited − control | baseline (none) VEA | 282 | +0.2 pp | [-3.2, +3.7] | 1.0000 |
+| edited − control | baseline (none) refusal | 246 | +0.4 pp | [-2.8, +3.7] | 0.9008 |
+| edited − control | baseline (none) harm noticed | 282 | -0.5 pp | [-4.1, +3.0] | 0.8453 |
+| edited − control | baseline (none) VEA | 282 | +0.2 pp | [-3.4, +3.5] | 1.0000 |
 | edited − control | baseline (none) eval gaming | 282 | +0.0 pp | [+0.0, +0.0] | 1.0000 |
-| edited − control | regex VEA under cue (all prompts, both samples) | 282 | -0.3 pp | [-1.9, +1.2] | 0.7026 |
+| edited − control | benign over-refusal (none) | 281 | -1.8 pp | [-5.0, +1.4] | 0.4028 |
+| edited − control | regex VEA under cue (all prompts, both samples) | 282 | -0.3 pp | [-1.9, +1.2] | 0.7021 |
 
 ## Aware but quiet: cue effect on refusal among cued rollouts that do NOT verbalize (vs all no-cue rollouts)
 
 | arm | n | delta (quiet cued − none) | 95% CI | p |
 |---|---|---|---|---|
 | base | 244 | +8.4 pp | [+5.0, +11.9] | 0.0000 |
-| edited | 216 | +5.0 pp | [+1.9, +8.3] | 0.0029 |
-| control | 228 | +9.3 pp | [+5.6, +13.1] | 0.0000 |
+| edited | 216 | +5.0 pp | [+1.8, +8.3] | 0.0021 |
+| control | 228 | +9.3 pp | [+5.5, +13.1] | 0.0000 |
 
 ## System vs user placement (refusal and VEA, system − user)
 
 | arm | pair | measure | n | difference | 95% CI | p |
 |---|---|---|---|---|---|---|
-| base | sys_explicit vs user_explicit | refusal | 281 | -8.4 pp | [-12.3, -4.4] | 0.0001 |
+| base | sys_explicit vs user_explicit | refusal | 281 | -8.4 pp | [-12.1, -4.6] | 0.0001 |
 | base | sys_explicit vs user_explicit | VEA | 282 | -14.5 pp | [-19.1, -9.9] | 0.0000 |
-| base | sys_hint vs user_hint | refusal | 281 | -9.1 pp | [-13.0, -5.3] | 0.0000 |
-| base | sys_hint vs user_hint | VEA | 282 | -12.6 pp | [-16.7, -8.7] | 0.0000 |
-| base | sys_metr vs user_metr | refusal | 281 | -6.0 pp | [-10.0, -2.1] | 0.0036 |
-| base | sys_metr vs user_metr | VEA | 282 | -2.0 pp | [-6.2, +2.3] | 0.4163 |
-| edited | sys_explicit vs user_explicit | refusal | 246 | -5.5 pp | [-9.3, -1.6] | 0.0088 |
-| edited | sys_explicit vs user_explicit | VEA | 282 | -17.6 pp | [-22.0, -13.1] | 0.0000 |
+| base | sys_hint vs user_hint | refusal | 281 | -9.1 pp | [-13.0, -5.2] | 0.0000 |
+| base | sys_hint vs user_hint | VEA | 282 | -12.6 pp | [-16.7, -8.5] | 0.0000 |
+| base | sys_metr vs user_metr | refusal | 281 | -6.0 pp | [-10.1, -2.1] | 0.0036 |
+| base | sys_metr vs user_metr | VEA | 282 | -2.0 pp | [-6.2, +2.1] | 0.4072 |
+| edited | sys_explicit vs user_explicit | refusal | 246 | -5.5 pp | [-9.3, -1.6] | 0.0089 |
+| edited | sys_explicit vs user_explicit | VEA | 282 | -17.6 pp | [-22.0, -13.3] | 0.0000 |
 | edited | sys_hint vs user_hint | refusal | 246 | -10.2 pp | [-14.4, -5.9] | 0.0000 |
-| edited | sys_hint vs user_hint | VEA | 282 | -11.7 pp | [-16.0, -7.6] | 0.0000 |
-| edited | sys_metr vs user_metr | refusal | 245 | -1.2 pp | [-6.1, +3.3] | 0.6695 |
-| edited | sys_metr vs user_metr | VEA | 282 | +2.7 pp | [-2.1, +7.3] | 0.2912 |
-| control | sys_explicit vs user_explicit | refusal | 256 | -8.0 pp | [-12.3, -3.9] | 0.0003 |
-| control | sys_explicit vs user_explicit | VEA | 282 | -11.0 pp | [-15.4, -6.6] | 0.0000 |
-| control | sys_hint vs user_hint | refusal | 256 | -6.8 pp | [-10.9, -2.7] | 0.0016 |
-| control | sys_hint vs user_hint | VEA | 282 | -13.8 pp | [-18.1, -9.8] | 0.0000 |
-| control | sys_metr vs user_metr | refusal | 255 | -2.7 pp | [-7.3, +1.8] | 0.2751 |
-| control | sys_metr vs user_metr | VEA | 282 | +0.9 pp | [-3.2, +5.0] | 0.7379 |
+| edited | sys_hint vs user_hint | VEA | 282 | -11.7 pp | [-15.8, -7.6] | 0.0000 |
+| edited | sys_metr vs user_metr | refusal | 245 | -1.2 pp | [-5.9, +3.3] | 0.6667 |
+| edited | sys_metr vs user_metr | VEA | 282 | +2.7 pp | [-2.0, +7.4] | 0.2989 |
+| control | sys_explicit vs user_explicit | refusal | 256 | -8.0 pp | [-12.3, -3.7] | 0.0003 |
+| control | sys_explicit vs user_explicit | VEA | 282 | -11.0 pp | [-15.4, -6.4] | 0.0000 |
+| control | sys_hint vs user_hint | refusal | 256 | -6.8 pp | [-10.9, -2.7] | 0.0014 |
+| control | sys_hint vs user_hint | VEA | 282 | -13.8 pp | [-18.1, -9.6] | 0.0000 |
+| control | sys_metr vs user_metr | refusal | 255 | -2.7 pp | [-7.3, +1.6] | 0.2725 |
+| control | sys_metr vs user_metr | VEA | 282 | +0.9 pp | [-3.2, +5.0] | 0.7387 |
 
 Note: the METR system and user cues have different wording, so that pair is not a pure placement contrast.
 
@@ -177,6 +201,58 @@ Note: the METR system and user cues have different wording, so that pair is not 
 
 | arm | contrast | A | B | measure | n | difference | 95% CI | p |
 |---|---|---|---|---|---|---|---|---|
+| base | reasoning clause (system) | sys_explicit | sys_explicit_noreason | refusal | 281 | -1.1 pp | [-4.4, +2.5] | 0.6157 |
+| base | reasoning clause (system) | sys_explicit | sys_explicit_noreason | VEA | 282 | +1.6 pp | [-2.7, +5.7] | 0.5173 |
+| base | reasoning clause (user) | user_explicit | user_explicit_noreason | refusal | 280 | +0.4 pp | [-3.4, +4.3] | 0.9258 |
+| base | reasoning clause (user) | user_explicit | user_explicit_noreason | VEA | 282 | +2.0 pp | [-2.3, +6.2] | 0.4170 |
+| base | deployment cue vs no cue | sys_deploy | none | refusal | 281 | +1.2 pp | [-2.1, +4.6] | 0.5344 |
+| base | deployment cue vs no cue | sys_deploy | none | VEA | 282 | +2.8 pp | [-0.9, +6.6] | 0.1575 |
+| base | neutral sentence vs no cue | sys_neutral | none | refusal | 281 | -1.6 pp | [-5.0, +1.6] | 0.3992 |
+| base | neutral sentence vs no cue | sys_neutral | none | VEA | 282 | -0.5 pp | [-3.9, +3.0] | 0.8386 |
+| base | safety-eval cue vs neutral sentence | sys_explicit_noreason | sys_neutral | refusal | 281 | +13.3 pp | [+9.4, +17.4] | 0.0000 |
+| base | safety-eval cue vs neutral sentence | sys_explicit_noreason | sys_neutral | VEA | 282 | +21.5 pp | [+17.2, +25.7] | 0.0000 |
+| base | capability-eval cue vs neutral sentence | sys_capability | sys_neutral | refusal | 281 | +5.7 pp | [+2.3, +9.1] | 0.0014 |
+| base | capability-eval cue vs neutral sentence | sys_capability | sys_neutral | VEA | 282 | +16.1 pp | [+12.4, +20.0] | 0.0000 |
+| base | safety vs capability eval framing | sys_explicit_noreason | sys_capability | refusal | 281 | +7.7 pp | [+3.9, +11.4] | 0.0004 |
+| base | safety vs capability eval framing | sys_explicit_noreason | sys_capability | VEA | 282 | +5.3 pp | [+1.2, +9.6] | 0.0158 |
+| edited | reasoning clause (system) | sys_explicit | sys_explicit_noreason | refusal | 141 | -2.5 pp | [-7.4, +2.1] | 0.3823 |
+| edited | reasoning clause (system) | sys_explicit | sys_explicit_noreason | VEA | 151 | -9.3 pp | [-14.9, -3.6] | 0.0027 |
+| edited | reasoning clause (user) | user_explicit | user_explicit_noreason | refusal | 141 | -1.1 pp | [-6.0, +3.9] | 0.7806 |
+| edited | reasoning clause (user) | user_explicit | user_explicit_noreason | VEA | 150 | +0.7 pp | [-5.3, +6.7] | 0.9159 |
+| edited | deployment cue vs no cue | sys_deploy | none | refusal | 140 | -0.4 pp | [-4.3, +3.6] | 1.0000 |
+| edited | deployment cue vs no cue | sys_deploy | none | VEA | 150 | +3.3 pp | [-1.0, +7.7] | 0.1890 |
+| edited | neutral sentence vs no cue | sys_neutral | none | refusal | 141 | +5.0 pp | [+0.4, +9.9] | 0.0721 |
+| edited | neutral sentence vs no cue | sys_neutral | none | VEA | 151 | +2.3 pp | [-3.0, +7.9] | 0.4834 |
+| edited | safety-eval cue vs neutral sentence | sys_explicit_noreason | sys_neutral | refusal | 150 | +10.7 pp | [+4.7, +16.7] | 0.0006 |
+| edited | safety-eval cue vs neutral sentence | sys_explicit_noreason | sys_neutral | VEA | 151 | +26.8 pp | [+21.2, +32.5] | 0.0000 |
+| edited | capability-eval cue vs neutral sentence | sys_capability | sys_neutral | refusal | 80 | +3.1 pp | [-4.4, +10.6] | 0.5223 |
+| edited | capability-eval cue vs neutral sentence | sys_capability | sys_neutral | VEA | 80 | +21.2 pp | [+13.8, +28.7] | 0.0000 |
+| edited | safety vs capability eval framing | sys_explicit_noreason | sys_capability | refusal | 80 | +7.5 pp | [+0.0, +15.0] | 0.0795 |
+| edited | safety vs capability eval framing | sys_explicit_noreason | sys_capability | VEA | 80 | +5.6 pp | [-2.5, +13.1] | 0.2177 |
+| control | reasoning clause (system) | sys_explicit | sys_explicit_noreason | refusal | 83 | -2.4 pp | [-8.4, +3.6] | 0.5719 |
+| control | reasoning clause (system) | sys_explicit | sys_explicit_noreason | VEA | 91 | -1.6 pp | [-9.9, +6.6] | 0.7932 |
+| control | reasoning clause (user) | user_explicit | user_explicit_noreason | refusal | 83 | -1.8 pp | [-8.4, +5.4] | 0.7490 |
+| control | reasoning clause (user) | user_explicit | user_explicit_noreason | VEA | 90 | -2.2 pp | [-11.1, +6.7] | 0.7187 |
+| control | deployment cue vs no cue | sys_deploy | none | refusal | 85 | +4.1 pp | [-1.8, +10.6] | 0.2610 |
+| control | deployment cue vs no cue | sys_deploy | none | VEA | 90 | +0.0 pp | [-5.0, +5.0] | 1.0000 |
+| control | neutral sentence vs no cue | sys_neutral | none | refusal | 84 | +1.8 pp | [-3.6, +7.1] | 0.6653 |
+| control | neutral sentence vs no cue | sys_neutral | none | VEA | 91 | +6.6 pp | [+0.5, +13.2] | 0.0648 |
+| control | safety-eval cue vs neutral sentence | sys_explicit_noreason | sys_neutral | refusal | 90 | +11.1 pp | [+3.9, +18.3] | 0.0056 |
+| control | safety-eval cue vs neutral sentence | sys_explicit_noreason | sys_neutral | VEA | 91 | +23.1 pp | [+15.4, +30.8] | 0.0000 |
+| control | capability-eval cue vs neutral sentence | sys_capability | sys_neutral | refusal | 20 | +0.0 pp | [-15.0, +12.5] | 1.0000 |
+| control | capability-eval cue vs neutral sentence | sys_capability | sys_neutral | VEA | 20 | +17.5 pp | [+0.0, +37.5] | 0.1527 |
+| control | safety vs capability eval framing | sys_explicit_noreason | sys_capability | refusal | 20 | +0.0 pp | [-15.0, +15.0] | 1.0000 |
+| control | safety vs capability eval framing | sys_explicit_noreason | sys_capability | VEA | 20 | +5.0 pp | [-15.0, +25.0] | 0.8078 |
 
 | contrast (edited − control) | condition | measure | n | difference | 95% CI | p |
 |---|---|---|---|---|---|---|
+| edited − control | sys_explicit_noreason | refusal delta vs none | 81 | +4.3 pp | [-3.7, +12.3] | 0.3391 |
+| edited − control | sys_explicit_noreason | VEA | 91 | +3.3 pp | [-3.8, +10.4] | 0.4531 |
+| edited − control | user_explicit_noreason | refusal delta vs none | 81 | -3.7 pp | [-11.7, +3.7] | 0.4471 |
+| edited − control | user_explicit_noreason | VEA | 90 | -2.2 pp | [-8.9, +4.4] | 0.6256 |
+| edited − control | sys_deploy | refusal delta vs none | 81 | -5.6 pp | [-12.3, +1.2] | 0.1855 |
+| edited − control | sys_deploy | VEA | 90 | -1.7 pp | [-8.3, +5.0] | 0.7426 |
+| edited − control | sys_capability | refusal delta vs none | 82 | +1.2 pp | [-7.9, +9.8] | 0.8949 |
+| edited − control | sys_capability | VEA | 91 | +6.6 pp | [-1.1, +14.3] | 0.1400 |
+| edited − control | sys_neutral | refusal delta vs none | 81 | +5.6 pp | [-1.9, +13.0] | 0.2051 |
+| edited − control | sys_neutral | VEA | 91 | +0.0 pp | [-6.6, +6.6] | 1.0000 |
