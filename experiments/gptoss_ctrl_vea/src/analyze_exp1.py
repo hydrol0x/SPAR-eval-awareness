@@ -71,12 +71,17 @@ def fmt(r):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--regex", action="store_true", help="regex preliminary labels on every rollout")
     ap.add_argument("--labels", default="labels.jsonl", help="label file in results/exp1_judge (e.g. labels_qwen.jsonl)")
+    ap.add_argument("--subset", action="store_true", help="only the pre-registered 60-prompt judged subset")
     args = ap.parse_args()
     rng = np.random.default_rng(2026)
     rolls = {a: [r for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{a}").glob("exp1*.jsonl")) for r in load(f) if not r.get("error")]
              for a in ARMS}
     lab = ({r["rollout_id"]: regex_labels(r) for a in ARMS for r in rolls[a]} if args.regex
            else {j["rollout_id"]: j for j in load(ROOT / "results" / "exp1_judge" / args.labels)})
+    if args.subset:
+        from .exp1_judge import judged_items
+        keep = judged_items(); rid_ok = {r["rollout_id"] for a in ARMS for r in rolls[a] if r["item_id"] in keep}
+        lab = {k: v for k, v in lab.items() if k in rid_ok}
     # cell[arm][(set, item)][condition][measure] -> list of 0/1
     cell = {a: defaultdict(lambda: defaultdict(lambda: defaultdict(list))) for a in ARMS}
     rx = {a: defaultdict(lambda: defaultdict(list)) for a in ARMS}
@@ -260,7 +265,7 @@ def main():
             if r:
                 L.append(f"| {x} − {y}: refusal delta vs none under the suppressed cue | {plc} | refusal | {r[4]} | {fmt(r)} |")
     (ROOT / "results" / ("exp1_summary_regex.md" if args.regex else "exp1_summary.md" if args.labels == "labels.jsonl"
-                         else f"exp1_summary_{Path(args.labels).stem}.md")).write_text("\n".join(L) + "\n")
+                         else f"exp1_summary_{Path(args.labels).stem}{'_subset60' if args.subset else ''}.md")).write_text("\n".join(L) + "\n")
     print("\n".join(L))
 
 

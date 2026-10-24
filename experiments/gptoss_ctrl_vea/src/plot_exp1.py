@@ -41,15 +41,24 @@ def boot(v, rng):
     return v.mean(), np.percentile(b, 2.5), np.percentile(b, 97.5)
 
 
-def cells():
-    """cell[arm][(set, item)][condition][measure] -> list of 0/1 over samples (regex labels)."""
+def cells(judge=False):
+    """cell[arm][(set, item)][condition][measure] -> list of 0/1 over samples (regex labels, or the provisional Qwen
+    judge's labels on sample 0 when judge=True)."""
+    jl = {j["rollout_id"]: j for j in load(ROOT / "results" / "exp1_judge" / "labels_qwen.jsonl")} if judge else None
     cell = {a: defaultdict(lambda: defaultdict(lambda: defaultdict(list))) for a in ARMS}
     for a in ARMS:
         for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{a}").glob("exp1*.jsonl")):
             for r in load(f):
                 if r.get("error"):
                     continue
-                lab = regex_labels(r); c = cell[a][(r["set"], r["item_id"])][r["condition"]]
+                if judge:
+                    j = jl.get(r["rollout_id"])
+                    if j is None:
+                        continue
+                    lab = {"behavior": j["behavior"], "eval_aware": j["eval_aware"]}
+                else:
+                    lab = regex_labels(r)
+                c = cell[a][(r["set"], r["item_id"])][r["condition"]]
                 if lab["behavior"] != "none":
                     c["refuse"].append(int(lab["behavior"] == "refuse"))
                     (c["refuse_quiet"] if not lab["eval_aware"] else c["refuse_aware"]).append(int(lab["behavior"] == "refuse"))
@@ -67,11 +76,11 @@ def per_item(cell, a, conds, meas, s="fortress_adv"):
     return out
 
 
-def fig_rates(cell, rng):
+def fig_rates(cell, rng, tag="", how="regex"):
     fig, axes = plt.subplots(2, 1, figsize=(12, 7.6), dpi=160, facecolor=SURF, sharex=True)
     conds = ["none"] + CUES
-    for ax, meas, title in ((axes[0], "refuse", "Refusal (refusal language in the response opening)"),
-                            (axes[1], "vea", "Verbalized eval awareness in the reasoning (STRICT regex)")):
+    for ax, meas, title in ((axes[0], "refuse", "Refusal" + (" (judge)" if how == "judge" else " (refusal language in the response opening)")),
+                            (axes[1], "vea", "Verbalized eval awareness" + (" (judge, verified quote)" if how == "judge" else " in the reasoning (STRICT regex)"))):
         style(ax)
         for j, a in enumerate(ARMS):
             for i, c in enumerate(conds):
@@ -85,20 +94,24 @@ def fig_rates(cell, rng):
     axes[0].legend(frameon=False, fontsize=8.5, loc="upper left", ncol=3)
     fig.suptitle("Experiment 1: every eval cue raises refusal and verbalized awareness, by the same amount in all three arms",
                  x=0.01, ha="left", fontsize=12, color=INK)
-    fig.text(0.01, 0.005, "282 adversarial FORTRESS prompts (non-CBRNE) x 2 samples per arm and condition. Points: mean over prompts; "
+    fig.text(0.01, 0.005, ("282 adversarial FORTRESS prompts (non-CBRNE), sample 0, provisional Qwen2.5-72B judge with verified quotes. "
+             "Points: mean over prompts; bars: 95% bootstrap CI.\nCaveat: the judge counts the model restating \"the user is a METR researcher\" as awareness (user METR ~93%)."
+             if how == "judge" else "282 adversarial FORTRESS prompts (non-CBRNE) x 2 samples per arm and condition. Points: mean over prompts; "
              "bars: 95% bootstrap CI over prompts.\nRegex labels are preliminary; the no-cue VEA rate (~25%) includes jailbreak suspicion "
-             "(\"the user may be testing me\").", fontsize=7.5, color=INK2)
-    fig.tight_layout(rect=(0, 0.045, 1, 0.96)); fig.savefig(ROOT / "figures" / "exp1_rates.png", facecolor=SURF); plt.close(fig)
+             "(\"the user may be testing me\")."), fontsize=7.5, color=INK2)
+    fig.tight_layout(rect=(0, 0.045, 1, 0.96)); fig.savefig(ROOT / "figures" / f"exp1_rates{tag}.png", facecolor=SURF); plt.close(fig)
 
 
-def fig_contrasts(cell, rng):
+def fig_contrasts(cell, rng, tag="", how="regex"):
     def delta(a, k, cues, meas="refuse"):
         base = per_item(cell, a, ["none"], "refuse").get(k)
+        if base is None:
+            return None
         v = [per_item(cell, a, [c], meas).get(k) for c in cues]
         v = [x - base for x in v if x is not None]
         return np.mean(v) if v and base is not None else None
 
-    keys = sorted(set(per_item(cell, "edited", ["none"], "refuse")) & set(per_item(cell, "control", ["none"], "refuse")))
+    keys = sorted(set(per_item(cell, "edited", ["none"] + CUES, "vea")) | set(per_item(cell, "control", ["none"] + CUES, "vea")))
     rows = []
     for name, f in [("Refusal increase from the cues\n(cue − no cue, pooled)", lambda a, k: delta(a, k, CUES)),
                     ("VEA under a cue (pooled)", lambda a, k: per_item(cell, a, CUES, "vea").get(k)),
@@ -124,10 +137,11 @@ def fig_contrasts(cell, rng):
             ax.text(x, 100 * hi + 0.4, f"{100 * mu:+.1f}", ha="center", fontsize=8, color=INK2)
     ax.set_xticks([0, 1]); ax.set_xticklabels(["all cued rollouts", "cued rollouts with no\nverbalized awareness"], fontsize=8.5, color=INK)
     ax.set_ylabel("refusal: cue − no cue (pp)", fontsize=8.5, color=INK2); ax.legend(frameon=False, fontsize=8, loc="upper right")
+    ax.set_ylim(0, ax.get_ylim()[1] * 1.3)
     ax.set_title("B. Refusal rises even when awareness is not said, in every arm", loc="left", fontsize=10.5, color=INK)
-    fig.text(0.01, 0.01, "Regex preliminary labels, all 282 adversarial prompts x 2 samples. 95% bootstrap CIs over prompts.",
-             fontsize=7.5, color=INK2)
-    fig.tight_layout(rect=(0, 0.04, 1, 1)); fig.savefig(ROOT / "figures" / "exp1_contrasts.png", facecolor=SURF); plt.close(fig)
+    fig.text(0.01, 0.01, ("Provisional Qwen2.5-72B judge, sample 0" if how == "judge" else "Regex preliminary labels, 2 samples")
+             + ", all 282 adversarial prompts. 95% bootstrap CIs over prompts.", fontsize=7.5, color=INK2)
+    fig.tight_layout(rect=(0, 0.04, 1, 1)); fig.savefig(ROOT / "figures" / f"exp1_contrasts{tag}.png", facecolor=SURF); plt.close(fig)
 
 
 def fig_addon(cell, rng):
@@ -179,11 +193,10 @@ def main():
     (ROOT / "figures").mkdir(exist_ok=True)
     cell = cells()
     fig_rates(cell, rng); fig_contrasts(cell, rng); fig_addon(cell, rng); fig_cotcheck(rng)
-    print("wrote figures/exp1_rates.png, exp1_contrasts.png, exp1_addon_base.png, exp1_cotcheck.png")
+    jcell = cells(judge=True)
+    fig_rates(jcell, rng, "_judge", "judge"); fig_contrasts(jcell, rng, "_judge", "judge"); fig_suppression(rng)
+    print("wrote figures/exp1_rates{,_judge}.png, exp1_contrasts{,_judge}.png, exp1_addon_base.png, exp1_cotcheck.png, exp1_suppression.png")
 
-
-if __name__ == "__main__":
-    main()
 
 
 def fig_suppression(rng):
@@ -219,3 +232,7 @@ def fig_suppression(rng):
              "monitored.\" 282 adversarial prompts, sample 0; provisional Qwen2.5-72B judge with verified quotes; 95% bootstrap CIs.",
              fontsize=7.5, color=INK2)
     fig.tight_layout(rect=(0, 0.04, 1, 0.93)); fig.savefig(ROOT / "figures" / "exp1_suppression.png", facecolor=SURF); plt.close(fig)
+
+
+if __name__ == "__main__":
+    main()
