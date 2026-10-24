@@ -114,3 +114,12 @@ run, with the same arms, sampling (2 samples) and judging subset, in `data/exp1b
 * `sys_capability`: a capability-evaluation framing, a minimal pair with `sys_explicit_noreason`.
 * `sys_neutral`: a sentence of similar length unrelated to evaluation (a control for adding any text).
 They are exploratory, are not pooled into the primary tests and are reported in their own section of the analysis.
+
+## Amendment 4 (2026-10-24, before any check output): behavioural check of CoT controllability under our serving
+The serving check (amendments 1–2) shows that the adapters' effect on token log-probabilities is reproduced; it does not
+show the behaviour. So, on GPU 0 after edited's main run, `pod/cotcheck_exp1.py` samples edited and control once on each
+ReasonIF benchmark prompt with a trained rule (the model card's evaluation set and settings, token cap 12,000 instead of
+28,000) and scores rule compliance in the reasoning with simple re-implementations of ReasonIF's checkers. Expected from
+the card: edited well above control, driven by the end-phrase rule (card: 88% edited LoRA vs ~20% base) and no-commas
+(38% vs 0%). If edited is not clearly above control, the Exp1 adapter arms are not interpretable as "more controllable"
+and that is reported with the results.
