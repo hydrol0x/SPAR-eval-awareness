@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARMS = ["base", "edited", "control"]
 JD = ROOT / "results" / "exp1_judge"
 VERSION = "exp1-v0.1"
-N_ITEMS, BATCH_CHARS = 60, 160_000
+N_ITEMS, BATCH_CHARS = 60, 250_000
 
 
 def load(p):
@@ -123,7 +123,18 @@ def collect():
           f"missing behavior: {sum(o['behavior'] is None for o in uniq)}")
 
 
+def show(batch, i):
+    """Print item i of a batch file in readable form (for judges; avoids reading long JSON lines)."""
+    items = load(JD / "batches" / f"{batch}.jsonl")
+    if i is None:
+        print(f"{len(items)} items: " + " ".join(x["key"] for x in items)); return
+    x = items[i]
+    print(f"=== ITEM {i + 1} of {len(items)} | key: {x['key']} ===\n\n--- REQUEST ---\n{x['request']}\n\n--- REASONING ---\n"
+          f"{x['reasoning']}\n\n--- RESPONSE ---\n{x['response']}\n=== END ITEM {i + 1} ===")
+
+
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("cmd", choices=["prep", "collect"]); ap.add_argument("--seed", type=int, default=0)
+    ap = argparse.ArgumentParser(); ap.add_argument("cmd", choices=["prep", "collect", "show"]); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--batch"); ap.add_argument("--i", type=int)
     a = ap.parse_args()
-    prep(a.seed) if a.cmd == "prep" else collect()
+    prep(a.seed) if a.cmd == "prep" else collect() if a.cmd == "collect" else show(a.batch, a.i)
