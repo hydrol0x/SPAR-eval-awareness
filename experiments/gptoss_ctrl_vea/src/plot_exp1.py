@@ -259,7 +259,8 @@ def fig_baselines(jcell, rng):
     fig.tight_layout(rect=(0, 0.04, 1, 1)); fig.savefig(ROOT / "figures" / "exp1_baselines_judge.png", facecolor=SURF); plt.close(fig)
 
 
-def fig_overview(jcell, rng):
+def fig_overview(jcell, rng, report=False, out=None):
+    """report=True: the mid-term report's Figure 1 (its own experiment numbering, no dates or README pointers)."""
     """One page: the night's four results."""
     import collections
     fig, axes = plt.subplots(2, 2, figsize=(14, 9.2), dpi=160, facecolor=SURF)
@@ -325,11 +326,12 @@ def fig_overview(jcell, rng):
     ax.axvline(0, color=INK2, lw=1); ax.set_yticks([2, 1, 0]); ax.set_yticklabels([NAME[a] for a in ARMS], fontsize=8.5, color=INK); ax.set_xlim(-8, 8)
     ax.set_xlabel("CoT rule compliance: cue − no cue (pp), ReasonIF 300 prompts", fontsize=8.5, color=INK2); ax.legend(frameon=False, fontsize=8, loc="upper right")
     ax.set_ylim(-0.6, 2.9)
-    ax.set_title("D. Experiment 3: an alignment-evaluation or monitoring system\nprompt does not change CoT controllability", loc="left", fontsize=10, color=INK)
-    fig.suptitle("Olmo-3.1-32B-Think, CoT-controllability checkpoints and eval awareness: results of 2026-10-23/24", x=0.01, ha="left", fontsize=12.5, color=INK)
+    ax.set_title(("D. Experiment 2" if report else "D. Experiment 3") + ": an alignment-evaluation or monitoring system\nprompt does not change CoT controllability", loc="left", fontsize=10, color=INK)
+    fig.suptitle("Olmo-3.1-32B-Think: CoT controllability and evaluation awareness" if report else
+                 "Olmo-3.1-32B-Think, CoT-controllability checkpoints and eval awareness: results of 2026-10-23/24", x=0.01, ha="left", fontsize=12.5, color=INK)
     fig.text(0.01, 0.005, "B, C: provisional Qwen2.5-72B judge (sample 0, verified quotes); A, D: rule checkers on the reasoning. 95% bootstrap CIs over prompts. "
-             "Details: README sections 14-16.", fontsize=7.5, color=INK2)
-    fig.tight_layout(rect=(0, 0.02, 1, 0.96)); fig.savefig(ROOT / "figures" / "night_overview.png", facecolor=SURF); plt.close(fig)
+             + ("" if report else "Details: README sections 14-16."), fontsize=7.5, color=INK2)
+    fig.tight_layout(rect=(0, 0.02, 1, 0.96)); fig.savefig(out or ROOT / "figures" / "night_overview.png", facecolor=SURF); plt.close(fig)
 
 
 if __name__ == "__main__":
