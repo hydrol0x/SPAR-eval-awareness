@@ -27,3 +27,5 @@
 [03:51:01] GPU 0 start gen_s_steer_control_1
 [03:59:21] GPU 1 done gen_s_steer_control_0
 [03:59:21] GPU 1 start gen_s_steer_edited_2
+[04:07:58] GPU 2 done gen_s_steer_edited_1
+[04:07:58] GPU 2 start gen_s_steer_control_2
