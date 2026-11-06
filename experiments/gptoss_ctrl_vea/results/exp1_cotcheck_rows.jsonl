@@ -388,4 +388,3 @@
 {"arm": "control", "idx": 296, "rule": "end_checker", "source": "gpqa", "pass": false, "finished": true, "n_tokens": 2177}
 {"arm": "control", "idx": 297, "rule": "json_format", "source": "gpqa", "pass": false, "finished": true, "n_tokens": 11660}
 {"arm": "control", "idx": 299, "rule": "json_format", "source": "arc", "pass": false, "finished": true, "n_tokens": 955}
-
