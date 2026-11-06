@@ -19,3 +19,7 @@
 [02:01:37] GPU 2 start cot_steer_control
 [02:01:52] GPU 0 done gen_d_base_1
 [02:01:52] GPU 0 start gen_s_steer_edited_0
+[02:17:06] GPU 1 done cot_steer_edited
+[02:17:06] GPU 1 start gen_s_steer_control_0
+[02:17:25] GPU 2 done cot_steer_control
+[02:17:25] GPU 2 start gen_s_steer_edited_1

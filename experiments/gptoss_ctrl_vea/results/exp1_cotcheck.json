@@ -16,5 +16,23 @@
   "json_format": 0.0,
   "no_comma": 0.0,
   "n": 195
+ },
+ "steer_edited": {
+  "all": 0.20512820512820512,
+  "finished": 0.6512820512820513,
+  "end_checker": 0.42857142857142855,
+  "english_capital": 0.06976744186046512,
+  "json_format": 0.02127659574468085,
+  "no_comma": 0.26785714285714285,
+  "n": 195
+ },
+ "steer_control": {
+  "all": 0.06666666666666667,
+  "finished": 0.7076923076923077,
+  "end_checker": 0.2653061224489796,
+  "english_capital": 0.0,
+  "json_format": 0.0,
+  "no_comma": 0.0,
+  "n": 195
  }
 }
