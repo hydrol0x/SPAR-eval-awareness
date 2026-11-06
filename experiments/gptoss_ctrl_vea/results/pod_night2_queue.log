@@ -47,3 +47,5 @@
 [08:38:31] GPU 2 start judge_new_1
 [08:40:46] GPU 1 done exp3p_base_2
 [08:40:46] GPU 1 start judge_new_2
+[09:38:05] GPU 0 done judge_new_0
+[09:38:05] GPU 0 start exp3p_edited_0
