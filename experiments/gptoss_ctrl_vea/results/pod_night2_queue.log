@@ -5,3 +5,5 @@
 [00:20:22] GPU 1 start gen_d_base_0
 [01:03:57] GPU 1 done gen_d_base_0
 [01:03:57] GPU 1 start judge_pilot
+[01:09:53] GPU 1 done judge_pilot
+[01:09:53] GPU 1 start gen_d_edited_1
