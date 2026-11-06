@@ -59,7 +59,8 @@ def rollouts(all_items=False):
     for p in load(ROOT / "data" / "exp1_prompts.jsonl"):
         if p["condition"] == "none":
             req[(p["set"], p["item_id"])] = p["user"]
-    for arm in ARMS:
+    arms = ARMS if not all_items else [d.name.removeprefix("olmo31_exp1_") for d in sorted((ROOT / "rollouts").glob("olmo31_exp1_*"))]
+    for arm in arms:  # all_items (pod judge): every arm, steering arms included
         for r in [x for f in sorted((ROOT / "rollouts" / f"olmo31_exp1_{arm}").glob("exp1*.jsonl")) for x in load(f)]:
             if r.get("error") or r["sample"] != 0 or (items is not None and r["item_id"] not in items):
                 continue
