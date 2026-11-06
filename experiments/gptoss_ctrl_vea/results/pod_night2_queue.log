@@ -1,0 +1,5 @@
+[00:19:23] GPU 1 start steer_validate
+[00:19:23] GPU 0 start gen_d_edited_0
+[00:19:23] GPU 2 start gen_d_control_0
+[00:20:22] GPU 1 done steer_validate
+[00:20:22] GPU 1 start gen_d_base_0

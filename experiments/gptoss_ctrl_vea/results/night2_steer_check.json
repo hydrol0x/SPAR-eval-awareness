@@ -1,0 +1,13 @@
+{
+ "tokens": 9600,
+ "deming_slope": 1.001930971734846,
+ "excess_discrepancy": 1.0644169052055183,
+ "sum_ratio": 1.0015141308928834,
+ "ols_slope": 0.9966197590715079,
+ "pearson_r": 0.9947091758878411,
+ "mean_abs_effect_peft": 0.16512039153491978,
+ "mean_abs_effect_vllm": 0.16522557665806076,
+ "sd_base_gap": 0.025396787416905868,
+ "sd_lora_gap": 0.027032769864465397,
+ "pass": true
+}
