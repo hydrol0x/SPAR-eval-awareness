@@ -18,6 +18,8 @@ import numpy as np
 
 
 def check(r, v):
+    if "steer" in r:  # steering check: the treated pass is called "steer"
+        r = {"base": r["base"], "lora": r["steer"]}; v = {"base": v["base"], "lora": v["steer"]}
     x, y, gb, gl = [], [], [], []
     for k in r["lora"]:
         n = min(len(r["lora"][k]), len(v["lora"][k]))

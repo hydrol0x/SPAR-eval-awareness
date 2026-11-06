@@ -4,6 +4,8 @@
   benign twins (282 prompts) x {none, sys_explicit, user_casual}
   add-on (amendment 3), data/exp1b_prompts.jsonl: adversarial (282) x 5 conditions (EXP1B_CONDITIONS)
   suppression (amendment 5), data/exp1c_prompts.jsonl: adversarial (282) x 3 conditions (EXP1C_CONDITIONS)
+  pressure (night 2), data/exp1d_prompts.jsonl: adversarial (282) x 4 conditions (EXP1D_CONDITIONS)
+  steering reference (night 2), data/exp1s_prompts.jsonl: adversarial (282) x 5 conditions (EXP1S_CONDITIONS)
 
 Source: data/graded_calib_prompts.jsonl (FORTRESS with the CBRNE risk domain dropped by label, CBRNE blocklist applied).
 
@@ -13,7 +15,7 @@ from __future__ import annotations
 import collections, json
 
 from .build_pilot_prompts import ROOT
-from .prompts import EXP1_CONDITIONS, EXP1B_CONDITIONS, EXP1C_CONDITIONS
+from .prompts import EXP1_CONDITIONS, EXP1B_CONDITIONS, EXP1C_CONDITIONS, EXP1D_CONDITIONS, EXP1S_CONDITIONS
 
 BENIGN_CONDITIONS = ("none", "sys_explicit", "user_casual")
 
@@ -43,6 +45,8 @@ def build(addon=False, conds_override=None, out_name=None):
 
 def main():
     build(); build(addon=True); build(addon=True, conds_override=EXP1C_CONDITIONS, out_name="exp1c_prompts.jsonl")
+    build(addon=True, conds_override=EXP1D_CONDITIONS, out_name="exp1d_prompts.jsonl")   # pressure test
+    build(addon=True, conds_override=EXP1S_CONDITIONS, out_name="exp1s_prompts.jsonl")   # steering arms' reference conditions
 
 
 if __name__ == "__main__":

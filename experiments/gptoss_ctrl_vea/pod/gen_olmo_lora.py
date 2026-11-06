@@ -58,18 +58,53 @@ def lm_head_hook(path):
     return install
 
 
+def steer_hook(path, scale, layer):
+    """Add scale * vector to the output of decoder layer `layer` at every position (model card recipe: layer 27)."""
+    def install(model):
+        import re, torch
+        from safetensors.torch import load_file
+        vec = load_file(path)["vector"].float()
+        hits = [(n, m) for n, m in model.named_modules() if re.search(rf"(^|\.)layers\.{layer}$", n)]
+        assert len(hits) == 1, f"layer {layer} not found uniquely: {[n for n, _ in hits]}"
+        name, mod = hits[0]
+        dev = next(mod.parameters()).device
+        add = (scale * vec).to(dev)
+        state = {"calls": 0}
+
+        def hook(module, args, output):
+            state["calls"] += 1
+            if not getattr(model, "_steer_on", True):
+                return output
+            if isinstance(output, tuple):
+                return (output[0] + add.to(output[0].dtype),) + tuple(output[1:])
+            return output + add.to(output.dtype)
+        mod.register_forward_hook(hook)
+        model._steer_on = True; model._steer_state = state
+        return f"steering hook on {name} ({type(mod).__name__}), |v|={vec.norm():.2f}, scale {scale}"
+    return install
+
+
+def steer_calls(llm):
+    return llm.apply_model(lambda m: getattr(m, "_steer_state", {}).get("calls", 0))
+
+
 def make_llm(a):
     from vllm import LLM
     kw = dict(model=a.model, dtype="bfloat16", max_model_len=a.max_len, gpu_memory_utilization=0.92, seed=0,
               enable_prefix_caching=True, tensor_parallel_size=a.tp)
     if a.lora:
         kw.update(enable_lora=True, max_lora_rank=32, max_loras=1)
+    if getattr(a, "steer", None):  # hooks only fire outside torch.compile / CUDA graphs (model card: eager mode)
+        # no prefix caching: a steered pass must not reuse KV computed without the vector (or vice versa)
+        kw.update(enforce_eager=True, compilation_config={"mode": 0}, enable_prefix_caching=False)
     llm = LLM(**kw)
     lreq = None
     if a.lora:
         from vllm.lora.request import LoRARequest
         lreq = LoRARequest(Path(a.lora).name, 1, a.lora)
         print(llm.apply_model(lm_head_hook(str(Path(a.lora) / "lm_head_lora.safetensors"))), flush=True)
+    if getattr(a, "steer", None):
+        print(llm.apply_model(steer_hook(a.steer, a.steer_scale, a.steer_layer)), flush=True)
     return llm, lreq
 
 
@@ -82,16 +117,21 @@ def cmd_logprobs(a):
     llm, lreq = make_llm(a); tok = llm.get_tokenizer()
     items = [json.loads(l) for l in open(a.items) if l.strip()]
     res = {}
-    for tag, req in (("base", None), ("lora", lreq)):
+    passes = (("base", None), ("lora", lreq))
+    if getattr(a, "steer", None):
+        passes = (("base", None), ("steer", None))
+    for tag, req in passes:
         if a.lora:
             set_head(llm, req is not None and not a.no_head)
+        if getattr(a, "steer", None):
+            llm.apply_model(lambda m, on=(tag == "steer"): setattr(m, "_steer_on", on))
         prompts, spans = [], []
         for it in items:
             p = tok(it["prompt_text"], add_special_tokens=False).input_ids; c = tok(it["completion_text"], add_special_tokens=False).input_ids
             prompts.append({"prompt_token_ids": p + c}); spans.append((len(p), p + c))
         outs = llm.generate(prompts, SamplingParams(max_tokens=1, prompt_logprobs=0, temperature=0.0), lora_request=req, use_tqdm=False)
         res[tag] = {it["id"]: [o.prompt_logprobs[j][ids[j]].logprob for j in range(s, len(ids))] for it, o, (s, ids) in zip(items, outs, spans)}
-        if not a.lora:
+        if not a.lora and not getattr(a, "steer", None):
             break
     Path(a.out).parent.mkdir(parents=True, exist_ok=True); Path(a.out).write_text(json.dumps(res))
     print(f"logprobs written: {a.out}", flush=True)
@@ -123,6 +163,9 @@ def cmd_gen(a):
                                  seed=int(hashlib.sha1(f"{it['set']}|{it['item_id']}|{it['condition']}|{s}".encode()).hexdigest()[:8], 16))
                   for it, s, _ in chunk]
         outs = llm.generate(prompts, params, lora_request=lreq, use_tqdm=False)
+        if a.steer and i == 0:
+            calls = steer_calls(llm); print(f"[{a.name}] steering hook calls so far: {calls}", flush=True)
+            assert all(c > 0 for c in calls), "steering hook never fired"
         with out.open("a") as fh:
             for (it, s, rid), p, o in zip(chunk, prompts, outs):
                 c = o.outputs[0]; ana, fin = parse(c.text)
@@ -140,6 +183,8 @@ def main():
         p = sub.add_parser(name)
         p.add_argument("--model", required=True); p.add_argument("--lora", default=None); p.add_argument("--tp", type=int, default=1)
         p.add_argument("--max-len", type=int, default=18432); p.add_argument("--out", required=True)
+        p.add_argument("--steer", default=None, help="steering vector .safetensors (key 'vector'), added at --steer-layer")
+        p.add_argument("--steer-scale", type=float, default=1.0); p.add_argument("--steer-layer", type=int, default=27)
     g = sub.choices["gen"]
     g.add_argument("--name", required=True); g.add_argument("--prompts", required=True); g.add_argument("--only-set", default=None)
     g.add_argument("--n-samples", type=int, default=2); g.add_argument("--sample-offset", type=int, default=0)

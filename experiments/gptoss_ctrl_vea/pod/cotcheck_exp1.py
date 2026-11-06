@@ -15,6 +15,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gen_olmo_lora as G  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
+# steering arms (model card): the edited step-492 vector at x1.5 and its norm-matched control vector at x4.5
+STEER = {"steer_edited": ("/workspace/adapters/steering/edited/step_000492/vector.safetensors", 1.5),
+         "steer_control": ("/workspace/adapters/steering/control/step_000492/vector.safetensors", 4.5)}
 TRAINED = {"punctuation:no_comma": "no_comma", "change_case:english_capital": "english_capital",
            "detectable_format:json_format": "json_format", "startend:end_checker": "end_checker"}
 
@@ -52,7 +55,9 @@ def main():
     out_rows = ROOT / "results" / "exp1_cotcheck_rows.jsonl"; summary = {}
     for arm in a.arms:
         class A:
-            model = "/workspace/models/base"; lora = None if arm == "base" else f"/workspace/lora_prep/{arm}"; tp = 1; max_len = 18432
+            model = "/workspace/models/base"; tp = 1; max_len = 18432
+            lora = None if arm == "base" or arm in STEER else f"/workspace/lora_prep/{arm}"
+            steer, steer_scale = STEER.get(arm, (None, 1.0)); steer_layer = 27
         llm, lreq = G.make_llm(A)
         if lreq is not None:
             G.set_head(llm, True)
