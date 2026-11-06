@@ -35,3 +35,5 @@
 [05:51:03] GPU 2 start judge_old_1
 [05:53:45] GPU 1 done gen_s_steer_edited_2
 [05:53:45] GPU 1 start judge_old_2
+[06:45:17] GPU 0 done judge_old_0
+[06:45:17] GPU 0 start exp3p_base_0
