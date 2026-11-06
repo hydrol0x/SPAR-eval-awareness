@@ -53,3 +53,9 @@
 [09:57:05] GPU 2 start exp3p_control_0
 [09:58:14] GPU 1 done judge_new_2
 [09:58:14] GPU 1 start exp3p_edited_1
+[10:38:00] GPU 0 done exp3p_edited_0
+[10:38:00] GPU 0 start exp3p_control_1
+[10:53:02] GPU 2 done exp3p_control_0
+[10:53:02] GPU 2 start exp3p_edited_2
+[10:57:37] GPU 1 done exp3p_edited_1
+[10:57:37] GPU 1 start exp3p_control_2
