@@ -59,3 +59,5 @@
 [10:53:02] GPU 2 start exp3p_edited_2
 [10:57:37] GPU 1 done exp3p_edited_1
 [10:57:37] GPU 1 start exp3p_control_2
+[11:33:21] GPU 0 done exp3p_control_1
+[11:33:21] GPU 0 worker exits
