@@ -11,3 +11,5 @@
 [01:14:17] GPU 0 start judge_pilot2
 [01:14:17] GPU 2 done gen_d_control_0
 [01:14:17] GPU 2 start gen_d_control_1
+[01:22:09] GPU 0 done judge_pilot2
+[01:22:09] GPU 0 start gen_d_base_1
