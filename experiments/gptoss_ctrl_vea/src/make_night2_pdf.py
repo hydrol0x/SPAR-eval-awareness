@@ -56,8 +56,9 @@ PAGES = [
      "The model card's steering recipe (layer 27, edited vector ×1.5, norm-matched control ×4.5), served in vLLM with a forward hook "
      "checked against the card's Transformers hook (slope 1.00, r = 0.995). The steering gain reproduces (20.5% vs 6.7%)."),
     ("night2_mechanism.png", "Mechanism test: the CoT-Control paper's situational-awareness prompts",
-     "Each prompt appended to the end of the user turn, as in the paper. None changes rule compliance in any arm; the "
-     "\"tries harder on the task\" explanation cannot be tested when the prompts have no effect to explain."),
+     "Each prompt appended to the end of the user turn, as in the paper. None changes rule compliance in any arm (all within "
+     "about ±2 pp), including the edited LoRA, which follows the trained rules 38% of the time with no prompt, so this is not a "
+     "floor effect. The \"tries harder on the task\" explanation cannot be tested when the prompts have no effect to explain."),
 ]
 
 
