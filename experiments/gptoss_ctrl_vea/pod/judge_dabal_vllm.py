@@ -143,6 +143,7 @@ def main():
     ap.add_argument("--files", nargs="+", required=True, help="rollout file stems, e.g. exp1 exp1b exp1c (shard files included)")
     ap.add_argument("--sets", nargs="+", default=["fortress_adv", "fortress_benign"]); ap.add_argument("--shard", default="0/1")
     ap.add_argument("--tag", default=""); ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--no-gaming", action="store_true", help="skip the eval-gaming template (PREREG_night2 amendment 2)")
     a = ap.parse_args()
     od = ROOT / "results" / "judge_dabal"; od.mkdir(parents=True, exist_ok=True)
     out = od / f"raw_{a.tag}s{a.shard.split('/')[0]}.jsonl"
@@ -184,7 +185,7 @@ def main():
         pv = [fit(lambda h, rh, r=r: VEA.format(cot=shorten(r.get("reasoning"), h, h))) for r in chunk]
         pg = [fit(lambda h, rh, r=r: GAMING.format(task=task_input(r)[:8000],
                                                    text=shorten((r.get("reasoning") or "") + "\n\n" + (r.get("response") or ""), h, h)))
-              for r in chunk]
+              for r in chunk] if not a.no_gaming else [None] * len(chunk)
         vea, gam = ask(pv), ask(pg)
         vfin, gfin = follow(pv, vea, "vea"), follow(pg, gam, "gaming")
         vp = [parse(v) if v else ("", None, False) for v in vea]
@@ -203,7 +204,7 @@ def main():
                                      "vea_reasoning": vp[i][0], "vea_quote_first": vp[i][1], "vea_parsed": vp[i][2],
                                      "vea_verdict": vf[i][0], "vea_quote": vf[i][1],
                                      "gaming_reasoning": g[0], "gaming_quote_first": g[1], "gaming_parsed": g[2],
-                                     "gaming_verdict": gf[0], "gaming_quote": gf[1],
+                                     "gaming_verdict": gf[0], "gaming_quote": gf[1], "gaming_judged": not a.no_gaming,
                                      "chain_reasoning": c[0], "chain_quote_first": c[1], "chain_verdict": cf[0], "chain_quote": cf[1]}) + "\n")
         print(f"[{a.tag}{a.shard}] {c0 + len(chunk)}/{len(todo)} (VEA+ {len(pos)} in this chunk)", flush=True)
 

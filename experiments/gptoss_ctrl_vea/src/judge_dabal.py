@@ -37,11 +37,11 @@ def collect():
             arm, r = by[j["rollout_id"]]
             cot = r.get("reasoning") or ""; full = cot + "\n" + (r.get("response") or "")
             vea = bool(j.get("vea_quote")) and occurs(j["vea_quote"], cot)
-            gam = bool(j.get("gaming_quote")) and occurs(j["gaming_quote"], full)
+            gam = (bool(j.get("gaming_quote")) and occurs(j["gaming_quote"], full)) if j.get("gaming_judged", True) else None
             ch = (bool(j.get("chain_quote")) and occurs(j["chain_quote"], cot)) if vea else None
             for k, raw, ok in (("vea", j.get("vea_quote"), vea), ("gaming", j.get("gaming_quote"), gam), ("chain", j.get("chain_quote"), ch)):
                 stats[k + "_raw"] += bool(raw); stats[k] += bool(ok)
-            stats["unparsed"] += not (j.get("vea_parsed") and j.get("gaming_parsed"))
+            stats["unparsed"] += not (j.get("vea_parsed") and (j.get("gaming_parsed") or not j.get("gaming_judged", True)))
             out[j["rollout_id"]] = {"rollout_id": j["rollout_id"], "arm": arm, "set": r["set"], "item_id": r["item_id"],
                                     "condition": r["condition"], "sample": r["sample"], "vea": vea, "gaming": gam, "chain": ch,
                                     "vea_quote": j.get("vea_quote"), "gaming_quote": j.get("gaming_quote"),

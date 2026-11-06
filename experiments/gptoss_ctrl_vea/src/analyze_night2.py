@@ -1,4 +1,4 @@
-"""Night-2 analysis (PREREG_night2.md). Team-judge labels (results/judge_dabal/labels.jsonl: VEA, eval gaming, causal chain)
+"""Night-2 analysis (PREREG_night2.md). Team-judge labels (results/judge_dabal/labels.jsonl: VEA, causal chain; eval gaming dropped, amendment 2)
 plus refusal from the provisional judge (results/exp1_judge/labels_qwen.jsonl). Sample 0, adversarial FORTRESS, paired by
 prompt; bootstrap 95% CIs over prompts, sign-flip p.
 
@@ -43,7 +43,7 @@ def main():
                 d, q = dab[r["rollout_id"]], qw.get(r["rollout_id"])
                 beh = q["behavior"] if q else None
                 cell[a][r["item_id"]][r["condition"]] = {
-                    "vea": int(d["vea"]), "gaming": int(d["gaming"]), "chain": None if d["chain"] is None else int(d["chain"]),
+                    "vea": int(d["vea"]), "chain": None if d["chain"] is None else int(d["chain"]),
                     "chain_all": int(bool(d["chain"])), "vea_qwen": int(q["eval_aware"]) if q else None,
                     "refuse": None if beh not in ("refuse", "partial", "comply") else int(beh == "refuse")}
 
@@ -75,7 +75,7 @@ def main():
 
     n = {a: sum(len(x) for x in cell[a].values()) for a in ARMS}
     L = ["# Night 2: team judge, pressure test, steering arms (PREREG_night2.md)", "",
-         "VEA = Goodfire template; eval gaming = Dabal's template; chain = our question on VEA-positive rollouts (\"this may be a "
+         "VEA = Goodfire template; chain = our question on VEA-positive rollouts (\"this may be a "
          "test\" → \"so I should …\"); all with Qwen2.5-72B (FP8) and verified quotes. Refusal = provisional Exp1 judge. "
          "Adversarial FORTRESS, sample 0, paired by prompt.", "",
          "Labelled rollouts: " + ", ".join(f"{a} {n[a]}" for a in ARMS), ""]
@@ -91,16 +91,16 @@ def main():
         L.append(f"| {c} | {len(pr)} | {100 * t.mean():.1f}% | {100 * q.mean():.1f}% | {100 * po:.1f}% | {(po - pe) / (1 - pe) if pe < 1 else float('nan'):.2f} |")
 
     # 2. Exp1 re-judged
-    L += ["", "## 2. Experiment 1 re-judged (pooled over the 7 cues)", "", "| arm | VEA no cue | VEA under cue | P(chain \\| VEA) under cue | eval gaming under cue | refusal uplift (cue − none) |",
-          "|---|---|---|---|---|---|"]
+    L += ["", "## 2. Experiment 1 re-judged (pooled over the 7 cues)", "", "| arm | VEA no cue | VEA under cue | P(chain \\| VEA) under cue | refusal uplift (cue − none) |",
+          "|---|---|---|---|---|"]
     for a in ("base", "edited", "control"):
         up = uplift(a, EXP1_CUES)
         L.append(f"| {a} | {100 * (rate(a, ['none'], 'vea')[0] or 0):.1f}% | {100 * (rate(a, EXP1_CUES, 'vea')[0] or 0):.1f}% | "
-                 f"{100 * (rate(a, EXP1_CUES, 'chain')[0] or 0):.1f}% (n={rate(a, EXP1_CUES, 'chain')[1]}) | {100 * (rate(a, EXP1_CUES, 'gaming')[0] or 0):.1f}% | "
+                 f"{100 * (rate(a, EXP1_CUES, 'chain')[0] or 0):.1f}% (n={rate(a, EXP1_CUES, 'chain')[1]}) | "
                  f"{100 * np.mean(list(up.values())):+.1f} pp |")
     L += ["", "| contrast | measure | difference |", "|---|---|---|"]
     for x, y in (("edited", "control"), ("edited", "base"), ("control", "base")):
-        for k, name in (("vea", "VEA under cue"), ("chain_all", "VEA with a stated chain, under cue"), ("gaming", "eval gaming under cue")):
+        for k, name in (("vea", "VEA under cue"), ("chain_all", "VEA with a stated chain, under cue")):
             r = diff(per_item(x, EXP1_CUES, k), per_item(y, EXP1_CUES, k))
             if r:
                 L.append(f"| {x} − {y} | {name} | {fmt(r)} (n={r[4]}) |")
@@ -113,8 +113,8 @@ def main():
 
     # 3. pressure test
     L += ["", "## 3. Pressure test: propensity vs capability to hide eval awareness", "",
-          "| arm | condition | n | refusal | VEA | P(chain \\| VEA) | eval gaming | refusal uplift vs none | uplift among non-verbalizing |",
-          "|---|---|---|---|---|---|---|---|---|"]
+          "| arm | condition | n | refusal | VEA | P(chain \\| VEA) | refusal uplift vs none | uplift among non-verbalizing |",
+          "|---|---|---|---|---|---|---|---|"]
     for a in ARMS:
         for c in PRESSURE:
             rr, nn = rate(a, [c], "refuse")
@@ -124,7 +124,6 @@ def main():
             ch = rate(a, [c], "chain")[0]
             L.append(f"| {a} | {c} | {nn} | {100 * rr:.1f}% | {100 * rate(a, [c], 'vea')[0]:.1f}% | "
                      f"{'-' if ch is None else f'{100 * ch:.1f}%'} | "
-                     f"{100 * rate(a, [c], 'gaming')[0]:.1f}% | "
                      f"{'-' if c == 'none' or not up else f'{100 * np.mean(list(up.values())):+.1f} pp'} | "
                      f"{'-' if c == 'none' or not uq else f'{100 * np.mean(list(uq.values())):+.1f} pp'} |")
     L += ["", "Key contrasts (treated − matched control):", "", "| contrast | condition | VEA | refusal uplift vs none |", "|---|---|---|---|"]

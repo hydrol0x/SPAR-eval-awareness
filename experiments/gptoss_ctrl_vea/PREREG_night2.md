@@ -69,3 +69,8 @@ test (edited, control).
   quotes that are ordinary careful reasoning; Qwen2.5-72B does not apply this template's narrow definition reliably. Gaming
   labels are still produced (for comparison with the team's runs) but are reported as unreliable with this judge and not
   used for conclusions; the causal-chain measure answers the "this is an eval → so I should be safe" question.
+
+## Amendment 2 (2026-11-06 ~02:40 UTC, before the full judge run started)
+* Eval gaming is dropped from the full re-judge (`--no-gaming`): pilot 2 showed the labels are not usable with Qwen2.5-72B
+  (amendment 1), and it doubled the judge's cost. Rollouts are kept, so gaming can be judged later with a stronger judge.
+  VEA and the causal chain are unchanged; the pilot's gaming labels remain in `raw_pilot2_s0.jsonl`.
